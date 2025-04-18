@@ -1,16 +1,18 @@
-def pixelate_image(image, pixel_size):
+import cv2
+
+def pixelateImage(image, pixelSize):
     height, width = image.shape[:2]
     # Resize the image to a smaller size
-    temp = cv2.resize(image, (width // pixel_size, height // pixel_size), interpolation=cv2.INTER_LINEAR)
+    temp = cv2.resize(image, (width // pixelSize, height // pixelSize), interpolation=cv2.INTER_LINEAR)
     # Resize it back to original size
     pixelated = cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
     return pixelated
 
-def load_image(image_path):
-    image = cv2.imread(image_path)
+def loadImage(imagePath):
+    image = cv2.imread(imagePath)
     if image is None:
         raise Exception("Image not found!")
     return image
 
-def save_image(image, output_path):
-    cv2.imwrite(output_path, image)
+def saveImage(image, outputPath):
+    cv2.imwrite(outputPath, image)

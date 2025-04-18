@@ -5,43 +5,91 @@ import cv2
 import numpy as np
 from tkinter import Tk, Button, Label, filedialog
 from PIL import Image, ImageTk
-from imageConverter import pixelate_image
+from imageConverter import pixelateImage
 
 class PixelGolfApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("Pixel Golf Image Converter")
+    def __init__(self, grand):
+        self.grand = grand
+        grand.title("Pixel Golf Image Converter")
 
-        self.label = Label(master, text="Upload a golf course image to pixelate:")
+        self.label = Label(grand, text="Upload a golf course image to pixelate:")
         self.label.pack()
 
-        self.upload_button = Button(master, text="Upload Image", command=self.upload_image)
-        self.upload_button.pack()
+        self.uploadButton = Button(grand, text="Upload Image", command=self.uploadImage)
+        self.uploadButton.pack()
 
-        self.process_button = Button(master, text="Process Image", command=self.process_image)
-        self.process_button.pack()
+        self.processButton = Button(grand, text="Process Image", command=self.processImage)
+        self.processButton.pack()
 
-        self.image_label = Label(master)
-        self.image_label.pack()
+        self.imageLabel = Label(grand)
+        self.imageLabel.pack()
 
-        self.image_path = None
+        self.imagePath = None
 
-    def upload_image(self):
-        self.image_path = filedialog.askopenfilename()
-        if self.image_path:
-            self.display_image(self.image_path)
+    def uploadImage(self):
+        self.imagePath = filedialog.askopenfilename()
+        if self.imagePath:
+            self.displayImage(self.imagePath)
 
-    def display_image(self, path):
+    def displayImage(self, path):
         image = Image.open(path)
         image = image.resize((300, 300), Image.ANTIALIAS)
         photo = ImageTk.PhotoImage(image)
-        self.image_label.config(image=photo)
-        self.image_label.image = photo
+        self.imageLabel.config(image=photo)
+        self.imageLabel.image = photo
+
+    def processImage(self):
+        if self.imagePath:
+            pixelatedImage = pixelateImage(self.imagePath)
+            self.displayImage(pixelatedImage)
+
+if __name__ == "__main__":
+    root = Tk()
+    app = PixelGolfApp(root)
+    root.mainloop()
+
+
+from tkinter import Tk, Button, Label, filedialog
+from PIL import Image, ImageTk
+import cv2
+import numpy as np
+from imageConverter import pixelateImage
+
+class PixelGolfApp:
+    def __init__(self, grand):
+        self.grand = grand
+        grand.title("Pixel Golf Image Converter")
+
+        self.label = Label(grand, text="Upload a golf course image:")
+        self.label.pack()
+
+        self.uploadButton = Button(grand, text="Upload Image", command=self.uploadImage)
+        self.uploadButton.pack()
+
+        self.processButton = Button(grand, text="Process Image", command=self.processImage)
+        self.processButton.pack()
+
+        self.imageLabel = Label(grand)
+        self.imageLabel.pack()
+
+        self.imagePath = None
+
+    def uploadImage(self):
+        self.imagePath = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
+        if self.imagePath:
+            self.displayImage(self.imagePath)
+
+    def displayImage(self, path):
+        img = Image.open(path)
+        img = img.resize((300, 300), Image.ANTIALIAS)
+        imgTinker = ImageTk.PhotoImage(img)
+        self.imageLabel.config(image=imgTinker)
+        self.imageLabel.image = imgTinker
 
     def process_image(self):
-        if self.image_path:
-            pixelated_image = pixelate_image(self.image_path)
-            self.display_image(pixelated_image)
+        if self.imagePath:
+            pixelatedImage = pixelateImage(self.imagePath)
+            self.displayImage(pixelatedImage)
 
 if __name__ == "__main__":
     root = Tk()
