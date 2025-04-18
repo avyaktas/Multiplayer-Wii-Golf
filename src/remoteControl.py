@@ -4,8 +4,8 @@ import time
 
 # phyphox configuration
 PP_ADDRESS = "http://192.168.2.100:8080"
-# Specify one or more acceleration channels; here we use only "accY"
-PP_CHANNELS = ["accY"]
+# Specify one or more acceleration channels; here we use all the axis
+PP_CHANNELS = ["accX","accY","accZ"]
 
 def getAccelerationList():
     """
@@ -28,11 +28,11 @@ def getAccelerationList():
 # Example usage:
 def remoteControl():
     # Let's collect 10 samples of acceleration readings.
-    all_samples = []
+    allSamples = []
     for _ in range(10):
         sample = getAccelerationList()
         print("Acceleration sample:", sample)
-        all_samples.append(sample)
+        allSamples.append(sample)
         time.sleep(0.1)  # Adjust the delay as needed
 
     print("Collected acceleration samples:")
