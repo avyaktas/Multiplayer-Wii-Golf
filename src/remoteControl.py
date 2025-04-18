@@ -1,6 +1,7 @@
 import requests
 import time
 
+
 # phyphox configuration
 def getPhyphoxAddress():
     default_port = "8080"
