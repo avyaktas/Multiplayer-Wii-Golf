@@ -33,15 +33,22 @@ class PixelGolfApp:
 
     def displayImage(self, path):
         image = Image.open(path)
-        image = image.resize((300, 300), Image.ANTIALIAS)
+        image = image.resize((300, 300), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(image)
         self.imageLabel.config(image=photo)
         self.imageLabel.image = photo
 
     def processImage(self):
         if self.imagePath:
-            pixelatedImage = pixelateImage(self.imagePath)
-            self.displayImage(pixelatedImage)
+            # Call pixelateImage with the file path and pixel size
+            pixelatedImage = pixelateImage(self.imagePath, pixelSize=5)
+            
+            # Save the pixelated image to a temporary file
+            tempPath = "temp_pixelated_image.jpg"
+            cv2.imwrite(tempPath, pixelatedImage)
+            
+            # Display the pixelated image
+            self.displayImage(tempPath)
 
 if __name__ == "__main__":
     root = Tk()
@@ -86,10 +93,17 @@ class PixelGolfApp:
         self.imageLabel.config(image=imgTinker)
         self.imageLabel.image = imgTinker
 
-    def process_image(self):
+    def processImage(self):
         if self.imagePath:
-            pixelatedImage = pixelateImage(self.imagePath)
-            self.displayImage(pixelatedImage)
+            # Call pixelateImage with the file path and pixel size
+            pixelatedImage = pixelateImage(self.imagePath, pixelSize=10)
+            
+            # Save the pixelated image to a temporary file
+            tempPath = "temp_pixelated_image.jpg"
+            cv2.imwrite(tempPath, pixelatedImage)
+            
+            # Display the pixelated image
+            self.displayImage(tempPath)
 
 if __name__ == "__main__":
     root = Tk()
