@@ -1,5 +1,5 @@
 from cmu_graphics import *
-
+from holeSketch import getHoleOutlines
 
 def onAppStart(app):
     app.startPage = True 
@@ -18,10 +18,33 @@ def redrawAll(app):
     elif app.hole1:
         drawHole1(app)
 
+def getHoleData():
+    imagePath = 'google earth.jpg'
+    outlines = getHoleOutlines(imagePath)
+    return outlines
+
+
 def drawHole1(app):
-    # Clear the background
-    drawRect(0, 0, app.width, app.height, fill='forestGreen')
-    drawLabel('Hole 1', app.width//2, 50, size=30, fill='white')
+    # Get the hole outlines
+    outlines = getHoleData()
+    
+    # Draw each feature in order (bottom to top layer)
+    if outlines['fairway']:
+        drawPolygon(*outlines['fairway'], fill='lightGreen')
+    
+    if outlines['sandtrap']:
+        drawPolygon(*outlines['sandtrap'], fill='tan')
+    
+    if outlines['green']:
+        drawPolygon(*outlines['green'], fill='green')
+    
+    if outlines['teebox']:
+        drawPolygon(*outlines['teebox'], fill='darkGreen')
+    
+    # Draw hole outline last to ensure it's visible
+    if outlines['hole']:
+        drawPolygon(*outlines['hole'], fill=None, border='white')
+
 
 def drawStart(app):
     # Draw background
@@ -51,3 +74,4 @@ def onMousePress(app, mouseX, mouseY):
         app.hole1 = True
 
 runApp()
+
