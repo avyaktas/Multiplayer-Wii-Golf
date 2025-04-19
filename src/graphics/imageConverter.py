@@ -1,4 +1,5 @@
 import cv2
+from tkinter import Tk
 
 def pixelateImage(imagePath, pixelSize):
     image = cv2.imread(imagePath)
