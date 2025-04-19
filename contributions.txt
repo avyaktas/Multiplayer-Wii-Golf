@@ -7,6 +7,7 @@ Example:
 
 tkolenci
     -Designed image Converter
+    
 koz
  - Wrote the Enemy class in game_logic.py
  - ...

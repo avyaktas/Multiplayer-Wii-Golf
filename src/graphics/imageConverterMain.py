@@ -1,13 +1,12 @@
-'''this file will have all the graphics related code, we can make another 
-for scanning the courses however, this will just contain the style which the
-user will see following the conversion. -tommy'''
+'''N.B., a marginal amoung this code is sourced was sourced from co-pilot,
+more details are available on particular lines. -tommy''' 
 import cv2
 import numpy as np
 from tkinter import Tk, Button, Label, filedialog
 from PIL import Image, ImageTk
-from imageConverter import pixelateImage
+from imageConverter import pixelateImage # all just simple imports 
 
-class PixelGolfApp:
+class PixelGolfApp: # Opens the main application window for the conversion
     def __init__(self, grand):
         self.grand = grand
         grand.title("Pixel Golf Image Converter")
