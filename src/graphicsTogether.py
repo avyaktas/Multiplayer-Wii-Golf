@@ -1,10 +1,10 @@
 from cmu_graphics import *
-
+from holeSketch import getHoleOutlines
 
 def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
-    app.width = 800
+    app.width = 1000
     app.height = 600
     # Play button dimensions
     app.playButtonX = app.width // 2
@@ -18,10 +18,34 @@ def redrawAll(app):
     elif app.hole1:
         drawHole1(app)
 
+def getHoleData():
+    imagePath = 'Google Earth.jpg'
+    outlines = getHoleOutlines(imagePath)
+    return outlines
+
+
 def drawHole1(app):
-    # Clear the background
-    drawRect(0, 0, app.width, app.height, fill='forestGreen')
-    drawLabel('Hole 1', app.width//2, 50, size=30, fill='white')
+    outlines = getHoleData()
+    print(outlines)
+    # Define the drawing order and properties for each feature
+    for feature in outlines:
+        # Draw each feature in order (bottom to top layer)
+        if feature == 'fairway':
+            drawPolygon(*outlines['fairway'], fill='lightGreen')
+        
+        if feature == 'sandtrap':
+            drawPolygon(*outlines['sandtrap'], fill='tan')
+        
+        if feature == 'green':
+            drawPolygon(*outlines['green'], fill='green')
+        
+        if feature == 'teebox':
+            drawPolygon(*outlines['teebox'], fill='darkGreen')
+        
+        # Draw hole outline last to ensure it's visible
+        if feature == 'hole':
+            drawPolygon(*outlines['hole'], fill=None, border='white')
+
 
 def drawStart(app):
     # Draw background
@@ -51,3 +75,4 @@ def onMousePress(app, mouseX, mouseY):
         app.hole1 = True
 
 runApp()
+
