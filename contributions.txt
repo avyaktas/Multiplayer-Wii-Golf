@@ -6,7 +6,7 @@ https://www.cs.cmu.edu/~112/notes/term-project-and-hack112.html#personal-contrib
 Example: 
 
 tkolenci
-
+    -Designed image Converter
 koz
  - Wrote the Enemy class in game_logic.py
  - ...

@@ -1,0 +1,2 @@
+from cmu_graphics import *
+drawRect(0, 0, 100, 100, fill='red')
