@@ -1,4 +1,4 @@
-import requests
+import requests 
 import time
 
 
@@ -11,7 +11,7 @@ def getPhyphoxAddress():
 
 PP_ADDRESS = getPhyphoxAddress()
 # Update channels to include all directions
-PP_CHANNELS = ["accX", "accY", "accZ"]
+PP_CHANNELS = ["magX", "magY", "magZ"]
 
 def getAccelerationList():
     """
@@ -43,7 +43,7 @@ def remoteControl():
         if magnitude is not None:
             samples.append(magnitude)
             maxAcceleration = max(maxAcceleration, magnitude)
-        time.sleep(0.1)  # Adjust the delay as needed
+        time.sleep(1)  # Adjust the delay as needed
     
     print(f"Maximum acceleration magnitude: {max_acceleration} m/s²")
     print("All samples:", samples)
