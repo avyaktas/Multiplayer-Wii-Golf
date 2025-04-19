@@ -19,34 +19,30 @@ def redrawAll(app):
         drawHole1(app)
 
 def getHoleData():
-    imagePath = 'Annotated Hle.jpg'
+    imagePath = 'Hole.jpg'
     outlines = getHoleOutlines(imagePath)
     return outlines
 
 def flatten(points):
-    return [int(coord) for point in points for coord in point]
+    return [coord for point in points for coord in point]
 
 def drawHole1(app):
     outlines = getHoleData()
     print(outlines)
-    # Define the drawing order and properties for each feature
-    for feature in outlines:
-        # Draw each feature in order (bottom to top layer)
-        if feature == 'fairway':
-            drawPolygon(*flatten(outlines['fairway']), fill='lightGreen')
-        
-        if feature == 'sandtrap':
-            drawPolygon(*flatten(outlines['sandtrap']), fill='tan')
-        
-        if feature == 'green':
-            drawPolygon(*flatten(outlines['green']), fill='green')
-        
-        if feature == 'teebox':
-            drawPolygon(*flatten(outlines['teebox']), fill='darkGreen')
-        
-        # Draw hole outline last to ensure it's visible
-        if feature == 'hole':
-            drawPolygon(*flatten(outlines['hole']), fill=None, border='white')
+
+    def drawPolygons(polygons, fill=None, border=None):
+        for poly in polygons:
+            drawPolygon(*flatten(poly), fill=fill, border=border)
+
+    if 'outline' in outlines: 
+        drawPolygons(outlines['outline'], fill = 'green')
+    
+    drawPolygons(outlines['fairway'], fill='limeGreen')
+    drawPolygons(outlines['sandtrap'], fill='tan')
+    drawPolygons(outlines['green'], fill='lightGreen')
+    drawPolygons(outlines['teebox'], fill='lightGreen')
+    if 'hole' in outlines:
+        drawPolygons(outlines['hole'], fill=None, border='white')
 
 
 def drawStart(app):
