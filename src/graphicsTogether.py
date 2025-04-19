@@ -6,6 +6,10 @@ def onAppStart(app):
     app.hole1 = False
     app.width = 1000
     app.height = 600
+    app.scrollX = 0
+    app.scrollY = 0
+    app.courseWidth = 2000
+    app.courseHeight = 1200
     # Play button dimensions
     app.playButtonX = app.width // 2
     app.playButtonY = app.height // 2
@@ -30,19 +34,23 @@ def drawHole1(app):
     outlines = getHoleData()
     print(outlines)
 
-    def drawPolygons(polygons, fill=None, border=None):
+    def drawCoursePolygon(app, poly, fill, border): 
+        shifted = [(x - app.scrollX, y- app.scrollY) for (x, y) in poly]
+        drawPolygon(*flatten(shifted), fill = fill, border = border)
+    
+    def drawPolygons(app, polygons, fill, border=None):
         for poly in polygons:
-            drawPolygon(*flatten(poly), fill=fill, border=border)
+            drawCoursePolygon(app, poly, fill, border)
 
     if 'outline' in outlines: 
-        drawPolygons(outlines['outline'], fill = 'green')
+        drawPolygons(app, outlines['outline'], fill = 'green', border = 'white')
     
-    drawPolygons(outlines['fairway'], fill='limeGreen')
-    drawPolygons(outlines['sandtrap'], fill='tan')
-    drawPolygons(outlines['green'], fill='lightGreen')
-    drawPolygons(outlines['teebox'], fill='lightGreen')
+    drawPolygons(app, outlines['fairway'], fill='limeGreen', border = None)
+    drawPolygons(app, outlines['sandtrap'], fill='tan', border = None)
+    drawPolygons(app, outlines['green'], fill='lightGreen', border = None)
+    drawPolygons(app, outlines['teebox'], fill='lightGreen', border = None)
     if 'hole' in outlines:
-        drawPolygons(outlines['hole'], fill=None, border='white')
+        drawPolygons(app, outlines['hole'], fill=None, border='white')
 
 
 def drawStart(app):
@@ -71,6 +79,18 @@ def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
         app.hole1 = True
+
+def onKeyHold(app, keys): 
+    move = 10
+    if 'left' in keys: app.scrollX -= move
+    if 'right' in keys: app.scrollX += move
+    if 'up' in keys: app.scrollY -= move
+    if 'down' in keys: app.scrollY += move
+
+    app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
+    app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
+
+
 
 runApp()
 

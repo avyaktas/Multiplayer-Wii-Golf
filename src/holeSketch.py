@@ -72,7 +72,7 @@ def getHoleOutlines(imagePath):
         return allContours
     
     origW, origH = img.shape[1], img.shape[0]
-    canvasW, canvasH = 1000, 600
+    canvasW, canvasH = 2000, 1200
     
     holeContoursRaw = getAllContours(holeMask)
     holeContours = [scaleAndCenterPoints(c, origW, origH, canvasW, canvasH) for c in holeContoursRaw]
