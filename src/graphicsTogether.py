@@ -28,7 +28,7 @@ def drawStart(app):
     drawRect(0, 0, app.width, app.height, fill='darkGreen')
     
     # Draw title
-    drawLabel('Wii Golf 112, app.width//2, 150', 
+    drawLabel('Wii Golf 112', app.width//2, 150, 
              size=50, fill='white', bold=True)
     
     # Draw play button
