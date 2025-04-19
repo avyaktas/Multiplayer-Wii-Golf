@@ -17,6 +17,7 @@ def redrawAll(app):
         drawStart(app)
     elif app.hole1:
         drawHole1(app)
+    
 
 def getHoleData():
     imagePath = 'Hole.jpg'
@@ -27,6 +28,7 @@ def flatten(points):
     return [coord for point in points for coord in point]
 
 def drawHole1(app):
+    drawRect(0,0, app.width, app.height, fill = 'Blue')
     outlines = getHoleData()
     print(outlines)
 
