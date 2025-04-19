@@ -3,7 +3,7 @@ from cmu_graphics import *
 import cv2
 import numpy as np
 
-imagePath='google earth.jpg'
+imagePath = 'google earth.jpg'
 
 def getHoleOutlines(imagePath):
     # Read the image
@@ -61,4 +61,3 @@ def getHoleOutlines(imagePath):
         'green': greenOutline
     }
 
-print(getHoleOutlines(imagePath))

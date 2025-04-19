@@ -7,6 +7,9 @@ Example:
 
 tkolenci
     -Designed image Converter
+Nelson
+    -Perliminary accelerometer api
+    -holeSketch and graphicsTogether(perlimary startPage and hole1)
 koz
  - Wrote the Enemy class in game_logic.py
  - ...

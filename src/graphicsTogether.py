@@ -4,7 +4,7 @@ from holeSketch import getHoleOutlines
 def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
-    app.width = 800
+    app.width = 1000
     app.height = 600
     # Play button dimensions
     app.playButtonX = app.width // 2
@@ -19,31 +19,32 @@ def redrawAll(app):
         drawHole1(app)
 
 def getHoleData():
-    imagePath = 'google earth.jpg'
+    imagePath = 'Google Earth.jpg'
     outlines = getHoleOutlines(imagePath)
     return outlines
 
 
 def drawHole1(app):
-    # Get the hole outlines
     outlines = getHoleData()
-    
-    # Draw each feature in order (bottom to top layer)
-    if outlines['fairway']:
-        drawPolygon(*outlines['fairway'], fill='lightGreen')
-    
-    if outlines['sandtrap']:
-        drawPolygon(*outlines['sandtrap'], fill='tan')
-    
-    if outlines['green']:
-        drawPolygon(*outlines['green'], fill='green')
-    
-    if outlines['teebox']:
-        drawPolygon(*outlines['teebox'], fill='darkGreen')
-    
-    # Draw hole outline last to ensure it's visible
-    if outlines['hole']:
-        drawPolygon(*outlines['hole'], fill=None, border='white')
+    print(outlines)
+    # Define the drawing order and properties for each feature
+    for feature in outlines:
+        # Draw each feature in order (bottom to top layer)
+        if feature == 'fairway':
+            drawPolygon(*outlines['fairway'], fill='lightGreen')
+        
+        if feature == 'sandtrap':
+            drawPolygon(*outlines['sandtrap'], fill='tan')
+        
+        if feature == 'green':
+            drawPolygon(*outlines['green'], fill='green')
+        
+        if feature == 'teebox':
+            drawPolygon(*outlines['teebox'], fill='darkGreen')
+        
+        # Draw hole outline last to ensure it's visible
+        if feature == 'hole':
+            drawPolygon(*outlines['hole'], fill=None, border='white')
 
 
 def drawStart(app):
