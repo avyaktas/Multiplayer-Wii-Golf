@@ -1,5 +1,7 @@
 from cmu_graphics import *
-Rect(0, 0, 100, 100, fill='red')
 
+def redrawAll(app):
+    drawRect(0, 0, 100, 100, fill='red')
+
+runApp(redrawAll=redrawAll)
 cmu_graphics.run()
-
