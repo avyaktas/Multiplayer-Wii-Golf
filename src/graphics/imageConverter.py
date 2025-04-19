@@ -18,5 +18,7 @@ def loadImage(imagePath):
         raise Exception("Image not found!")
     return image
 
-def saveImage(image, outputPath):
-    cv2.imwrite(outputPath, image)
+if __name__ == "__main__":
+    root = Tk()
+    app = PixelGolfApp(root)
+    root.mainloop()
