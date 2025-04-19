@@ -19,10 +19,12 @@ def redrawAll(app):
         drawHole1(app)
 
 def getHoleData():
-    imagePath = 'Google Earth.jpg'
+    imagePath = 'Annotated Hle.jpg'
     outlines = getHoleOutlines(imagePath)
     return outlines
 
+def flatten(points):
+    return [int(coord) for point in points for coord in point]
 
 def drawHole1(app):
     outlines = getHoleData()
@@ -31,20 +33,20 @@ def drawHole1(app):
     for feature in outlines:
         # Draw each feature in order (bottom to top layer)
         if feature == 'fairway':
-            drawPolygon(*outlines['fairway'], fill='lightGreen')
+            drawPolygon(*flatten(outlines['fairway']), fill='lightGreen')
         
         if feature == 'sandtrap':
-            drawPolygon(*outlines['sandtrap'], fill='tan')
+            drawPolygon(*flatten(outlines['sandtrap']), fill='tan')
         
         if feature == 'green':
-            drawPolygon(*outlines['green'], fill='green')
+            drawPolygon(*flatten(outlines['green']), fill='green')
         
         if feature == 'teebox':
-            drawPolygon(*outlines['teebox'], fill='darkGreen')
+            drawPolygon(*flatten(outlines['teebox']), fill='darkGreen')
         
         # Draw hole outline last to ensure it's visible
         if feature == 'hole':
-            drawPolygon(*outlines['hole'], fill=None, border='white')
+            drawPolygon(*flatten(outlines['hole']), fill=None, border='white')
 
 
 def drawStart(app):
