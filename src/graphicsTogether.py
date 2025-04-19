@@ -12,7 +12,7 @@ def onAppStart(app):
     app.playButtonWidth = 200
     app.playButtonHeight = 60
 
-def reDrawAll(app):
+def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
