@@ -1,5 +1,6 @@
 from cmu_graphics import *
 from holeSketch import getHoleOutlines
+import math
 
 def onAppStart(app):
     app.startPage = True 
@@ -8,20 +9,38 @@ def onAppStart(app):
     app.height = 600
     app.scrollX = 0
     app.scrollY = 0
-    app.courseWidth = 2000
-    app.courseHeight = 1200
+    app.courseWidth = 3000
+    app.courseHeight = 1800
     # Play button dimensions
     app.playButtonX = app.width // 2
     app.playButtonY = app.height // 2
     app.playButtonWidth = 200
     app.playButtonHeight = 60
+    # all isometric view logic
+    app.zoom = 1.0
+    angle = math.radians(30)
+    app.cos30 = math.cos(angle)
+    app.sin30 = math.sin(angle)
 
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
         drawHole1(app)
-    
+    x, y = getIsometric(app, 100, 100)
+
+def getIsometric(app, x, y, z=0):
+    xWorld = x - app.scrollX
+    yWorld = y - app.scrollY
+    isoX = (xWorld - yWorld) * app.cos30
+    isoY = (xWorld + yWorld) * app.sin30 - z
+    #zoom logic
+    isoX *= app.zoom
+    isoY *= app.zoom
+    # centering logic
+    displayX = isoX + app.width / 2
+    displayY = isoY + app.height / 3
+    return displayX, displayY
 
 def getHoleData():
     imagePath = 'Hole.jpg'
@@ -34,25 +53,37 @@ def flatten(points):
 def drawHole1(app):
     drawRect(0,0, app.width, app.height, fill = 'Blue')
     outlines = getHoleData()
-    print(outlines)
+    print(outlines) #maybe should remove this line it is not doing anything
 
-    def drawCoursePolygon(app, poly, fill, border): 
-        shifted = [(x - app.scrollX, y- app.scrollY) for (x, y) in poly]
-        drawPolygon(*flatten(shifted), fill = fill, border = border)
+    def drawCoursePolygon(app, poly, fill, border, z=0): 
+        shifted = []
+        for (x, y) in poly:
+            isoX, isoY = getIsometric(app, x, y, z)
+            shifted.append((isoX, isoY))
+        flattenedCoords = []
+        for point in shifted:
+            flattenedCoords.append(point[0])
+            flattenedCoords.append(point[1])
+        drawPolygon(*flattenedCoords, fill = fill, border = border)
     
-    def drawPolygons(app, polygons, fill, border=None):
+    def drawPolygons(app, polygons, fill, border=None, z=0):
         for poly in polygons:
-            drawCoursePolygon(app, poly, fill, border)
+            drawCoursePolygon(app, poly, fill, border, z)
 
     if 'outline' in outlines: 
-        drawPolygons(app, outlines['outline'], fill = 'green', border = 'white')
-    
-    drawPolygons(app, outlines['fairway'], fill='limeGreen', border = None)
-    drawPolygons(app, outlines['sandtrap'], fill='tan', border = None)
-    drawPolygons(app, outlines['green'], fill='lightGreen', border = None)
-    drawPolygons(app, outlines['teebox'], fill='lightGreen', border = None)
+        drawPolygons(app, outlines['outline'], 
+                     fill = 'green', border = 'white', z=0)
+    drawPolygons(app, outlines['fairway'], fill='limeGreen', 
+                 border = None, z=2)
+    drawPolygons(app, outlines['sandtrap'], fill='tan', 
+                 border = None, z=-1)
+    drawPolygons(app, outlines['green'], fill='lightGreen', 
+                 border = None, z=4)
+    drawPolygons(app, outlines['teebox'], fill='lightGreen', 
+                 border = None, z=5)
     if 'hole' in outlines:
-        drawPolygons(app, outlines['hole'], fill=None, border='white')
+        drawPolygons(app, outlines['hole'], fill=None, 
+                     border='white', z=6)
 
 
 def drawStart(app):
