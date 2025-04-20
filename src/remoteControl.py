@@ -2,7 +2,7 @@ from cmu_graphics import *
 import requests
 import json
 import time
-
+# the get logic for using channel and getting data is inspired from phyPhox 
 # phyphox configuration
 def getPhyphoxAddress():
     defaultPort = "80"
