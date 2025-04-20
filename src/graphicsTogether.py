@@ -51,7 +51,7 @@ def flatten(points):
     return [coord for point in points for coord in point]
 
 def drawHole1(app):
-    drawRect(0,0, app.width, app.height, fill = 'Blue')
+    drawRect(0,0, app.width, app.height, fill = 'darkBlue')
     outlines = getHoleData()
     print(outlines) #maybe should remove this line it is not doing anything
 
@@ -66,24 +66,67 @@ def drawHole1(app):
             flattenedCoords.append(point[1])
         drawPolygon(*flattenedCoords, fill = fill, border = border)
     
-    def drawPolygons(app, polygons, fill, border=None, z=0):
+    def drawPolygons(app, polygons, fill, border='None', z=0):
         for poly in polygons:
             drawCoursePolygon(app, poly, fill, border, z)
 
     if 'outline' in outlines: 
         drawPolygons(app, outlines['outline'], 
-                     fill = 'green', border = 'white', z=0)
-    drawPolygons(app, outlines['fairway'], fill='limeGreen', 
+                     fill = 'forestGreen', border='black', z=0)
+    drawPolygons(app, outlines['fairway'], fill='green', 
                  border = None, z=2)
     drawPolygons(app, outlines['sandtrap'], fill='tan', 
-                 border = None, z=-1)
-    drawPolygons(app, outlines['green'], fill='lightGreen', 
-                 border = None, z=4)
-    drawPolygons(app, outlines['teebox'], fill='lightGreen', 
-                 border = None, z=5)
+                 border = 'black', z=-1)
+    drawPolygons(app, outlines['green'], fill='forestGreen', 
+                 border = 'black', z=4)
+    drawPolygons(app, outlines['teebox'], fill='forestGreen', 
+                 border='black', z=5)
     if 'hole' in outlines:
-        drawPolygons(app, outlines['hole'], fill=None, 
-                     border='white', z=6)
+        drawPolygons(app, outlines['hole'], fill='black', 
+                     border='black', z=6)
+    if 'green' in outlines:
+        for green in outlines['green']:
+            # Check if green is a list of points directly
+            if isinstance(green, list):
+                points = green  # Treat green as the list of points
+            elif isinstance(green, dict) and 'points' in green:
+                points = green['points']  # Extract points from the dictionary
+            else:
+                print("Error: Invalid green structure:", green)
+                continue
+
+            # Get the center of the green polygon in world coordinates
+            centerX, centerY = getHole(points)
+
+            # Transform the center to screen coordinates using getIsometric
+            screenX, screenY = getIsometric(app, centerX, centerY)
+
+            # Draws the actual golf hole on the green
+            drawOval(screenX, screenY, 8.5, 7, fill='black', border='white', 
+                     borderWidth=1)
+            # Draws the flagpole
+            drawLine(screenX, screenY, screenX, screenY - 25, 
+                     fill='white', lineWidth=2)
+            
+            # Draws the flag
+            flagTipX = screenX - 5
+            flagBottomX = screenX
+            flagBottomY = screenY - 25 + 10
+            flagTopY = screenY - 25
+            drawPolygon(flagBottomX, flagBottomY, flagTipX-10, flagTopY+5, 
+                        screenX, screenY - 25, fill='red', border='black',
+                        borderWidth=1.25)
+
+def getHole(points):
+    """
+    Calculates the center of a polygon.
+    """
+    # Calculate the center of the polygon
+    centerX = sum(x for x, y in points) / len(points)
+    centerY = sum(y for x, y in points) / len(points)
+    
+    # Return the center as a tuple
+    return centerX, centerY
 
 
 def drawStart(app):
@@ -114,7 +157,7 @@ def onMousePress(app, mouseX, mouseY):
         app.hole1 = True
 
 def onKeyHold(app, keys): 
-    move = 10
+    move = 20
     if 'left' in keys: app.scrollX -= move
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
