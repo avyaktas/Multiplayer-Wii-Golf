@@ -1,4 +1,4 @@
-print('hello')
+from cmu_graphics import *
 import requests
 import json
 import time
@@ -14,11 +14,17 @@ PP_ADDRESS = getPhyphoxAddress()
 # Update channels to include all directions
 PP_CHANNELS = ["acc"]
 
+def getURL():
+    if not hasattr(getURL, "url"): 
+        getURL.url = PP_ADDRESS + "/get?" + ("&".join(PP_CHANNELS))
+    return getURL.url
+
+
 def getAcceleration():
     """
     Requests acceleration values from the phyphox API and returns the magnitude of acceleration.
     """
-    url = PP_ADDRESS + "/get?" + ("&".join(PP_CHANNELS))
+    url = getURL()
     response = requests.get(url).text
     data = json.loads(response)
     for item in PP_CHANNELS:
@@ -45,5 +51,3 @@ def remoteControl():
     
     print(f"Maximum acceleration magnitude: {maxAcceleration} m/s²")
     print("All samples:", samples)
-
-remoteControl()
