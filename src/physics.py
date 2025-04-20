@@ -46,6 +46,19 @@ def calculateVelocity(club): #add ground later
     if velocity > 210:
         deviation = random.randint(-15, 15)
 
+    # if club == 'driver':
+    #     maxVelocity = 180
+    # if club == 'wood':
+    #     maxVelocity = 110
+    # if club == 'iron':
+    #     maxVelocity = 80
+    # if club == 'wedge':
+    #     maxVelocity = 60
+    # else:
+    #     maxVelocity = 10
+    
+
+    
     
     
     print(velocity, launchAngleRad)

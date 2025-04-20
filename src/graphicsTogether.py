@@ -36,6 +36,7 @@ def onAppStart(app):
     app.ballStartY = 615
     app.ballX = 100
     app.ballY = 615
+    app.shadowY = 615
     app.ballZ = 0
     app.ballVelocityX = 0
     app.ballVelocityY = 0
@@ -242,6 +243,7 @@ def onStep(app):
         app.ballX += app.ballVelocityX * step
         app.ballY += app.ballVelocityY * step
         app.ballZ += app.ballVelocityZ * step
+        app.shadowY += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= (app.gravity * step)
@@ -265,9 +267,11 @@ def onStep(app):
 
 
 def drawBall(app):
-
     screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
     drawCircle(screenX, screenY, app.ballRadius, fill='white')
+    if app.ballInMotion:
+        shadowX, shadowY = getScreenCoords(app, app.ballX, app.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity = 60)
 
 def onKeyPress(app, key):
     if not app.ballInMotion:
