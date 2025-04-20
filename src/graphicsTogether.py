@@ -1,14 +1,16 @@
 from cmu_graphics import *
 from holeSketch import getHoleOutlines
+from physics import calculateVelocity
 import math
+import threading 
 
 def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
     app.width = 1000
     app.height = 600
-    app.scrollX = 0
-    app.scrollY = 0
+    app.scrollX = 500
+    app.scrollY = 650
     app.courseWidth = 3000
     app.courseHeight = 1800
     # Play button dimensions
@@ -16,11 +18,22 @@ def onAppStart(app):
     app.playButtonY = app.height // 2
     app.playButtonWidth = 200
     app.playButtonHeight = 60
-    # all isometric view logic
-    app.zoom = .8
-    angle = math.radians(30)
-    app.cos30 = math.cos(angle)
-    app.sin30 = math.sin(angle)
+    
+    # Ball state remains the same
+    app.ballX = 100
+    app.ballY = 615
+    app.ballZ = 0
+    app.ballVelocityX = 0
+    app.ballVelocityY = 0
+    app.ballVelocityZ = 0
+    app.gravity = 9.81
+    app.timeStep = 0.1
+    app.ballInMotion = False
+    app.ballRadius = 3
+    app.onTeebox = False
+    app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
+    app.clubIndex = 0
+    app.selectedClub = app.clubs[0]
 
 def redrawAll(app):
     if app.startPage:
@@ -28,20 +41,14 @@ def redrawAll(app):
     elif app.hole1:
         drawCliff(app)
         drawHole1(app)
-    x, y = getIsometric(app, 100, 100)
+        if app.onTeebox:
+            drawClubSelection(app)
+        drawBall(app)  # Draw the ball in every frame
 
-def getIsometric(app, x, y, z=0):
-    xWorld = x - app.scrollX
-    yWorld = y - app.scrollY
-    isoX = (xWorld - yWorld) * app.cos30
-    isoY = (xWorld + yWorld) * app.sin30 - z
-    #zoom logic
-    isoX *= app.zoom
-    isoY *= app.zoom
-    # centering logic
-    displayX = isoX + app.width / 2
-    displayY = isoY + app.height / 3
-    return displayX, displayY
+def getScreenCoords(app, x, y):
+    screenX = x - app.scrollX + app.width / 2
+    screenY = y - app.scrollY + app.height / 3
+    return screenX, screenY
 
 def getHoleData():
     imagePath = 'Hole.jpg'
@@ -52,71 +59,54 @@ def flatten(points):
     return [coord for point in points for coord in point]
 
 def drawHole1(app):
-    drawRect(0,0, app.width, app.height, fill = 'darkBlue')
+    drawRect(0, 0, app.width, app.height, fill='darkBlue')
     outlines = getHoleData()
-    print(outlines) #maybe should remove this line it is not doing anything
 
-    def drawCoursePolygon(app, poly, fill, border, z=0): 
+    def drawCoursePolygon(app, poly, fill, border): 
         shifted = []
         for (x, y) in poly:
-            isoX, isoY = getIsometric(app, x, y, z)
-            shifted.append((isoX, isoY))
+            screenX, screenY = getScreenCoords(app, x, y)
+            shifted.append((screenX, screenY))
         flattenedCoords = []
         for point in shifted:
             flattenedCoords.append(point[0])
             flattenedCoords.append(point[1])
-        drawPolygon(*flattenedCoords, fill = fill, border = border)
+        drawPolygon(*flattenedCoords, fill=fill, border=border)
     
-    def drawPolygons(app, polygons, fill, border='None', z=0):
+    def drawPolygons(app, polygons, fill, border='None'):
         for poly in polygons:
-            drawCoursePolygon(app, poly, fill, border, z)
+            drawCoursePolygon(app, poly, fill, border)
 
-    if 'outline' in outlines: 
-        drawPolygons(app, outlines['outline'], 
-                     fill = 'forestGreen', border='black', z=0)
-    drawPolygons(app, outlines['fairway'], fill='green', 
-                 border = None, z=2)
-    drawPolygons(app, outlines['sandtrap'], fill='tan', 
-                 border = 'black', z=-1)
-    drawPolygons(app, outlines['green'], fill='forestGreen', 
-                 border = 'black', z=4)
-    drawPolygons(app, outlines['teebox'], fill='forestGreen', 
-                 border='black', z=5)
-    if 'hole' in outlines:
-        drawPolygons(app, outlines['hole'], fill='black', 
-                     border='black', z=6)
+    # Draw course features in 2D
+    if 'outline' in outlines:
+        drawPolygons(app, outlines['outline'], fill='forestGreen', border='black')
+    drawPolygons(app, outlines['fairway'], fill='green', border=None)
+    drawPolygons(app, outlines['sandtrap'], fill='tan', border='black')
+    drawPolygons(app, outlines['green'], fill='forestGreen', border='black')
+    drawPolygons(app, outlines['teebox'], fill='forestGreen', border='black')
+    
+    # Draw hole and flag in 2D
     if 'green' in outlines:
         for green in outlines['green']:
-            # Check if green is a list of points directly
             if isinstance(green, list):
-                points = green  # Treat green as the list of points
+                points = green
             elif isinstance(green, dict) and 'points' in green:
-                points = green['points']  # Extract points from the dictionary
+                points = green['points']
             else:
-                print("Error: Invalid green structure:", green)
                 continue
 
-            # Get the center of the green polygon in world coordinates
             centerX, centerY = getHole(points)
+            screenX, screenY = getScreenCoords(app, centerX, centerY)
 
-            # Transform the center to screen coordinates using getIsometric
-            screenX, screenY = getIsometric(app, centerX, centerY)
-
-            # Draws the actual golf hole on the green
-            drawOval(screenX, screenY, 8.5, 7, fill='black', border='white', 
-                     borderWidth=1)
-            # Draws the flagpole
-            drawLine(screenX, screenY, screenX, screenY - 25, 
-                     fill='white', lineWidth=2)
+            # Draw hole
+            drawCircle(screenX, screenY, 4, fill='black', border='white')
             
-            # Draws the flag
-            flagTipX = screenX - 5
-            flagBottomX = screenX
-            flagBottomY = screenY - 25 + 10
-            flagTopY = screenY - 25
-            drawPolygon(flagBottomX, flagBottomY, flagTipX-10, flagTopY+5, 
-                        screenX, screenY - 25, fill='red', border='black',
-                        borderWidth=1.25)
+            # Draw flag
+            drawLine(screenX, screenY, screenX, screenY - 25, fill='white', lineWidth=2)
+            drawPolygon(screenX, screenY - 15, 
+                       screenX - 15, screenY - 20,
+                       screenX, screenY - 25,
+                       fill='red', border='black')
 
 def getHole(points):
     """
@@ -149,18 +139,16 @@ def drawStart(app):
 
 
 def drawCliff(app):
-    """
-    Draws a cliff edge around the border of the island.
-    """
-    # Define the points for the cliff edge (example: a rectangle around the island)
-def drawCliff(app):
     cliffPoints = [
-        (0, 0), (app.courseWidth, 0), (app.courseWidth, app.courseHeight), 
-        (0, app.courseHeight)]
-    isoPoints = [getIsometric(app, x, y) for x, y in cliffPoints]
+        (0, 0), (app.courseWidth, 0), 
+        (app.courseWidth, app.courseHeight), 
+        (0, app.courseHeight)
+    ]
+    screenPoints = [getScreenCoords(app, x, y) for x, y in cliffPoints]
     drawPolygon(
-        *flatten(isoPoints),
-        fill='tan', border='black', borderWidth=2)
+        *flatten(screenPoints),
+        fill='tan', border='black', borderWidth=2
+    )
     
 def isInPlayButton(app, x, y):
     return (abs(x - app.playButtonX) <= app.playButtonWidth//2 and
@@ -170,6 +158,9 @@ def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
         app.hole1 = True
+        app.onTeebox = True 
+        app.showClubSelection = True
+
 
 def onKeyHold(app, keys): 
     move = 20
@@ -181,7 +172,153 @@ def onKeyHold(app, keys):
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
 
+def takeShot(app, velocity, angle):
+    # Set initial ball position to teebox location
+    # These values should match your teebox position
+    
+    # Set initial velocities  # 45 degree launch angle
+    app.ballVelocityX = velocity * math.cos(angle)
+    app.ballVelocityY = velocity * math.cos(angle)
+    app.ballVelocityZ = velocity * math.sin(angle)
+    
+    app.ballInMotion = True
+    app.onTeebox = False
 
+def onStep(app):
+    if app.ballInMotion:
+        # Update ball position using physics
+        app.ballX += app.ballVelocityX * app.timeStep
+        app.ballY += app.ballVelocityY * app.timeStep
+        app.ballZ += app.ballVelocityZ * app.timeStep
+        
+        # Apply gravity to Z velocity
+        app.ballVelocityZ -= app.gravity * app.timeStep
+        
+        # Check if ball has landed
+        if app.ballZ <= 0 and app.ballVelocityZ < 0:
+            app.ballZ = 0
+            app.ballInMotion = False
+            # You might want to add bounce physics here
+
+def drawBall(app):
+    if app.hole1:
+        # Convert to screen coordinates
+        screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
+        drawCircle(screenX, screenY, app.ballRadius, fill='white')
+
+def onKeyPress(app, key):
+    if app.onTeebox and app.showClubSelection:
+        if key == 'w':
+            app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+            app.selectedClub = app.clubs[app.clubIndex]
+        elif key == 's':
+            app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+            app.selectedClub = app.clubs[app.clubIndex]
+        elif key == 'space':
+            # # Player has confirmed club selection
+            # app.showClubSelection = False 
+            # # Get acceleration from remote control and calculate velocity
+            # from remoteControl import remoteControl
+            # acceleration = remoteControl()
+            # initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
+            # takeShot(app, initialVelocity, angle)
+            app.showClubSelection = False
+            # launch data‐collection + shot in a new thread
+            t = threading.Thread(target=collectAndTakeShot, args=(app,), daemon=True)
+            t.start()
+
+def collectAndTakeShot(app):
+    # 1) collect data (remoteControl will block inside this thread only)
+    from remoteControl import remoteControl
+    accel = remoteControl()                # now runs in background
+
+    # 2) compute shot
+    from physics import calculateVelocity
+    velocity, angleDeg = calculateVelocity(accel, app.selectedClub)
+    angleRad = math.radians(angleDeg)
+
+    # 3) actually fire the shot back on the shared app state
+    takeShot(app, velocity, angleRad)
+
+def drawClubSelection(app):
+    if app.showClubSelection:
+        # Draw semi-transparent background panel
+        menuX = app.width - 200  # Position menu on right side
+        menuY = 50  # Position from top
+        menuWidth = 180
+        menuHeight = 250
+        # menuX, menuY = getScreenCoords(app, menuX, menuY)
+        
+        # Draw main menu panel
+        drawRect(menuX, menuY, menuWidth, menuHeight, 
+                fill='white', opacity=80)
+        
+        # Draw title
+        drawLabel('Club Selection', 
+                 menuX + menuWidth//2, menuY + 20, 
+                 size=16, bold=True, fill='black')
+        
+        # Draw club options
+        for i, club in enumerate(app.clubs):
+            # Highlight selected club
+            if i == app.clubIndex:
+                # Draw highlight background
+                drawRect(menuX + 10, 
+                        menuY + 40 + i*30 - 15,  # Vertical spacing
+                        160, 30,  # Size of highlight
+                        fill='lightGreen')
+                textColor = 'darkGreen'
+            else:
+                textColor = 'black'
+            
+            # Draw club name
+            drawLabel(club.title(),  # Capitalize club name
+                     menuX + menuWidth//2, 
+                     menuY + 40 + i*30,  # Vertical spacing
+                     fill=textColor)
+        
+        # Draw instructions at bottom
+        drawLabel('w,s to select', 
+                 menuX + menuWidth//2, 
+                 menuY + menuHeight - 40,
+                 size=12)
+        drawLabel('SPACE to confirm', 
+                 menuX + menuWidth//2, 
+                 menuY + menuHeight - 20,
+                 size=12)
+        
+        # Draw club stats (optional)
+        if app.selectedClub:
+            # Power meter
+            powerX = menuX + 20
+            powerY = menuY + menuHeight - 70
+            powerWidth = menuWidth - 40
+            powerHeight = 10
+            
+            # Club power values (0-100)
+            clubPower = {
+                'driver': 100,
+                'wood': 80,
+                'iron': 60,
+                'wedge': 40,
+                'putter': 20
+            }
+            
+            # Draw power bar background
+            drawRect(powerX, powerY, powerWidth, powerHeight, 
+                    fill='lightGray')
+            
+            # Draw power level
+            power = clubPower.get(app.selectedClub, 0)
+            drawRect(powerX, powerY, 
+                    powerWidth * (power/100), powerHeight,
+                    fill='green')
+            
+            # Draw power label
+            drawLabel(f'Power: {power}%',
+                     menuX + menuWidth//2,
+                     powerY - 10,
+                     size=12)
 
 runApp()
 

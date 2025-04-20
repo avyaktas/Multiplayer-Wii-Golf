@@ -1,3 +1,5 @@
+
+
 def calculateVelocity(acceleration, club):
     """
     Calculates the ball velocity based on acceleration input and selected club.
@@ -20,8 +22,15 @@ def calculateVelocity(acceleration, club):
         'wedge': 2.0,
         'putter': 1.0   # Lowest velocity multiplier
     }
-    
-    # Default to putter multiplier if club not recognized
+    # Initial launch angles for each club
+    launchAngles = {
+        'driver': 10,  # Degrees
+        'wood': 12,
+        'iron': 15,
+        'wedge': 20,
+        'putter': 30
+    }
+    launchAngle = launchAngles.get(club.lower(), launchAngles['putter'])
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])
     
     # Calculate velocity using acceleration and club multiplier
@@ -31,4 +40,4 @@ def calculateVelocity(acceleration, club):
     minVelocity = 0.5  # Minimum velocity in m/s
     maxVelocity = 50.0 # Maximum velocity in m/s
     
-    return max(minVelocity, min(velocity, maxVelocity))
+    return max(minVelocity, min(velocity, maxVelocity)), launchAngle 

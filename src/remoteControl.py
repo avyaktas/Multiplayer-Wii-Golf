@@ -47,7 +47,5 @@ def remoteControl():
         if magnitude is not None:
             samples.append(magnitude)
             maxAcceleration = max(maxAcceleration, magnitude)
-        time.sleep(0.2)  # Adjust the delay as needed
-    
-    print(f"Maximum acceleration magnitude: {maxAcceleration} m/s²")
-    print("All samples:", samples)
+        time.sleep(0.2)  # Adjust thedelay as needed
+    return maxAcceleration
