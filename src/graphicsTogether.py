@@ -92,6 +92,8 @@ def getHoleData():
     outlines = getHoleOutlines(imagePath)
     return outlines
 
+#used chatGPT for the flatten function
+
 def flatten(points):
     return [coord for point in points for coord in point]
 
@@ -99,6 +101,7 @@ def drawHole1(app):
     drawRect(0, 0, app.width, app.height, fill='darkBlue')
     outlines = getHoleData()
 
+    #Used chatGPT to help with the drawCoursePolygon function
     def drawCoursePolygon(app, poly, fill, border): 
         shifted = []
         for (x, y) in poly:
@@ -426,18 +429,25 @@ def drawHoleButton(app):
 def drawCardPage(app): 
     drawRect(0, 0, app.width, app.height, fill = 'green')
     cardTopX = 50
-    cardTopY = 80
-    cardColWidth = 60
-    cardRowHeight = 40
+    cardTopY = 180
+    cardColWidth = 75
+    cardRowHeight = 60
 
     rows, cols = len(app.scores), len(app.scores[0])
-    drawRect(cardTopX, cardTopY, 
+    
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT', 'TOTAL']
+    for col in range(cols):
+        x = cardTopX + col * cardColWidth
+        drawRect(x, cardTopY - cardRowHeight, cardColWidth, cardRowHeight, fill='gray', border='black')
+        drawLabel(holeLabels[col], x + cardColWidth//2, cardTopY - cardRowHeight//2, size=14, bold=True, fill='white')
+        drawRect(cardTopX, cardTopY, 
             cardColWidth * cols, cardRowHeight * rows,
             fill='white', border='black', borderWidth=2)
+    
     for row in range(rows):
         for col in range(cols): 
-            x = cardTopX + row * cardColWidth
-            y = cardTopY + col * cardRowHeight
+            x = cardTopX + col * cardColWidth
+            y = cardTopY + row * cardRowHeight
             drawRect(x, y, cardColWidth, cardRowHeight,
                     fill='white', border='black', borderWidth=2)
             drawLabel(str(app.scores[row][col]), 
