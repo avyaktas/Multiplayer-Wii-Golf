@@ -3,6 +3,22 @@ from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math
 
+def distance(x1, y1, x2, y2):
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
+
+def getClubPower(club):
+    """
+    Returns the power of the club.
+    """
+    clubPower = {
+        'driver': 100,
+        'wood': 80,
+        'iron': 60,
+        'wedge': 40,
+        'putter': 20
+    }
+    return clubPower.get(club, 0)
+
 def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
@@ -191,18 +207,30 @@ def takeShot(app, velocity, angle):
 
 def onStep(app):
     if app.ballInMotion:
+        dx = app.targetX - app.ballX
+        dy = app.targetY - app.ballY
+        distance = (dx**2 + dy**2)**0.5
+        clubPower = getClubPower(app.selectedClub)
+        # dx /= distance
+        # dy /= distance
+        app.ballVelocityX += dx * clubPower 
+        app.ballVelocityY += dy * clubPower
         step = (1/app.stepsPerSecond)
-        app.ballX += app.ballVelocityX * step
-        app.ballY += app.ballVelocityY * step
-        app.ballZ += app.ballVelocityZ * step
+        app.ballX += dx * step
+        app.ballY += dy * step
+
+        # step = (1/app.stepsPerSecond)
+        # app.ballX += app.ballVelocityX * step
+        # app.ballY += app.ballVelocityY * step
+        # app.ballZ += app.ballVelocityZ * step
         
-        # Apply gravity to Z velocity
-        app.ballVelocityZ -= app.gravity * app.timeStep
+        # # Apply gravity to Z velocity
+        # app.ballVelocityZ -= app.gravity * app.timeStep
         
-        # Check if ball has landed
-        if app.ballZ <= 0 and app.ballVelocityZ < 0:
-            app.ballZ = 0
-            app.ballInMotion = False
+        # # Check if ball has landed
+        # if app.ballZ <= 0 and app.ballVelocityZ < 0:
+        #     app.ballZ = 0
+        #     app.ballInMotion = False
             # You might want to add bounce physics here
 
 def drawBall(app):
@@ -223,14 +251,17 @@ def onKeyPress(app, key):
             app.aimAngle -= math.radians(3)
         elif key == 'd':              # turn right
             app.aimAngle += math.radians(3)
-        elif key == 'space':
-            # Player has confirmed club selection
-            app.showClubSelection = False 
-            # Get acceleration from remote control and calculate velocity
-            from remoteControl import remoteControl
-            acceleration = remoteControl()
-            initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
-            takeShot(app, initialVelocity, angle)
+        if key == 'space':
+                app.ballInMotion = True
+                app.showClubSelection = False
+        # elif key == 'space':
+        #     # Player has confirmed club selection
+        #     app.showClubSelection = False 
+        #     # Get acceleration from remote control and calculate velocity
+        #     from remoteControl import remoteControl
+        #     acceleration = remoteControl()
+        #     initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
+        #     takeShot(app, initialVelocity, angle)
 
 def drawAimLine(app):
     if not app.ballInMotion:
