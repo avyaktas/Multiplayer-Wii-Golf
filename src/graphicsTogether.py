@@ -6,18 +6,6 @@ import math
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
-def getClubPower(club):
-    """
-    Returns the power of the club.
-    """
-    clubPower = {
-        'driver': 100,
-        'wood': 80,
-        'iron': 60,
-        'wedge': 40,
-        'putter': 20
-    }
-    return clubPower.get(club, 0)
 
 def onAppStart(app):
     app.startPage = True 
@@ -51,7 +39,6 @@ def onAppStart(app):
     app.ballVelocityY = 0
     app.ballVelocityZ = 0
     app.gravity = 9.81
-    app.timeStep = 0.1
     app.ballInMotion = False
     app.ballRadius = 3
     app.onTeebox = False
@@ -228,11 +215,11 @@ def onKeyHold(app, keys):
 def takeShot(app, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
-    
     # Set initial velocities  # 45 degree launch angle
-    app.ballVelocityX = velocity * math.cos(app.aimAngle)
-    app.ballVelocityY = velocity * math.sin(app.aimAngle)
     app.ballVelocityZ = velocity * math.sin(angle)
+    flatVelocity = velocity * math.cos(angle)
+    app.ballVelocityX = flatVelocity * math.cos(app.aimAngle)
+    app.ballVelocityY = flatVelocity * math.sin(app.aimAngle)
     
     app.ballInMotion = True
     app.onTeebox = False
@@ -245,14 +232,20 @@ def onStep(app):
         app.ballZ += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
-        app.ballVelocityZ -= app.gravity * app.timeStep
-        
+        app.ballVelocityZ -= (app.gravity * step)
+        app.scrollX += app.ballVelocityX * step
+        app.scrollY += app.ballVelocityY * step
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0
             app.ballInMotion = False
+            app.ballVelocityZ = 0 
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
+    if not app.ballInMotion:
+        app.ballVelocityX = 0
+        app.ballVelocityY = 0 
+
 
 
 def drawBall(app):
@@ -275,7 +268,8 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.ballInMotion = True
                 app.showClubSelection = False
-                takeShot(app, 100, 45)
+                velocity, angle = calculateVelocity(app.selectedClub)
+                takeShot(app, velocity, angle)
 
 
 def drawAimLine(app):
@@ -305,90 +299,90 @@ def findHoleCenter():
 
 
 def drawClubSelection(app):
-    if app.showClubSelection:
-        # Draw semi-transparent background panel
-        menuX = 20  # Position menu on right side
-        menuY = app.height - 300  # Position from top
-        menuWidth = 180
-        menuHeight = 270
-        lineHeight = 28
-        topOffset = 50
-        # menuX, menuY = getScreenCoords(app, menuX, menuY)
+
+    # Draw semi-transparent background panel
+    menuX = 20  # Position menu on right side
+    menuY = app.height - 300  # Position from top
+    menuWidth = 180
+    menuHeight = 270
+    lineHeight = 28
+    topOffset = 50
+    # menuX, menuY = getScreenCoords(app, menuX, menuY)
+    
+    # Draw main menu panel
+    drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
+            fill='white', opacity=80)
+    
+    # Draw title
+    drawLabel('Club Selection', 
+                menuX + menuWidth//2, menuY + 30, 
+                size=16, bold=True, fill='black')
+    
+    
+    
+    # Draw club options
+    for i, club in enumerate(app.clubs):
+        # Highlight selected club
+        if i == app.clubIndex:
+            # Draw highlight background
+            drawRect(menuX + 10, 
+                    menuY + topOffset + i* lineHeight,  # Vertical spacing
+                    160, 30,  # Size of highlight
+                    fill='lightGreen')
+            textColor = 'darkGreen'
+        else:
+            textColor = 'black'
         
-        # Draw main menu panel
-        drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
-                fill='white', opacity=80)
+        # Draw club name
+        drawLabel(club.title(),  # Capitalize club name
+                    menuX + menuWidth//2, 
+                    menuY + 60 + i*30,  # Vertical spacing
+                    fill=textColor)
+    
+    # Draw instructions at bottom
+    drawLabel('w,s to select', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 30,
+                size=12)
+    drawLabel('SPACE to confirm', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 10,
+                size=12)
+    
+    # Draw club stats (optional)
+    if app.selectedClub:
+        # Power meter
+        powerBarWidth = menuWidth - 40
+        powerBarHeight = 10
+        powerBarX = menuX + 20
+        powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
+        powerBarY = powerTextY + 15
+        powerWidth = menuWidth - 40
         
-        # Draw title
-        drawLabel('Club Selection', 
-                 menuX + menuWidth//2, menuY + 30, 
-                 size=16, bold=True, fill='black')
+        # Club power values (0-100)
+        clubPower = {
+            'driver': 100,
+            'wood': 80,
+            'iron': 60,
+            'wedge': 40,
+            'putter': 20
+        }
         
+        # Draw power bar background
+        drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
+                fill='lightGray')
         
+        # Draw power level
+        power = clubPower.get(app.selectedClub, 0)
+        drawRect(powerBarX, powerBarY, 
+                powerBarWidth * (power/100), powerBarHeight,
+                fill='green')
         
-        # Draw club options
-        for i, club in enumerate(app.clubs):
-            # Highlight selected club
-            if i == app.clubIndex:
-                # Draw highlight background
-                drawRect(menuX + 10, 
-                        menuY + topOffset + i* lineHeight,  # Vertical spacing
-                        160, 30,  # Size of highlight
-                        fill='lightGreen')
-                textColor = 'darkGreen'
-            else:
-                textColor = 'black'
-            
-            # Draw club name
-            drawLabel(club.title(),  # Capitalize club name
-                     menuX + menuWidth//2, 
-                     menuY + 60 + i*30,  # Vertical spacing
-                     fill=textColor)
-        
-        # Draw instructions at bottom
-        drawLabel('w,s to select', 
-                 menuX + menuWidth//2, 
-                 menuY + menuHeight - 30,
-                 size=12)
-        drawLabel('SPACE to confirm', 
-                 menuX + menuWidth//2, 
-                 menuY + menuHeight - 10,
-                 size=12)
-        
-        # Draw club stats (optional)
-        if app.selectedClub:
-            # Power meter
-            powerBarWidth = menuWidth - 40
-            powerBarHeight = 10
-            powerBarX = menuX + 20
-            powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
-            powerBarY = powerTextY + 15
-            powerWidth = menuWidth - 40
-            
-            # Club power values (0-100)
-            clubPower = {
-                'driver': 100,
-                'wood': 80,
-                'iron': 60,
-                'wedge': 40,
-                'putter': 20
-            }
-            
-            # Draw power bar background
-            drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
-                    fill='lightGray')
-            
-            # Draw power level
-            power = clubPower.get(app.selectedClub, 0)
-            drawRect(powerBarX, powerBarY, 
-                    powerBarWidth * (power/100), powerBarHeight,
-                    fill='green')
-            
-            # Draw power label
-            drawLabel(f'Power: {power}%',
-                     menuX + menuWidth//2,
-                     powerBarY - 10,
-                     size=12)
+        # Draw power label
+        drawLabel(f'Power: {power}%',
+                    menuX + menuWidth//2,
+                    powerBarY - 10,
+                    size=12)
             
 def drawCardButton(app): 
     if app.hole1:
