@@ -50,6 +50,13 @@ def onAppStart(app):
     app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
     app.stepsPerSecond = 10
+    app.scores = [
+        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72],
+        ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+    ]
 
 def redrawAll(app):
     if app.startPage:
@@ -410,20 +417,25 @@ def drawCardPage(app):
     drawRect(0, 0, app.width, app.height, fill = 'green')
     cardTopX = 50
     cardTopY = 80
-    cardWidth = 900
-    cardHeight = 470
-    drawRect(cardTopX, cardTopY, cardWidth, cardHeight,
-            fill='white', border='black', borderWidth=2)
-    for i in range(6): 
-        drawLine(cardTopX, cardTopY + i * 80,
-                cardTopX + cardWidth, cardTopY + i * 80,
-                fill='black', lineWidth=2)
-        
-    for i in range(4, 18): 
-        drawLine(cardTopX + i * 60, cardTopY,
-                cardTopX + i * 60, cardTopY + cardHeight,
-                fill='black', lineWidth=2)  
+    cardColWidth = 60
+    cardRowHeight = 40
 
+    rows, cols = len(app.scores), len(app.scores[0])
+    drawRect(cardTopX, cardTopY, 
+            cardColWidth * cols, cardRowHeight * rows,
+            fill='white', border='black', borderWidth=2)
+    for row in range(rows):
+        for col in range(cols): 
+            x = cardTopX + row * cardColWidth
+            y = cardTopY + col * cardRowHeight
+            drawRect(x, y, cardColWidth, cardRowHeight,
+                    fill='white', border='black', borderWidth=2)
+            drawLabel(str(app.scores[row][col]), 
+                    x + cardColWidth//2, y + cardRowHeight//2,
+                    size=16, fill='black', bold=True)
+                     
+
+    
 
 runApp()
 

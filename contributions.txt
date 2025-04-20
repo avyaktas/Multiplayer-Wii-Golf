@@ -20,7 +20,7 @@ Andrew
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
-      into values that work for cmu graphics 
-    - added a wa
+      into values that work for cmu graphics. Got the courses on visible.
+    - Worked on graphics and logic on for the score card in graphicsTogether
 
 ------------------------------------>
