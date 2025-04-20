@@ -26,6 +26,7 @@ def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
+        drawCliff(app)
         drawHole1(app)
     x, y = getIsometric(app, 100, 100)
 
@@ -147,6 +148,20 @@ def drawStart(app):
              size=30, fill='white', bold=True)
 
 
+def drawCliff(app):
+    """
+    Draws a cliff edge around the border of the island.
+    """
+    # Define the points for the cliff edge (example: a rectangle around the island)
+def drawCliff(app):
+    cliffPoints = [
+        (0, 0), (app.courseWidth, 0), (app.courseWidth, app.courseHeight), 
+        (0, app.courseHeight)]
+    isoPoints = [getIsometric(app, x, y) for x, y in cliffPoints]
+    drawPolygon(
+        *flatten(isoPoints),
+        fill='tan', border='black', borderWidth=2)
+    
 def isInPlayButton(app, x, y):
     return (abs(x - app.playButtonX) <= app.playButtonWidth//2 and
             abs(y - app.playButtonY) <= app.playButtonHeight//2)

@@ -1,4 +1,4 @@
-import random as random_module
+import random as rnd  # Alias to avoid conflicts
 from cmu_graphics import *
 from urllib.request import urlopen
 from PIL import Image, ImageDraw
@@ -25,8 +25,8 @@ def drawBackground(app):
     Draws the ocean background with randomly placed waves.
     """
     for _ in range(100):  # Adjust the number of waves as needed
-        x = random.randint(0, app.width - 16)  # Random x-coordinate
-        y = random.randint(0, app.height - 16)  # Random y-coordinate
+        x = rnd.randint(0, app.width - 16)  # Random x-coordinate
+        y = rnd.randint(0, app.height - 16)  # Random y-coordinate
         drawImage(app.oceanSprite, x, y)
 
 def onAppStart(app):
@@ -39,9 +39,12 @@ def redrawAll(app):
     """
     Redraws the entire screen.
     """
+    drawOcean(app)
     drawBackground(app)  # Draw the ocean background
 
+def drawOcean(app):
+    drawRect(0, 0, app.width, app.height, fill='navy')  # Draw the ocean background
 def main():
-    runApp(width=800, height=600)
+    runApp(width=400, height=400)  # Example app dimensions
 
 main()
