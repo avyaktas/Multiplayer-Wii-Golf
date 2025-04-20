@@ -29,7 +29,7 @@ def getAcceleration():
     data = json.loads(response)
     for item in PP_CHANNELS:
         acc_data = data['buffer'][item]['buffer'][0]
-        print(f"{item}: {acc_data}", end='\t')
+        # print(f"{item}: {acc_data}", end='\t')
     
     # Get values for all directions
     magnitude = data["buffer"]["acc"]["buffer"][0]
@@ -42,10 +42,13 @@ def remoteControl():
     samples = []
     
     # Collect for 10 samples (you can adjust this number)
-    for i in range(50):
+    for i in range(500):
         magnitude = getAcceleration()
-        if magnitude is not None:
+        if magnitude != None and magnitude > 15:
             samples.append(magnitude)
             maxAcceleration = max(maxAcceleration, magnitude)
-        time.sleep(0.2)  # Adjust thedelay as needed
+            # print(samples)
+            print(maxAcceleration)
+        time.sleep(0.01)  # Adjust thedelay as needed
     return maxAcceleration
+remoteControl()
