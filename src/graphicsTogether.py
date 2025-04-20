@@ -32,6 +32,8 @@ def onAppStart(app):
     app.holeButtonHeight = app.cardButtonHeight
     
     # Ball state remains the same
+    app.ballStartX = 100
+    app.ballStartY = 615
     app.ballX = 100
     app.ballY = 615
     app.ballZ = 0
@@ -57,6 +59,8 @@ def onAppStart(app):
         ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
+
+    app.score = 0 
 
 def redrawAll(app):
     if app.startPage:
@@ -230,6 +234,7 @@ def takeShot(app, velocity, angle):
     
     app.ballInMotion = True
     app.onTeebox = False
+    app.score += 1 
 
 def onStep(app):
     if app.ballInMotion:
@@ -252,6 +257,10 @@ def onStep(app):
     if not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
+        holeX, holeY = findHoleCenter()
+        if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
+            app.cardPage = True 
+    
 
 
 
@@ -275,7 +284,8 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.ballInMotion = True
                 app.showClubSelection = False
-                velocity, angle = calculateVelocity(app.selectedClub)
+                velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
+                app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
 
 
@@ -357,39 +367,39 @@ def drawClubSelection(app):
                 size=12)
     
     # Draw club stats (optional)
-    if app.selectedClub:
-        # Power meter
-        powerBarWidth = menuWidth - 40
-        powerBarHeight = 10
-        powerBarX = menuX + 20
-        powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
-        powerBarY = powerTextY + 15
-        powerWidth = menuWidth - 40
+    # if app.selectedClub:
+    #     # Power meter
+    #     powerBarWidth = menuWidth - 40
+    #     powerBarHeight = 10
+    #     powerBarX = menuX + 20
+    #     powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
+    #     powerBarY = powerTextY + 15
+    #     powerWidth = menuWidth - 40
         
-        # Club power values (0-100)
-        clubPower = {
-            'driver': 100,
-            'wood': 80,
-            'iron': 60,
-            'wedge': 40,
-            'putter': 20
-        }
+    #     # Club power values (0-100)
+    #     clubPower = {
+    #         'driver': 100,
+    #         'wood': 80,
+    #         'iron': 60,
+    #         'wedge': 40,
+    #         'putter': 20
+    #     }
         
-        # Draw power bar background
-        drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
-                fill='lightGray')
+    #     # Draw power bar background
+    #     drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
+    #             fill='lightGray')
         
-        # Draw power level
-        power = clubPower.get(app.selectedClub, 0)
-        drawRect(powerBarX, powerBarY, 
-                powerBarWidth * (power/100), powerBarHeight,
-                fill='green')
+    #     # Draw power level
+    #     power = clubPower.get(app.selectedClub, 0)
+    #     drawRect(powerBarX, powerBarY, 
+    #             powerBarWidth * (power/100), powerBarHeight,
+    #             fill='green')
         
-        # Draw power label
-        drawLabel(f'Power: {power}%',
-                    menuX + menuWidth//2,
-                    powerBarY - 10,
-                    size=12)
+    #     # Draw power label
+    #     drawLabel(f'Power: {power}%',
+    #                 menuX + menuWidth//2,
+    #                 powerBarY - 10,
+    #                 size=12)
             
 def drawCardButton(app): 
     if app.hole1:
