@@ -6,6 +6,7 @@ import math
 def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
+    app.cardPage = False
     app.width = 1000
     app.height = 600
     app.scrollX = 500
@@ -17,6 +18,14 @@ def onAppStart(app):
     app.playButtonY = app.height // 2
     app.playButtonWidth = 200
     app.playButtonHeight = 60
+    app.cardButtonX = 30 
+    app.cardButtonY = 30
+    app.cardButtonWidth = 100
+    app.cardButtonHeight = 30
+    app.holeButtonX = app.cardButtonX
+    app.holeButtonY = app.cardButtonY
+    app.holeButtonWidth = app.cardButtonWidth
+    app.holeButtonHeight = app.cardButtonHeight
     
     # Ball state remains the same
     app.ballX = 100
@@ -49,6 +58,13 @@ def redrawAll(app):
             drawClubSelection(app)
         drawAimLine(app)
         drawBall(app)  # Draw the ball in every frame
+        drawCardButton(app)
+    elif app.cardPage:
+        drawCardPage(app)
+        drawHoleButton(app)
+        
+
+
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -159,13 +175,27 @@ def isInPlayButton(app, x, y):
     return (abs(x - app.playButtonX) <= app.playButtonWidth//2 and
             abs(y - app.playButtonY) <= app.playButtonHeight//2)
 
+def isInCardButton(app, x, y): 
+    return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
+            app.cardButtonY <= y <= app.cardButtonY + app.cardButtonHeight)
+
+def isInHoleButton(app, x, y):
+    return (app.holeButtonX <= x <= app.holeButtonX + app.holeButtonWidth and
+            app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
+
+
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
         app.hole1 = True
         app.onTeebox = True 
         app.showClubSelection = True
-
+    elif app.hole1 and isInCardButton(app, mouseX, mouseY):
+        app.hole1 = False
+        app.cardPage = True
+    elif app.cardPage and isInHoleButton(app, mouseX, mouseY): 
+        app.cardPage = False
+        app.hole1 = True
 
 def onKeyHold(app, keys): 
     move = 20
@@ -261,20 +291,24 @@ def findHoleCenter():
 def drawClubSelection(app):
     if app.showClubSelection:
         # Draw semi-transparent background panel
-        menuX = app.width - 200  # Position menu on right side
-        menuY = 50  # Position from top
+        menuX = 20  # Position menu on right side
+        menuY = app.height - 300  # Position from top
         menuWidth = 180
-        menuHeight = 250
+        menuHeight = 270
+        lineHeight = 28
+        topOffset = 50
         # menuX, menuY = getScreenCoords(app, menuX, menuY)
         
         # Draw main menu panel
-        drawRect(menuX, menuY, menuWidth, menuHeight, 
+        drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
                 fill='white', opacity=80)
         
         # Draw title
         drawLabel('Club Selection', 
-                 menuX + menuWidth//2, menuY + 20, 
+                 menuX + menuWidth//2, menuY + 30, 
                  size=16, bold=True, fill='black')
+        
+        
         
         # Draw club options
         for i, club in enumerate(app.clubs):
@@ -282,7 +316,7 @@ def drawClubSelection(app):
             if i == app.clubIndex:
                 # Draw highlight background
                 drawRect(menuX + 10, 
-                        menuY + 40 + i*30 - 15,  # Vertical spacing
+                        menuY + topOffset + i* lineHeight,  # Vertical spacing
                         160, 30,  # Size of highlight
                         fill='lightGreen')
                 textColor = 'darkGreen'
@@ -292,26 +326,28 @@ def drawClubSelection(app):
             # Draw club name
             drawLabel(club.title(),  # Capitalize club name
                      menuX + menuWidth//2, 
-                     menuY + 40 + i*30,  # Vertical spacing
+                     menuY + 60 + i*30,  # Vertical spacing
                      fill=textColor)
         
         # Draw instructions at bottom
         drawLabel('w,s to select', 
                  menuX + menuWidth//2, 
-                 menuY + menuHeight - 40,
+                 menuY + menuHeight - 30,
                  size=12)
         drawLabel('SPACE to confirm', 
                  menuX + menuWidth//2, 
-                 menuY + menuHeight - 20,
+                 menuY + menuHeight - 10,
                  size=12)
         
         # Draw club stats (optional)
         if app.selectedClub:
             # Power meter
-            powerX = menuX + 20
-            powerY = menuY + menuHeight - 70
+            powerBarWidth = menuWidth - 40
+            powerBarHeight = 10
+            powerBarX = menuX + 20
+            powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
+            powerBarY = powerTextY + 15
             powerWidth = menuWidth - 40
-            powerHeight = 10
             
             # Club power values (0-100)
             clubPower = {
@@ -323,20 +359,61 @@ def drawClubSelection(app):
             }
             
             # Draw power bar background
-            drawRect(powerX, powerY, powerWidth, powerHeight, 
+            drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
                     fill='lightGray')
             
             # Draw power level
             power = clubPower.get(app.selectedClub, 0)
-            drawRect(powerX, powerY, 
-                    powerWidth * (power/100), powerHeight,
+            drawRect(powerBarX, powerBarY, 
+                    powerBarWidth * (power/100), powerBarHeight,
                     fill='green')
             
             # Draw power label
             drawLabel(f'Power: {power}%',
                      menuX + menuWidth//2,
-                     powerY - 10,
+                     powerBarY - 10,
                      size=12)
+            
+def drawCardButton(app): 
+    if app.hole1:
+        drawRect(app.cardButtonX, app.cardButtonY, 
+                app.cardButtonWidth, app.cardButtonHeight,
+                fill='white', border='black', borderWidth=2,
+                opacity = 80)
+        
+        drawLabel('Card', app.cardButtonX + app.cardButtonWidth//2,
+                 app.cardButtonY + app.cardButtonHeight//2,
+                 size=16, fill='black', bold=True)
+        
+def drawHoleButton(app): 
+    if app.cardPage:
+        drawRect(app.cardButtonX, app.cardButtonY, 
+                app.cardButtonWidth, app.cardButtonHeight,
+                fill='white', border='black', borderWidth=2,
+                opacity = 80)
+        
+        drawLabel('Hole', app.cardButtonX + app.cardButtonWidth//2,
+                 app.cardButtonY + app.cardButtonHeight//2,
+                 size=16, fill='black', bold=True)
+        
+def drawCardPage(app): 
+    drawRect(0, 0, app.width, app.height, fill = 'green')
+    cardTopX = 50
+    cardTopY = 80
+    cardWidth = 900
+    cardHeight = 470
+    drawRect(cardTopX, cardTopY, cardWidth, cardHeight,
+            fill='white', border='black', borderWidth=2)
+    for i in range(6): 
+        drawLine(cardTopX, cardTopY + i * 80,
+                cardTopX + cardWidth, cardTopY + i * 80,
+                fill='black', lineWidth=2)
+        
+    for i in range(18): 
+        drawLine(cardTopX + i * 50, cardTopY,
+                cardTopX + i * 50, cardTopY + cardHeight,
+                fill='black', lineWidth=2)  
+
 
 runApp()
 
