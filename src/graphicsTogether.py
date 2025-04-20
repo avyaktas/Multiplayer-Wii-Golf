@@ -2,7 +2,6 @@ from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math
-import threading 
 
 def onAppStart(app):
     app.startPage = True 
@@ -35,6 +34,11 @@ def onAppStart(app):
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
 
+    app.targetX, app.targetY = findHoleCenter()
+    app.aimAngle = math.atan2(app.targetY - app.ballY,
+                              app.targetX - app.ballX)
+    app.stepsPerSecond = 10
+
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
@@ -43,6 +47,7 @@ def redrawAll(app):
         drawHole1(app)
         if app.onTeebox:
             drawClubSelection(app)
+        drawAimLine(app)
         drawBall(app)  # Draw the ball in every frame
 
 def getScreenCoords(app, x, y):
@@ -186,10 +191,10 @@ def takeShot(app, velocity, angle):
 
 def onStep(app):
     if app.ballInMotion:
-        # Update ball position using physics
-        app.ballX += app.ballVelocityX * app.timeStep
-        app.ballY += app.ballVelocityY * app.timeStep
-        app.ballZ += app.ballVelocityZ * app.timeStep
+        step = (1/app.stepsPerSecond)
+        app.ballX += app.ballVelocityX * step
+        app.ballY += app.ballVelocityY * step
+        app.ballZ += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= app.gravity * app.timeStep
@@ -214,31 +219,44 @@ def onKeyPress(app, key):
         elif key == 's':
             app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
             app.selectedClub = app.clubs[app.clubIndex]
+        if key == 'a':                # turn left
+            app.aimAngle -= math.radians(3)
+        elif key == 'd':              # turn right
+            app.aimAngle += math.radians(3)
         elif key == 'space':
-            # # Player has confirmed club selection
-            # app.showClubSelection = False 
-            # # Get acceleration from remote control and calculate velocity
-            # from remoteControl import remoteControl
-            # acceleration = remoteControl()
-            # initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
-            # takeShot(app, initialVelocity, angle)
-            app.showClubSelection = False
-            # launch data‐collection + shot in a new thread
-            t = threading.Thread(target=collectAndTakeShot, args=(app,), daemon=True)
-            t.start()
+            # Player has confirmed club selection
+            app.showClubSelection = False 
+            # Get acceleration from remote control and calculate velocity
+            from remoteControl import remoteControl
+            acceleration = remoteControl()
+            initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
+            takeShot(app, initialVelocity, angle)
 
-def collectAndTakeShot(app):
-    # 1) collect data (remoteControl will block inside this thread only)
-    from remoteControl import remoteControl
-    accel = remoteControl()                # now runs in background
+def drawAimLine(app):
+    if not app.ballInMotion:
+        sx, sy = getScreenCoords(app, app.ballX, app.ballY)
+        length = 60
+        ex = sx + length * math.cos(app.aimAngle)
+        ey = sy + length * math.sin(app.aimAngle)
+        drawLine(sx, sy, ex, ey, fill='white', lineWidth=2)
 
-    # 2) compute shot
-    from physics import calculateVelocity
-    velocity, angleDeg = calculateVelocity(accel, app.selectedClub)
-    angleRad = math.radians(angleDeg)
+def findHoleCenter():
+    """
+    Reads outlines with getHoleOutlines, grabs the first green polygon,
+    and returns its centroid.
+    """
+    outlines = getHoleOutlines('Hole.jpg')
+    greens   = outlines.get('green', [])
+    if not greens:
+        return 0, 0
+    # handle dict vs list for outlines
+    first = greens[0]
+    pts = first['points'] if isinstance(first, dict) else first
+    # compute centroid
+    cx = sum(x for x,y in pts) / len(pts)
+    cy = sum(y for x,y in pts) / len(pts)
+    return cx, cy
 
-    # 3) actually fire the shot back on the shared app state
-    takeShot(app, velocity, angleRad)
 
 def drawClubSelection(app):
     if app.showClubSelection:
