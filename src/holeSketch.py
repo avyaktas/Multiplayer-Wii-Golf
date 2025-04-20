@@ -3,7 +3,6 @@ from cmu_graphics import *
 import cv2
 import numpy as np
 
-imagePath = 'Hole.jpg'
 
 
 def getHoleOutlines(imagePath):
@@ -92,5 +91,3 @@ def getHoleOutlines(imagePath):
     }   
 
     return outlines
-
-print(getHoleOutlines(imagePath))

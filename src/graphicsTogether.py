@@ -17,7 +17,7 @@ def onAppStart(app):
     app.playButtonWidth = 200
     app.playButtonHeight = 60
     # all isometric view logic
-    app.zoom = 1.0
+    app.zoom = .8
     angle = math.radians(30)
     app.cos30 = math.cos(angle)
     app.sin30 = math.sin(angle)
