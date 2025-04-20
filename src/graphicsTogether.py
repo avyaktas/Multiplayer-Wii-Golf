@@ -61,10 +61,10 @@ def redrawAll(app):
     elif app.hole1:
         drawCliff(app)
         drawHole1(app)
-        if app.onTeebox:
+        drawBall(app)
+        if not app.ballInMotion:
+            drawAimLine(app)  # Draw the ball in every frame
             drawClubSelection(app)
-        drawAimLine(app)
-        drawBall(app)  # Draw the ball in every frame
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -198,8 +198,8 @@ def takeShot(app, velocity, angle):
     # These values should match your teebox position
     
     # Set initial velocities  # 45 degree launch angle
-    app.ballVelocityX = velocity * math.cos(angle)
-    app.ballVelocityY = velocity * math.cos(angle)
+    app.ballVelocityX = velocity * math.cos(app.aimAngle)
+    app.ballVelocityY = velocity * math.sin(app.aimAngle)
     app.ballVelocityZ = velocity * math.sin(angle)
     
     app.ballInMotion = True
@@ -207,40 +207,29 @@ def takeShot(app, velocity, angle):
 
 def onStep(app):
     if app.ballInMotion:
-        dx = app.targetX - app.ballX
-        dy = app.targetY - app.ballY
-        distance = (dx**2 + dy**2)**0.5
-        clubPower = getClubPower(app.selectedClub)
-        # dx /= distance
-        # dy /= distance
-        app.ballVelocityX += dx * clubPower 
-        app.ballVelocityY += dy * clubPower
         step = (1/app.stepsPerSecond)
-        app.ballX += dx * step
-        app.ballY += dy * step
+        app.ballX += app.ballVelocityX * step
+        app.ballY += app.ballVelocityY * step
+        app.ballZ += app.ballVelocityZ * step
+        
+        # Apply gravity to Z velocity
+        app.ballVelocityZ -= app.gravity * app.timeStep
+        
+        # Check if ball has landed
+        if app.ballZ <= 0 and app.ballVelocityZ < 0:
+            app.ballZ = 0
+            app.ballInMotion = False
+            app.aimAngle = math.atan2(app.targetY - app.ballY,
+                              app.targetX - app.ballX)
 
-        # step = (1/app.stepsPerSecond)
-        # app.ballX += app.ballVelocityX * step
-        # app.ballY += app.ballVelocityY * step
-        # app.ballZ += app.ballVelocityZ * step
-        
-        # # Apply gravity to Z velocity
-        # app.ballVelocityZ -= app.gravity * app.timeStep
-        
-        # # Check if ball has landed
-        # if app.ballZ <= 0 and app.ballVelocityZ < 0:
-        #     app.ballZ = 0
-        #     app.ballInMotion = False
-            # You might want to add bounce physics here
 
 def drawBall(app):
-    if app.hole1:
-        # Convert to screen coordinates
-        screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
-        drawCircle(screenX, screenY, app.ballRadius, fill='white')
+
+    screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
+    drawCircle(screenX, screenY, app.ballRadius, fill='white')
 
 def onKeyPress(app, key):
-    if app.onTeebox and app.showClubSelection:
+    if not app.ballInMotion:
         if key == 'w':
             app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
             app.selectedClub = app.clubs[app.clubIndex]
@@ -254,14 +243,8 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.ballInMotion = True
                 app.showClubSelection = False
-        # elif key == 'space':
-        #     # Player has confirmed club selection
-        #     app.showClubSelection = False 
-        #     # Get acceleration from remote control and calculate velocity
-        #     from remoteControl import remoteControl
-        #     acceleration = remoteControl()
-        #     initialVelocity , angle = calculateVelocity(acceleration, app.selectedClub)
-        #     takeShot(app, initialVelocity, angle)
+                takeShot(app, 100, 45)
+
 
 def drawAimLine(app):
     if not app.ballInMotion:
