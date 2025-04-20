@@ -228,11 +228,11 @@ def onKeyHold(app, keys):
 def takeShot(app, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
-    
     # Set initial velocities  # 45 degree launch angle
-    app.ballVelocityX = velocity * math.cos(app.aimAngle)
-    app.ballVelocityY = velocity * math.sin(app.aimAngle)
     app.ballVelocityZ = velocity * math.sin(angle)
+    flatVelocity = velocity * math.cos(angle)
+    app.ballVelocityX = flatVelocity * math.cos(app.aimAngle)
+    app.ballVelocityY = flatVelocity * math.sin(app.aimAngle)
     
     app.ballInMotion = True
     app.onTeebox = False
@@ -246,7 +246,8 @@ def onStep(app):
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= app.gravity * app.timeStep
-        
+        app.scrollX += app.ballVelocityX * step
+        app.scrollY += app.ballVelocityY * step
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0

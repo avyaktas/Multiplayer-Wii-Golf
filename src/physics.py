@@ -32,7 +32,7 @@ def calculateVelocity(club): #add ground later
         'putter': 1
     }
     launchAngle = launchAngles.get(club.lower(), launchAngles['putter'])
-    launchAngleRad = launchAngle * (3.14/180)
+    launchAngleRad = math.radians(launchAngle)
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])
     
     # Calculate velocity using acceleration and club multiplier
@@ -41,5 +41,5 @@ def calculateVelocity(club): #add ground later
     # Add minimum and maximum velocity constraints
     minVelocity = 0.5  # Minimum velocity in m/s
     maxVelocity = 50.0 # Maximum velocity in m/s
-    print(velocity, launchAngle)
-    return max(minVelocity, min(velocity, maxVelocity)), launchAngle
+    print(velocity, launchAngleRad)
+    return max(minVelocity, min(velocity, maxVelocity)), launchAngleRad
