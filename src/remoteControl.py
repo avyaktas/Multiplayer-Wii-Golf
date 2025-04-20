@@ -19,32 +19,34 @@ def getURL():
         getURL.url = PP_ADDRESS + "/get?" + "&".join(PP_CHANNELS)
     return getURL.url
 
+
 def getAcceleration():
     """
     Fetch the latest acceleration magnitude from PhyPhox.
     """
-    url = getURL()
-    response = requests.get(url).text
-    data = json.loads(response)
-    for item in PP_CHANNELS:
-        acc_data = data['buffer'][item]['buffer'][0]
-        print(f"{item}: {acc_data}", end='\t')
-    
-    # Get values for all directions
-    magnitude = data["buffer"]["acc"]["buffer"][0]
-    return magnitude
+    url = getURL()   # ← use getURL(), not PP_ADDRESS
+    resp = requests.get(url, timeout=1)
+    resp.raise_for_status()
+    data = resp.json()
+    return data["buffer"]["acc"]["buffer"][0]
 
-# Example usage:
+
 def remoteControl():
-    # Let's collect samples and track maximum acceleration
-    maxAcceleration = 0
-    samples = []
-    
-    # Collect for 10 samples (you can adjust this number)
-    for i in range(50):
+    """
+    Runs for 10 seconds, sampling acceleration,
+    and returns the maximum value seen.
+    """
+    maxAcc = 0.0
+    startTime = time.time()
+    endTime = startTime + 10.0
+
+    while time.time() < endTime:
         magnitude = getAcceleration()
-        if magnitude is not None:
-            samples.append(magnitude)
-            maxAcceleration = max(maxAcceleration, magnitude)
-        time.sleep(0.2)  # Adjust thedelay as needed
-    return maxAcceleration
+        maxAcc = max(maxAcc, magnitude)
+        time.sleep(0.05)
+
+    print("Final maxAcc:", maxAcc)
+    return maxAcc
+
+
+remoteControl()
