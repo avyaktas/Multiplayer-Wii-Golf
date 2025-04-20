@@ -1,6 +1,7 @@
+from remoteControl import remoteControl
 
 
-def calculateVelocity(acceleration, club):
+def calculateVelocity(club): #add ground later
     """
     Calculates the ball velocity based on acceleration input and selected club.
     
@@ -11,6 +12,7 @@ def calculateVelocity(acceleration, club):
     Returns:
         float: Calculated velocity in m/s
     """
+    acceleration = remoteControl()
     # Base multiplier for acceleration to velocity conversion
     baseMultiplier = 2.0
     
@@ -25,12 +27,13 @@ def calculateVelocity(acceleration, club):
     # Initial launch angles for each club
     launchAngles = {
         'driver': 10,  # Degrees
-        'wood': 12,
-        'iron': 15,
-        'wedge': 20,
-        'putter': 30
+        'wood': 14,
+        'iron': 40,
+        'wedge': 60,
+        'putter': 1
     }
     launchAngle = launchAngles.get(club.lower(), launchAngles['putter'])
+    launchAngleRad = launchAngle * (3.14/180)
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])
     
     # Calculate velocity using acceleration and club multiplier
@@ -40,4 +43,4 @@ def calculateVelocity(acceleration, club):
     minVelocity = 0.5  # Minimum velocity in m/s
     maxVelocity = 50.0 # Maximum velocity in m/s
     
-    return max(minVelocity, min(velocity, maxVelocity)), launchAngle 
+    return max(minVelocity, min(velocity, maxVelocity)), launchAngleRad
