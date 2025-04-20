@@ -74,7 +74,6 @@ def redrawAll(app):
         if not app.ballInMotion:
             drawAimLine(app)  # Draw the ball in every frame
             drawClubSelection(app)
-<<<<<<< HEAD
         drawAimLine(app)
         drawBall(app)  # Draw the ball in every frame
         drawCardButton(app)
@@ -84,8 +83,6 @@ def redrawAll(app):
         
 
 
-=======
->>>>>>> aa5f48be2bc86d2e5f0790f7ea4535d5183867aa
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
