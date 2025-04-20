@@ -9,20 +9,18 @@ tkolenci
     -Designed image Converter
 <<<<<<< HEAD
     
+=======
 Nelson
-    -Perliminary accelerometer api(spent hours with andrew debugging)
+    -Preliminary accelerometer api
     -holeSketch and graphicsTogether(perlimary startPage and hole1)
     - 
+
+Andrew
+    -Preliminary accelerometer api (spent hours with Nelson debugging)
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
     - added a wa
 
-koz
- - Wrote the Enemy class in game_logic.py
- - ...
-mdtaylor
- - Designed and coded the main game screen
- - ...
 ------------------------------------>
