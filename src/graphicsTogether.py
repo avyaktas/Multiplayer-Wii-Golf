@@ -306,90 +306,90 @@ def findHoleCenter():
 
 
 def drawClubSelection(app):
-    if app.showClubSelection:
-        # Draw semi-transparent background panel
-        menuX = 20  # Position menu on right side
-        menuY = app.height - 300  # Position from top
-        menuWidth = 180
-        menuHeight = 270
-        lineHeight = 28
-        topOffset = 50
-        # menuX, menuY = getScreenCoords(app, menuX, menuY)
+
+    # Draw semi-transparent background panel
+    menuX = 20  # Position menu on right side
+    menuY = app.height - 300  # Position from top
+    menuWidth = 180
+    menuHeight = 270
+    lineHeight = 28
+    topOffset = 50
+    # menuX, menuY = getScreenCoords(app, menuX, menuY)
+    
+    # Draw main menu panel
+    drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
+            fill='white', opacity=80)
+    
+    # Draw title
+    drawLabel('Club Selection', 
+                menuX + menuWidth//2, menuY + 30, 
+                size=16, bold=True, fill='black')
+    
+    
+    
+    # Draw club options
+    for i, club in enumerate(app.clubs):
+        # Highlight selected club
+        if i == app.clubIndex:
+            # Draw highlight background
+            drawRect(menuX + 10, 
+                    menuY + topOffset + i* lineHeight,  # Vertical spacing
+                    160, 30,  # Size of highlight
+                    fill='lightGreen')
+            textColor = 'darkGreen'
+        else:
+            textColor = 'black'
         
-        # Draw main menu panel
-        drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
-                fill='white', opacity=80)
+        # Draw club name
+        drawLabel(club.title(),  # Capitalize club name
+                    menuX + menuWidth//2, 
+                    menuY + 60 + i*30,  # Vertical spacing
+                    fill=textColor)
+    
+    # Draw instructions at bottom
+    drawLabel('w,s to select', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 30,
+                size=12)
+    drawLabel('SPACE to confirm', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 10,
+                size=12)
+    
+    # Draw club stats (optional)
+    if app.selectedClub:
+        # Power meter
+        powerBarWidth = menuWidth - 40
+        powerBarHeight = 10
+        powerBarX = menuX + 20
+        powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
+        powerBarY = powerTextY + 15
+        powerWidth = menuWidth - 40
         
-        # Draw title
-        drawLabel('Club Selection', 
-                 menuX + menuWidth//2, menuY + 30, 
-                 size=16, bold=True, fill='black')
+        # Club power values (0-100)
+        clubPower = {
+            'driver': 100,
+            'wood': 80,
+            'iron': 60,
+            'wedge': 40,
+            'putter': 20
+        }
         
+        # Draw power bar background
+        drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
+                fill='lightGray')
         
+        # Draw power level
+        power = clubPower.get(app.selectedClub, 0)
+        drawRect(powerBarX, powerBarY, 
+                powerBarWidth * (power/100), powerBarHeight,
+                fill='green')
         
-        # Draw club options
-        for i, club in enumerate(app.clubs):
-            # Highlight selected club
-            if i == app.clubIndex:
-                # Draw highlight background
-                drawRect(menuX + 10, 
-                        menuY + topOffset + i* lineHeight,  # Vertical spacing
-                        160, 30,  # Size of highlight
-                        fill='lightGreen')
-                textColor = 'darkGreen'
-            else:
-                textColor = 'black'
-            
-            # Draw club name
-            drawLabel(club.title(),  # Capitalize club name
-                     menuX + menuWidth//2, 
-                     menuY + 60 + i*30,  # Vertical spacing
-                     fill=textColor)
-        
-        # Draw instructions at bottom
-        drawLabel('w,s to select', 
-                 menuX + menuWidth//2, 
-                 menuY + menuHeight - 30,
-                 size=12)
-        drawLabel('SPACE to confirm', 
-                 menuX + menuWidth//2, 
-                 menuY + menuHeight - 10,
-                 size=12)
-        
-        # Draw club stats (optional)
-        if app.selectedClub:
-            # Power meter
-            powerBarWidth = menuWidth - 40
-            powerBarHeight = 10
-            powerBarX = menuX + 20
-            powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
-            powerBarY = powerTextY + 15
-            powerWidth = menuWidth - 40
-            
-            # Club power values (0-100)
-            clubPower = {
-                'driver': 100,
-                'wood': 80,
-                'iron': 60,
-                'wedge': 40,
-                'putter': 20
-            }
-            
-            # Draw power bar background
-            drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
-                    fill='lightGray')
-            
-            # Draw power level
-            power = clubPower.get(app.selectedClub, 0)
-            drawRect(powerBarX, powerBarY, 
-                    powerBarWidth * (power/100), powerBarHeight,
-                    fill='green')
-            
-            # Draw power label
-            drawLabel(f'Power: {power}%',
-                     menuX + menuWidth//2,
-                     powerBarY - 10,
-                     size=12)
+        # Draw power label
+        drawLabel(f'Power: {power}%',
+                    menuX + menuWidth//2,
+                    powerBarY - 10,
+                    size=12)
             
 def drawCardButton(app): 
     if app.hole1:

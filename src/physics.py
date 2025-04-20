@@ -14,15 +14,14 @@ def calculateVelocity(club): #add ground later
     """
     acceleration = remoteControl()
     # Base multiplier for acceleration to velocity conversion
-    baseMultiplier = 2.0
     
     # Club-specific velocity multipliers
     clubMultipliers = {
-        'driver': 5.0,  # Highest velocity multiplier
-        'wood': 4.0,
-        'iron': 3.0,
-        'wedge': 2.0,
-        'putter': 1.0   # Lowest velocity multiplier
+        'driver': 1.2,  # Highest velocity multiplier
+        'wood': 1.1,
+        'iron': .9,
+        'wedge': .5,
+        'putter': .2  # Lowest velocity multiplier
     }
     # Initial launch angles for each club
     launchAngles = {
@@ -37,10 +36,10 @@ def calculateVelocity(club): #add ground later
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])
     
     # Calculate velocity using acceleration and club multiplier
-    velocity = acceleration * baseMultiplier * clubMultiplier
+    velocity = acceleration * clubMultiplier
     
     # Add minimum and maximum velocity constraints
     minVelocity = 0.5  # Minimum velocity in m/s
     maxVelocity = 50.0 # Maximum velocity in m/s
-    
-    return max(minVelocity, min(velocity, maxVelocity)), launchAngleRad
+    print(velocity, launchAngle)
+    return max(minVelocity, min(velocity, maxVelocity)), launchAngle
