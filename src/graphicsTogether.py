@@ -275,7 +275,8 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.ballInMotion = True
                 app.showClubSelection = False
-                takeShot(app, 100, 45)
+                velocity, angle = calculateVelocity(app.selectedClub)
+                takeShot(app, velocity, angle)
 
 
 def drawAimLine(app):

@@ -42,11 +42,9 @@ def remoteControl():
 
     while time.time() < endTime:
         magnitude = getAcceleration()
-        maxAcc = max(maxAcc, magnitude)
+        if not isinstance(magnitude, float):
+            maxAcc = max(maxAcc, magnitude)
         time.sleep(0.05)
 
     print("Final maxAcc:", maxAcc)
     return maxAcc
-
-
-remoteControl()
