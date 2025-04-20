@@ -1,5 +1,5 @@
 from remoteControl import remoteControl
-
+import math
 
 def calculateVelocity(club): #add ground later
     """
@@ -19,9 +19,9 @@ def calculateVelocity(club): #add ground later
     clubMultipliers = {
         'driver': 1.2,  # Highest velocity multiplier
         'wood': 1.1,
-        'iron': .9,
-        'wedge': .5,
-        'putter': .2  # Lowest velocity multiplier
+        'iron': .8,
+        'wedge': .4,
+        'putter': .1  # Lowest velocity multiplier
     }
     # Initial launch angles for each club
     launchAngles = {

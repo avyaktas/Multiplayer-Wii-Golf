@@ -6,18 +6,6 @@ import math
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
-def getClubPower(club):
-    """
-    Returns the power of the club.
-    """
-    clubPower = {
-        'driver': 100,
-        'wood': 80,
-        'iron': 60,
-        'wedge': 40,
-        'putter': 20
-    }
-    return clubPower.get(club, 0)
 
 def onAppStart(app):
     app.startPage = True 
@@ -51,7 +39,6 @@ def onAppStart(app):
     app.ballVelocityY = 0
     app.ballVelocityZ = 0
     app.gravity = 9.81
-    app.timeStep = 0.1
     app.ballInMotion = False
     app.ballRadius = 3
     app.onTeebox = False
@@ -245,15 +232,20 @@ def onStep(app):
         app.ballZ += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
-        app.ballVelocityZ -= app.gravity * app.timeStep
+        app.ballVelocityZ -= (app.gravity * step)
         app.scrollX += app.ballVelocityX * step
         app.scrollY += app.ballVelocityY * step
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0
             app.ballInMotion = False
+            app.ballVelocityZ = 0 
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
+    if not app.ballInMotion:
+        app.ballVelocityX = 0
+        app.ballVelocityY = 0 
+
 
 
 def drawBall(app):
