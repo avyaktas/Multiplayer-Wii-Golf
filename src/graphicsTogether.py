@@ -425,9 +425,9 @@ def drawCardPage(app):
                 cardTopX + cardWidth, cardTopY + i * 80,
                 fill='black', lineWidth=2)
         
-    for i in range(18): 
-        drawLine(cardTopX + i * 50, cardTopY,
-                cardTopX + i * 50, cardTopY + cardHeight,
+    for i in range(4, 18): 
+        drawLine(cardTopX + i * 60, cardTopY,
+                cardTopX + i * 60, cardTopY + cardHeight,
                 fill='black', lineWidth=2)  
 
 
