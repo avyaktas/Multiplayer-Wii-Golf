@@ -12,7 +12,7 @@ def getPhyphoxAddress():
 
 PP_ADDRESS = getPhyphoxAddress()
 # Update channels to include all directions
-PP_CHANNELS = ["accX", "accY", "accZ", "acc"]
+PP_CHANNELS = ["acc"]
 
 def getAcceleration():
     """
@@ -26,12 +26,7 @@ def getAcceleration():
         print(f"{item}: {acc_data}", end='\t')
     
     # Get values for all directions
-    x = data["buffer"]["accX"]["buffer"][0]
-    y = data["buffer"]["accY"]["buffer"][0]
-    z = data["buffer"]["accZ"]["buffer"][0]
-    
-    # Calculate magnitude using Pythagorean theorem
-    magnitude = (x**2 + y**2 + z**2)**0.5
+    magnitude = data["buffer"]["acc"]["buffer"][0]
     return magnitude
 
 # Example usage:
@@ -41,7 +36,7 @@ def remoteControl():
     samples = []
     
     # Collect for 10 samples (you can adjust this number)
-    for _ in range(10):
+    for i in range(50):
         magnitude = getAcceleration()
         if magnitude is not None:
             samples.append(magnitude)
