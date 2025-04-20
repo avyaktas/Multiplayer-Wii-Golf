@@ -1,11 +1,11 @@
+print('hello')
 import requests
 import json
 import time
 
-
 # phyphox configuration
 def getPhyphoxAddress():
-    defaultPort = "8080"
+    defaultPort = "80"
     ip = input("Enter the PhyPhox IP address (e.g., 192.168.2.100): ")
     port = input(f"Enter the port number (press Enter for default {defaultPort}): ") or defaultPort
     return f"http://{ip}:{port}"
