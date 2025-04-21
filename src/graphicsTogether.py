@@ -18,10 +18,10 @@ def onAppStart(app):
     app.courseWidth = 3000
     app.courseHeight = 1800
     # Play button dimensions
-    app.playButtonX = app.width // 2
-    app.playButtonY = app.height // 2
-    app.playButtonWidth = 200
-    app.playButtonHeight = 60
+    # app.playButtonX = playButtonX
+    # app.playButtonY = playButtonY
+    # app.playButtonWidth = 
+    # app.playButtonHeight = 60
     app.cardButtonX = 30 
     app.cardButtonY = 30
     app.cardButtonWidth = 100
@@ -67,7 +67,6 @@ def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
-        drawCliff(app)
         drawHole1(app)
         drawBall(app)
         if not app.ballInMotion:
@@ -160,40 +159,60 @@ def getHole(points):
     # Return the center as a tuple
     return centerX, centerY
 
-
 def drawStart(app):
-    # Draw background
-    drawRect(0, 0, app.width, app.height, fill='darkGreen')
+    # Draw background image scaled to fill the screen
+    drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
     
     # Draw title
-    drawLabel('Wii Golf 112', app.width//2, 150, 
-             size=50, fill='white', bold=True)
+    titleX = app.width // 2
+    titleY = app.height // 6
+    baseFontSize = 75
+    factor = min(app.width / 1000, app.height / 600)
+    titleFontSize = int(baseFontSize * factor)
+
+    drawLabel('Wii Golf 112', titleX-7, titleY-3, 
+             size=titleFontSize, fill='black', font='impact')
+    drawLabel('Wii Golf 112', titleX, titleY,
+             size=titleFontSize, fill='cornSilk', font='impact')
     
+    # Calculate scaling factor
+    factor = min(app.width / 1000, app.height / 600)
+
+    # Adjust play button dimensions and position
+    playButtonWidth = int(400 * factor)
+    playButtonHeight = int(50 * factor)
+    playButtonX = app.width // 2
+    playButtonY = int(app.height // 1.3)
+
     # Draw play button
-    drawRect(app.playButtonX - app.playButtonWidth//2,
-            app.playButtonY - app.playButtonHeight//2,
-            app.playButtonWidth, app.playButtonHeight,
-            fill='lightGreen', border='white', borderWidth=3)
-    
-    drawLabel('PLAY', app.playButtonX, app.playButtonY,
-             size=30, fill='white', bold=True)
+    color = gradient('darkGreen', 'lightGreen')
+    drawRect(playButtonX - playButtonWidth // 2,
+             playButtonY - playButtonHeight // 2,
+             playButtonWidth, playButtonHeight,
+             fill=color, border='cornSilk', borderWidth=3)
+    drawLabel('Press the Spacebar to begin', playButtonX-2.5, playButtonY-2,
+              size=int(30 * factor), fill='black', bold=True, font='impact')
+    drawLabel('Press the Spacebar to begin', playButtonX, playButtonY,
+              size=int(30 * factor), fill='cornSilk', font='impact')
 
+def getPlayButtonCoord(app):
+    playButtonX = app.width // 2
+    playButtonY = int(app.height // 1.3)
+    return (playButtonX, playButtonY)
 
-def drawCliff(app):
-    cliffPoints = [
-        (0, 0), (app.courseWidth, 0), 
-        (app.courseWidth, app.courseHeight), 
-        (0, app.courseHeight)
-    ]
-    screenPoints = [getScreenCoords(app, x, y) for x, y in cliffPoints]
-    drawPolygon(
-        *flatten(screenPoints),
-        fill='tan', border='black', borderWidth=2
-    )
-    
+def getPlayButtonSize(app):
+    factor = min(app.width / 1000, app.height / 600)
+    playButtonWidth = int(400 * factor)
+    playButtonHeight = int(50 * factor)
+    return (playButtonWidth, playButtonHeight)
+
 def isInPlayButton(app, x, y):
-    return (abs(x - app.playButtonX) <= app.playButtonWidth//2 and
-            abs(y - app.playButtonY) <= app.playButtonHeight//2)
+    playButtonX, playButtonY = getPlayButtonCoord(app)
+    playButtonWidth, playButtonHeight = getPlayButtonSize(app)
+    return (playButtonX - playButtonWidth // 2 <= x <= 
+            playButtonX + playButtonWidth // 2 and
+            playButtonY - playButtonHeight // 2 <= y <= 
+            playButtonY + playButtonHeight // 2)
 
 def isInCardButton(app, x, y): 
     return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
