@@ -28,8 +28,8 @@ def onAppStart(app):
     app.holeButtonHeight = app.cardButtonHeight
     
     # Ball state remains the same
-    app.currentHole = 4
-    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880)]
+    app.currentHole = 9
+    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),(120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballX = app.ballStarts[app.currentHole -1][0]
     app.ballY = app.ballStarts[app.currentHole -1][1]
     app.shadowX = app.ballX
@@ -148,6 +148,16 @@ def getHoleData(app):
         imagePath = 'Hole3.jpg'
     elif app.currentHole == 4:
         imagePath = 'Hole4.jpg'
+    elif app.currentHole == 5:
+        imagePath = 'Hole5.jpg'
+    elif app.currentHole == 6:
+        imagePath = 'Hole6.jpg'
+    elif app.currentHole == 7:
+        imagePath = 'Hole7.jpg'
+    elif app.currentHole == 8:
+        imagePath = 'Hole8.jpg'
+    elif app.currentHole == 9:
+        imagePath = 'Hole9.jpg'
     outlines = getHoleOutlines(imagePath)
     return outlines
 

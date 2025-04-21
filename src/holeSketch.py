@@ -16,7 +16,7 @@ def getHoleOutlines(imagePath):
     
     
     # PINK (outline/background area)
-    pinkLower = np.array([150, 80, 80])
+    pinkLower = np.array([130, 80, 80])
     pinkUpper = np.array([170, 255, 255])
 
     # ORANGE (fairway)
