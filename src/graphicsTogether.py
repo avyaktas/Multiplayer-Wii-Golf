@@ -1,7 +1,7 @@
 from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
-import math
+import math, random
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -44,7 +44,7 @@ def onAppStart(app):
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
-    app.currentHole = 4
+    app.currentHole = 3
 
     app.targetX, app.targetY = findHoleCenter()
     app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
@@ -71,14 +71,42 @@ def oceanStart(app):
     app.offsetY = 0  # Vertical offset for wave movement
     app.offsetSpeed = 5  # Speed of the diagonal movement
     app.count = 0
+    
 
+def drawCliff(app):
+    outlines = getHoleData(app)['outline']
+    for poly in outlines:
+        # 1) build a jagged drop
+        cliff = makeCliffBetter(poly, baseDepth=15, jag=1.5)
+        # 2) draw the cliff face with a vertical rock‑tone gradient
+        coords = []
+        for (worldX, worldY) in cliff:
+            screenX,screenY = getScreenCoords(app, worldX, worldY)
+            coords += [screenX, screenY]
+        color = gradient('cornsilk', 'saddleBrown', start='top')
+        drawPolygon(*coords,
+                    fill=color, border='black')
+        # 3) rock‐strata lines
+        for _ in range(12):
+            i = random.randrange(len(poly))
+            x,y = poly[i]
+            depth = 15 + random.uniform(-5,5)
+            sx1, sy1 = getScreenCoords(app, x, y)
+            sx2, sy2 = getScreenCoords(app, x, y+depth)
+            drawLine(sx1, sy1, sx2, sy2,
+                     lineWidth=1, fill='darkSlateGray', opacity=50)
+
+def makeCliffBetter(poly, baseDepth=20, jag=1):
+    top = poly
+    bottom = [(x, y + baseDepth + random.uniform(-jag, jag)) for (x,y) in poly]
+    return top + bottom[::-1]  # top + bottom in reverse order
 
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
         drawOcean(app)
-        # drawCliff(app)
+        drawCliff(app)
         drawHole1(app)
         drawBall(app)
         if not app.ballInMotion:
@@ -92,27 +120,14 @@ def redrawAll(app):
         drawHoleButton(app)
         
 def drawOcean(app):
-    # Display the current frame in tiled chunks
+    # Display the current frame in chunks
     currentFrame = app.frames[app.currentFrameIndex]
-    for x in range(-app.tileWidth, app.width, app.tileWidth):
-        for y in range(-app.tileHeight, app.height, app.tileHeight):
+    for x in range(-app.tileWidth, app.width, app.tileWidth): 
+        # X values loop
+        for y in range(-app.tileHeight, app.height, app.tileHeight): 
+            # Y values loop
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
-
-# def drawCliff(app):
-#     # Dynamically calculate the cliff's position and size
-#     cliffHeight = app.height * 0.2  # Cliff height as 20% of the screen height
-#     bottomLeftX, bottomLeftY = getScreenCoords(app, -app.tileWidth, app.height)
-#     bottomRightX, bottomRightY = getScreenCoords(app, app.width + app.tileWidth, app.height)
-#     topRightX, topRightY = getScreenCoords(app, app.width + app.tileWidth, app.height - cliffHeight)
-#     topLeftX, topLeftY = getScreenCoords(app, 0, app.height - cliffHeight)
-#     cliffPoints = [
-#         (bottomLeftX, bottomLeftY),
-#         (bottomRightX, bottomRightY),
-#         (topRightX, topRightY),
-#         (topLeftX, topLeftY)
-#     ]
-#     drawPolygon(*flatten(cliffPoints), fill='saddlebrown', border='black')
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -152,15 +167,17 @@ def drawHole1(app):
         for point in shifted:
             flattenedCoords.append(point[0])
             flattenedCoords.append(point[1])
-        drawPolygon(*flattenedCoords, fill=fill, border=border)
+        drawPolygon(*flattenedCoords, fill=fill, border=border,
+                    borderWidth=3.5)
     
-    def drawPolygons(app, polygons, fill, border='None'):
+    def drawPolygons(app, polygons, fill, border):
         for poly in polygons:
             drawCoursePolygon(app, poly, fill, border)
 
     # Draw course features in 2D
     if 'outline' in outlines:
-        drawPolygons(app, outlines['outline'], fill='forestGreen', border='black')
+        drawPolygons(app, outlines['outline'], 
+                     fill='forestGreen', border='black')
     drawPolygons(app, outlines['fairway'], fill='green', border=None)
     drawPolygons(app, outlines['sandtrap'], fill='tan', border='black')
     drawPolygons(app, outlines['green'], fill='forestGreen', border='black')
