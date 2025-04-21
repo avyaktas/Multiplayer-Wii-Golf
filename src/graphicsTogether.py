@@ -190,9 +190,9 @@ def drawStart(app):
              playButtonY - playButtonHeight // 2,
              playButtonWidth, playButtonHeight,
              fill=color, border='cornSilk', borderWidth=3)
-    drawLabel('Press the Spacebar to begin', playButtonX-2.5, playButtonY-2,
+    drawLabel('Press the here to begin', playButtonX-2.5, playButtonY-2,
               size=int(30 * factor), fill='black', bold=True, font='impact')
-    drawLabel('Press the Spacebar to begin', playButtonX, playButtonY,
+    drawLabel('Press the here to begin', playButtonX, playButtonY,
               size=int(30 * factor), fill='cornSilk', font='impact')
 
 def getPlayButtonCoord(app):
