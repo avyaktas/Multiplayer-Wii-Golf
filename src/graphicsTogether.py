@@ -2,7 +2,7 @@ from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math
-from playerClass import player
+from playerClass import Player
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
