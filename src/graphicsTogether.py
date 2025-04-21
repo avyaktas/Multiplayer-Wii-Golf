@@ -56,7 +56,7 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
-    app.score = 0 
+    app.strokeCount = 0 
 
     oceanStart(app)
 def oceanStart(app):
@@ -280,7 +280,7 @@ def takeShot(app, velocity, angle):
     
     app.ballInMotion = True
     app.onTeebox = False
-    app.score += 1 
+    app.strokeCount  += 1 
 
 def onStep(app):
     app.count += 1
@@ -308,6 +308,8 @@ def onStep(app):
     if not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
+        region = getBallTerrain(app)
+        print("Ball is now in:", region)
         holeX, holeY = findHoleCenter()
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True 
@@ -362,7 +364,7 @@ def findHoleCenter():
     Reads outlines with getHoleOutlines, grabs the first green polygon,
     and returns its centroid.
     """
-    outlines = getHoleOutlines('Hole.jpg')
+    outlines = getHoleData(app) 
     greens   = outlines.get('green', [])
     if not greens:
         return 0, 0
@@ -373,6 +375,45 @@ def findHoleCenter():
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
     return cx, cy
+
+def pointInPolygon(x, y, poly):
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        x0, y0 = poly[i]
+        x1, y1 = poly[(i+1) % n]
+        # check if edge straddles horizontal ray at y
+        if ((y0 > y) != (y1 > y)):
+            # find x coordinate of intersection
+            t = (y - y0) / (y1 - y0)
+            xi = x0 + t * (x1 - x0)
+            if xi >= x:
+                inside = not inside
+    return inside
+
+def normalizePolygons(raw):
+    out = []
+    for entry in raw:
+        if isinstance(entry, dict) and 'points' in entry:
+            out.append(entry['points'])
+        else:
+            out.append(entry)
+    return out
+
+def getBallTerrain(app):
+    bx, by = app.ballX, app.ballY
+    outlines = getHoleData(app) 
+
+    # check in this priority order
+    for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
+        raw = outlines.get(terrain, [])
+        for poly in normalizePolygons(raw):
+            if pointInPolygon(bx, by, poly):
+                # map 'outline' → 'rough'
+                return 'rough' if terrain == 'outline' else terrain
+
+    return 'out of bounds'
+
 
 
 def drawClubSelection(app):
