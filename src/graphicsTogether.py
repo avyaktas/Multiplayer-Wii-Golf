@@ -1,7 +1,12 @@
 from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
+<<<<<<< HEAD
+import math, random
+=======
 import math
+from playerClass import Player
+>>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -32,20 +37,26 @@ def onAppStart(app):
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),(120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballX = app.ballStarts[app.currentHole -1][0]
     app.ballY = app.ballStarts[app.currentHole -1][1]
-    app.shadowY = 0 
+    app.shadowX = app.ballX
+    app.shadowY = app.ballY
     app.ballZ = 0
     app.ballVelocityX = 0
     app.ballVelocityY = 0
     app.ballVelocityZ = 0
     app.gravity = 9.81
     app.ballInMotion = False
+    app.ballInHole = False
     app.ballRadius = 3
     app.onTeebox = False
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
+<<<<<<< HEAD
+    app.currentHole = 3
+=======
+>>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 
-    app.targetX, app.targetY = findHoleCenter()
+    app.targetX, app.targetY = findHoleCenter(app)
     app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
     app.stepsPerSecond = 10
     app.scores = [
@@ -56,9 +67,15 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
-    app.score = 0 
-
+    app.score = 0
+    app.velocity = 0
+    app.angle = 0
+    app.putting = False
+    app.rollingDeceleration = 2.0
+    app.onGreen = False
+    app.strokeCount = 0 
     oceanStart(app)
+
 def oceanStart(app):
     app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
     app.currentFrameIndex = 0
@@ -68,14 +85,47 @@ def oceanStart(app):
     app.offsetY = 0  # Vertical offset for wave movement
     app.offsetSpeed = 5  # Speed of the diagonal movement
     app.count = 0
+    
 
+def drawCliff(app):
+    outlines = getHoleData(app)['outline']
+    for poly in outlines:
+        # 1) build a jagged drop
+        cliff = makeCliffBetter(poly, baseDepth=15, jag=1.5)
+        # 2) draw the cliff face with a vertical rock‑tone gradient
+        coords = []
+        for (worldX, worldY) in cliff:
+            screenX,screenY = getScreenCoords(app, worldX, worldY)
+            coords += [screenX, screenY]
+        color = gradient('cornsilk', 'saddleBrown', start='top')
+        drawPolygon(*coords,
+                    fill=color, border='black')
+        # 3) rock‐strata lines
+        for _ in range(12):
+            i = random.randrange(len(poly))
+            x,y = poly[i]
+            depth = 15 + random.uniform(-5,5)
+            sx1, sy1 = getScreenCoords(app, x, y)
+            sx2, sy2 = getScreenCoords(app, x, y+depth)
+            drawLine(sx1, sy1, sx2, sy2,
+                     lineWidth=1, fill='darkSlateGray', opacity=50)
+
+def makeCliffBetter(poly, baseDepth=20, jag=1):
+    top = poly
+    bottom = [(x, y + baseDepth + random.uniform(-jag, jag)) for (x,y) in poly]
+    return top + bottom[::-1]  # top + bottom in reverse order
 
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
         drawOcean(app)
+<<<<<<< HEAD
+        drawCliff(app)
+        drawHole1(app)
+=======
         drawHole(app)
+>>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
         drawBall(app)
         if not app.ballInMotion:
             drawAimLine(app)  # Draw the ball in every frame
@@ -88,14 +138,19 @@ def redrawAll(app):
         drawHoleButton(app)
         
 def drawOcean(app):
-    # Display the current frame in tiled chunks
+    # Display the current frame in chunks
     currentFrame = app.frames[app.currentFrameIndex]
-    for x in range(-app.tileWidth, app.width, app.tileWidth):
-        for y in range(-app.tileHeight, app.height, app.tileHeight):
+    for x in range(-app.tileWidth, app.width, app.tileWidth): 
+        # X values loop
+        for y in range(-app.tileHeight, app.height, app.tileHeight): 
+            # Y values loop
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
     screenY = y - app.scrollY + app.height / 3
@@ -124,7 +179,7 @@ def getHoleData(app):
     return outlines
 
 def findAimAngle(app):
-    app.targetX, app.targetY = findHoleCenter()
+    app.targetX, app.targetY = findHoleCenter(app)
     return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
 #used chatGPT for the flatten function
 
@@ -144,15 +199,17 @@ def drawHole(app):
         for point in shifted:
             flattenedCoords.append(point[0])
             flattenedCoords.append(point[1])
-        drawPolygon(*flattenedCoords, fill=fill, border=border)
+        drawPolygon(*flattenedCoords, fill=fill, border=border,
+                    borderWidth=3.5)
     
-    def drawPolygons(app, polygons, fill, border='None'):
+    def drawPolygons(app, polygons, fill, border):
         for poly in polygons:
             drawCoursePolygon(app, poly, fill, border)
 
     # Draw course features in 2D
     if 'outline' in outlines:
-        drawPolygons(app, outlines['outline'], fill='forestGreen', border='black')
+        drawPolygons(app, outlines['outline'], 
+                     fill='forestGreen', border='black')
     drawPolygons(app, outlines['fairway'], fill='green', border=None)
     drawPolygons(app, outlines['sandtrap'], fill='tan', border='black')
     drawPolygons(app, outlines['green'], fill='forestGreen', border='black')
@@ -283,6 +340,8 @@ def takeShot(app, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
     # Set initial velocities  # 45 degree launch angle
+    if getBallTerrain(app) == 'green':
+        app.putting = True
     app.ballVelocityZ = velocity * math.sin(angle)
     flatVelocity = velocity * math.cos(angle)
     app.ballVelocityX = flatVelocity * math.cos(app.aimAngle)
@@ -290,43 +349,68 @@ def takeShot(app, velocity, angle):
     
     app.ballInMotion = True
     app.onTeebox = False
-    app.score += 1 
+    app.strokeCount  += 1 
 
 def onStep(app):
     app.count += 1
-    if app.ballInMotion:
-        step = (1/app.stepsPerSecond)
-        app.ballX += app.ballVelocityX * step
-        app.ballY = app.ballY - (app.ballVelocityZ * step) - (app.ballVelocityY * step)
-        app.ballZ += app.ballVelocityZ * step
-        app.shadowX = app.ballX
-        app.shadowY -= app.ballVelocityY * step
-        
-        # Apply gravity to Z velocity
-        app.ballVelocityZ -= (app.gravity * step)
-        app.scrollX += app.ballVelocityX * step
-        app.scrollY -= app.ballVelocityZ * step
-        # Check if ball has landed
-        if app.ballZ <= 0 and app.ballVelocityZ < 0:
-            app.ballZ = 0
-            app.shadowY = app.ballY
+    if app.ballInHole:
             app.ballInMotion = False
-            app.ballVelocityZ = 0 
-            app.targetX, app.targetY= findHoleCenter()
-            app.aimAngle = math.atan2(app.targetY - app.ballY,
-                              app.targetX - app.ballX)
-    if not app.ballInMotion:
+            app.putting = False
+            app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+    
+    
+    if app.ballInMotion:
+        if app.putting:
+            step = (1/app.stepsPerSecond)
+            app.ballX += app.ballVelocityX * step
+            app.ballY += app.ballVelocityY * step
+            app.scrollX += app.ballVelocityX * step
+            app.scrollY += app.ballVelocityY * step
+            app.ballVelocityX -= (app.rollingDeceleration * math.cos(app.aimAngle) * step)
+            app.ballVelocityY -= (app.rollingDeceleration * math.sin(app.aimAngle) * step)
+            if app.ballVelocityX <= 0 and app.ballVelocityY <= 0:
+                app.ballInMotion = False
+                app.putting = False
+                app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+        else:
+            step = (1/app.stepsPerSecond)
+            app.ballX += app.ballVelocityX * step
+            app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
+            app.ballZ += app.ballVelocityZ * step
+            app.shadowX = app.ballX
+            app.shadowY += app.ballVelocityY * step
+            
+            # Apply gravity to Z velocity
+            app.ballVelocityZ -= (app.gravity * step)
+            app.scrollX += app.ballVelocityX * step
+            app.scrollY = app.scrollY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
+            # Check if ball has landed
+            if app.ballZ <= 0 and app.ballVelocityZ < 0:
+                app.ballZ = 0
+                app.shadowY = app.ballY
+                app.ballInMotion = False
+                app.ballVelocityZ = 0 
+                app.targetX, app.targetY= findHoleCenter(app)
+                app.aimAngle = math.atan2(app.targetY - app.ballY,
+                                app.targetX - app.ballX)
+    
+    
+    elif not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
-        holeX, holeY = findHoleCenter()
+        holeX, holeY = findHoleCenter(app)
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
-            app.cardPage = True 
+            app.cardPage = True
     # Draws the ocean
     if not app.startPage:
         if app.count % 5 == 0: # Only updates every 5 steps
             app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
+            app.count = 0
+        if app.count % 20 == 0:
+            region = getBallTerrain(app)
+            print("Ball is now in:", region)
     
 
 
@@ -356,7 +440,6 @@ def onKeyPress(app, key):
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
-                app.ballInMotion = True
 
 
 def drawAimLine(app):
@@ -367,12 +450,12 @@ def drawAimLine(app):
         ey = sy + length * math.sin(app.aimAngle)
         drawLine(sx, sy, ex, ey, fill='white', lineWidth=2)
 
-def findHoleCenter():
+def findHoleCenter(app):
     """
     Reads outlines with getHoleOutlines, grabs the first green polygon,
     and returns its centroid.
     """
-    outlines = getHoleOutlines('Hole.jpg')
+    outlines = getHoleData(app) 
     greens   = outlines.get('green', [])
     if not greens:
         return 0, 0
@@ -383,6 +466,45 @@ def findHoleCenter():
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
     return cx, cy
+
+def pointInPolygon(x, y, poly):
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        x0, y0 = poly[i]
+        x1, y1 = poly[(i+1) % n]
+        # check if edge straddles horizontal ray at y
+        if ((y0 > y) != (y1 > y)):
+            # find x coordinate of intersection
+            t = (y - y0) / (y1 - y0)
+            xi = x0 + t * (x1 - x0)
+            if xi >= x:
+                inside = not inside
+    return inside
+
+def normalizePolygons(raw):
+    out = []
+    for entry in raw:
+        if isinstance(entry, dict) and 'points' in entry:
+            out.append(entry['points'])
+        else:
+            out.append(entry)
+    return out
+
+def getBallTerrain(app):
+    bx, by = app.ballX, app.ballY
+    outlines = getHoleData(app) 
+
+    # check in this priority order
+    for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
+        raw = outlines.get(terrain, [])
+        for poly in normalizePolygons(raw):
+            if pointInPolygon(bx, by, poly):
+                # map 'outline' → 'rough'
+                return 'rough' if terrain == 'outline' else terrain
+
+    return 'out of bounds'
+
 
 
 def drawClubSelection(app):
