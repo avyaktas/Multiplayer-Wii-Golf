@@ -38,7 +38,7 @@ def remoteControl():
     """
     maxAcc = 0.0
     startTime = time.time()
-    endTime = startTime + 10.0
+    endTime = startTime + 7.0
 
     while time.time() < endTime:
         magnitude = getAcceleration()
