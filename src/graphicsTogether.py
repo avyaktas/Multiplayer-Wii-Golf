@@ -36,6 +36,7 @@ def onAppStart(app):
     app.ballStartY = 615
     app.ballX = 100
     app.ballY = 615
+    app.shadowY = 615
     app.ballZ = 0
     app.ballVelocityX = 0
     app.ballVelocityY = 0
@@ -92,6 +93,8 @@ def getHoleData():
     outlines = getHoleOutlines(imagePath)
     return outlines
 
+#used chatGPT for the flatten function
+
 def flatten(points):
     return [coord for point in points for coord in point]
 
@@ -99,6 +102,7 @@ def drawHole1(app):
     drawRect(0, 0, app.width, app.height, fill='darkBlue')
     outlines = getHoleData()
 
+    #Used chatGPT to help with the drawCoursePolygon function
     def drawCoursePolygon(app, poly, fill, border): 
         shifted = []
         for (x, y) in poly:
@@ -242,6 +246,7 @@ def onStep(app):
         app.ballX += app.ballVelocityX * step
         app.ballY += app.ballVelocityY * step
         app.ballZ += app.ballVelocityZ * step
+        app.shadowY += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= (app.gravity * step)
@@ -265,9 +270,11 @@ def onStep(app):
 
 
 def drawBall(app):
-
     screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
     drawCircle(screenX, screenY, app.ballRadius, fill='white')
+    if app.ballInMotion:
+        shadowX, shadowY = getScreenCoords(app, app.ballX, app.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity = 60)
 
 def onKeyPress(app, key):
     if not app.ballInMotion:
@@ -426,23 +433,33 @@ def drawHoleButton(app):
 def drawCardPage(app): 
     drawRect(0, 0, app.width, app.height, fill = 'green')
     cardTopX = 50
-    cardTopY = 80
-    cardColWidth = 60
-    cardRowHeight = 40
+    cardTopY = 180
+    cardColWidth = 75
+    cardRowHeight = 60
 
     rows, cols = len(app.scores), len(app.scores[0])
-    drawRect(cardTopX, cardTopY, 
+    
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT', 'TOTAL']
+    for col in range(cols):
+        x = cardTopX + col * cardColWidth
+        drawRect(x, cardTopY - cardRowHeight, cardColWidth, cardRowHeight, fill='gray', border='black')
+        drawLabel(holeLabels[col], x + cardColWidth//2, cardTopY - cardRowHeight//2, size=14, bold=True, fill='white')
+        drawRect(cardTopX, cardTopY, 
             cardColWidth * cols, cardRowHeight * rows,
             fill='white', border='black', borderWidth=2)
+    
     for row in range(rows):
         for col in range(cols): 
-            x = cardTopX + row * cardColWidth
-            y = cardTopY + col * cardRowHeight
+            x = cardTopX + col * cardColWidth
+            y = cardTopY + row * cardRowHeight
             drawRect(x, y, cardColWidth, cardRowHeight,
                     fill='white', border='black', borderWidth=2)
             drawLabel(str(app.scores[row][col]), 
                     x + cardColWidth//2, y + cardRowHeight//2,
                     size=16, fill='black', bold=True)
+            
+    drawLabel('112 Country Club Front 9', app.width//2, 80, size = 30, 
+              bold = True, fill = 'white')
                      
 
     

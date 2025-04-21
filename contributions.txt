@@ -17,6 +17,9 @@ Nelson
 
 Andrew
     -Preliminary accelerometer api (spent hours with Nelson debugging)
+    -Ball motion
+    -Ball shadow
+    -Ball physics
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
