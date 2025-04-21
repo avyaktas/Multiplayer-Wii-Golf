@@ -92,6 +92,9 @@ def getHoleData():
     outlines = getHoleOutlines(imagePath)
     return outlines
 
+def findAimAngle(app):
+    app.targetX, app.targetY = findHoleCenter()
+    return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
 #used chatGPT for the flatten function
 
 def flatten(points):
