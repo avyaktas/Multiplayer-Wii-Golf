@@ -46,7 +46,7 @@ def onAppStart(app):
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
 
-    app.targetX, app.targetY = findHoleCenter()
+    app.targetX, app.targetY = findHoleCenter(app)
     app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
     app.stepsPerSecond = 10
     app.scores = [
@@ -57,18 +57,15 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
-<<<<<<< HEAD
     app.score = 0
     app.velocity = 0
     app.angle = 0
     app.putting = False
     app.rollingDeceleration = 2.0
     app.onGreen = False
-=======
     app.strokeCount = 0 
->>>>>>> fc3dcfa662375d1ccfab6a321d61901fc7945ec6
-
     oceanStart(app)
+
 def oceanStart(app):
     app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
     app.currentFrameIndex = 0
@@ -124,7 +121,7 @@ def getHoleData(app):
     return outlines
 
 def findAimAngle(app):
-    app.targetX, app.targetY = findHoleCenter()
+    app.targetX, app.targetY = findHoleCenter(app)
     return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
 #used chatGPT for the flatten function
 
@@ -331,7 +328,7 @@ def onStep(app):
             app.shadowY = app.ballY
             app.ballInMotion = False
             app.ballVelocityZ = 0 
-            app.targetX, app.targetY= findHoleCenter()
+            app.targetX, app.targetY= findHoleCenter(app)
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
     
@@ -341,7 +338,7 @@ def onStep(app):
         app.ballVelocityY = 0 
         region = getBallTerrain(app)
         print("Ball is now in:", region)
-        holeX, holeY = findHoleCenter()
+        holeX, holeY = findHoleCenter(app)
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True
     # Draws the ocean
@@ -390,7 +387,7 @@ def drawAimLine(app):
         ey = sy + length * math.sin(app.aimAngle)
         drawLine(sx, sy, ex, ey, fill='white', lineWidth=2)
 
-def findHoleCenter():
+def findHoleCenter(app):
     """
     Reads outlines with getHoleOutlines, grabs the first green polygon,
     and returns its centroid.
