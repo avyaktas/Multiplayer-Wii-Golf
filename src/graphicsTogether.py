@@ -263,10 +263,10 @@ def onStep(app):
     if app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
-        app.ballY -= app.ballVelocityZ * step 
+        app.ballY = app.ballY - (app.ballVelocityZ * step) - (app.ballVelocityY * step)
         app.ballZ += app.ballVelocityZ * step
         app.shadowX = app.ballX
-        app.shadowY += app.ballVelocityZ * step
+        app.shadowY -= app.ballVelocityY * step
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= (app.gravity * step)
@@ -290,11 +290,12 @@ def onStep(app):
 
 
 def drawBall(app):
-    screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
-    drawCircle(screenX, screenY, app.ballRadius, fill='white')
     if app.ballInMotion:
         shadowX, shadowY = getScreenCoords(app, app.ballX, app.shadowY)
         drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity = 60)
+    screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
+    drawCircle(screenX, screenY, app.ballRadius, fill='white')
+    
 
 def onKeyPress(app, key):
     if not app.ballInMotion:
@@ -309,11 +310,11 @@ def onKeyPress(app, key):
         elif key == 'd':              # turn right
             app.aimAngle += math.radians(3)
         if key == 'space':
-                app.ballInMotion = True
                 app.showClubSelection = False
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
+                app.ballInMotion = True
 
 
 def drawAimLine(app):
