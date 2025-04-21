@@ -58,7 +58,9 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
-    app.score = 0 
+    app.score = 0
+    app.velocity = 0
+    app.angle = 0
 
     oceanStart(app)
 def oceanStart(app):
@@ -304,7 +306,7 @@ def onStep(app):
             app.shadowY = app.ballY
             app.ballInMotion = False
             app.ballVelocityZ = 0 
-            app.targetX, app.targetY= findHoleCenter()
+            app.targetX, app.targetY = findHoleCenter()
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
     if not app.ballInMotion:
@@ -346,6 +348,7 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.showClubSelection = False
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
+                app.velocity, app.angle = velocity, angle
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
                 app.ballInMotion = True
