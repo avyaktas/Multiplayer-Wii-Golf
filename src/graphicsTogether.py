@@ -62,11 +62,21 @@ def onAppStart(app):
     ]
 
     app.score = 0 
+    oceanStart(app)
+
+
+def oceanStart(app):
+    app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
+    app.currentFrameIndex = 0
+    app.tileWidth = 600  # Width of each tile
+    app.tileHeight = 600  # Height of each tile
+
 
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
     elif app.hole1:
+        drawOcean(app)
         drawHole1(app)
         drawBall(app)
         if not app.ballInMotion:
@@ -79,8 +89,12 @@ def redrawAll(app):
         drawCardPage(app)
         drawHoleButton(app)
         
-
-
+def drawOcean(app):
+    # Display the current frame in tiled chunks
+    currentFrame = app.frames[app.currentFrameIndex]
+    for x in range(0, app.width, app.tileWidth):
+        for y in range(0, app.height, app.tileHeight):
+            drawImage(currentFrame, x, y, width=app.tileWidth, height=app.tileHeight)
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -98,7 +112,6 @@ def flatten(points):
     return [coord for point in points for coord in point]
 
 def drawHole1(app):
-    drawRect(0, 0, app.width, app.height, fill='darkBlue')
     outlines = getHoleData()
 
     #Used chatGPT to help with the drawCoursePolygon function
@@ -273,7 +286,7 @@ def onStep(app):
         app.scrollX += app.ballVelocityX * step
         app.scrollY -= app.ballVelocityZ * step
         # Check if ball has landed
-        if app.ballZ <= 0 and app.ballVelocityZ <= 0:
+        if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0
             app.ballInMotion = False
             app.ballVelocityZ = 0 
@@ -285,6 +298,8 @@ def onStep(app):
         holeX, holeY = findHoleCenter()
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True 
+    if not app.startPage: # For the the ocean
+        app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
     
 
 
