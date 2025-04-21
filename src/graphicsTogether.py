@@ -252,7 +252,7 @@ def onStep(app):
         # Apply gravity to Z velocity
         app.ballVelocityZ -= (app.gravity * step)
         app.scrollX += app.ballVelocityX * step
-        app.scrollY += app.ballVelocityY * step
+        app.scrollY -= app.ballVelocityZ * step
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0
