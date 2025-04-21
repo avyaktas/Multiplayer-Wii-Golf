@@ -317,6 +317,7 @@ def onStep(app):
             app.ballZ = 0
             app.ballInMotion = False
             app.ballVelocityZ = 0 
+            app.targetX, app.targetY= findHoleCenter()
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
     if not app.ballInMotion:
