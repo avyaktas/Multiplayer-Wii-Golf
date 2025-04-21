@@ -282,6 +282,8 @@ def takeShot(app, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
     # Set initial velocities  # 45 degree launch angle
+    if getBallTerrain(app) == 'green':
+        app.putting = True
     app.ballVelocityZ = velocity * math.sin(angle)
     flatVelocity = velocity * math.cos(angle)
     app.ballVelocityX = flatVelocity * math.cos(app.aimAngle)
@@ -297,42 +299,42 @@ def onStep(app):
             app.ballInMotion = False
             app.putting = False
             app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
-    if app.putting:
-        step = (1/app.stepsPerSecond)
-        app.ballX += app.ballVelocityX * step
-        app.ballY += app.ballVelocityY * step
-        app.scrollX += app.ballVelocityX * step
-        app.scrollY -= app.ballVelocityY * step
-        app.ballVelocityX -= (app.rollingDeceleration * math.cos(app.aimAngle) * step)
-        app.ballVelocityY -= (app.rollingDeceleration * math.sin(app.aimAngle) * step)
-        if app.ballVelocityX <= 0 or app.ballVelocityY <= 0:
-            app.ballInMotion = False
-            app.putting = False
-            app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
     
     
-    
-    elif app.ballInMotion:
-        step = (1/app.stepsPerSecond)
-        app.ballX += app.ballVelocityX * step
-        app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
-        app.ballZ += app.ballVelocityZ * step
-        app.shadowX = app.ballX
-        app.shadowY += app.ballVelocityY * step
-        
-        # Apply gravity to Z velocity
-        app.ballVelocityZ -= (app.gravity * step)
-        app.scrollX += app.ballVelocityX * step
-        app.scrollY = app.scrollY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
-        # Check if ball has landed
-        if app.ballZ <= 0 and app.ballVelocityZ < 0:
-            app.ballZ = 0
-            app.shadowY = app.ballY
-            app.ballInMotion = False
-            app.ballVelocityZ = 0 
-            app.targetX, app.targetY= findHoleCenter(app)
-            app.aimAngle = math.atan2(app.targetY - app.ballY,
-                              app.targetX - app.ballX)
+    if app.ballInMotion:
+        if app.putting:
+            step = (1/app.stepsPerSecond)
+            app.ballX += app.ballVelocityX * step
+            app.ballY += app.ballVelocityY * step
+            app.scrollX += app.ballVelocityX * step
+            app.scrollY += app.ballVelocityY * step
+            app.ballVelocityX -= (app.rollingDeceleration * math.cos(app.aimAngle) * step)
+            app.ballVelocityY -= (app.rollingDeceleration * math.sin(app.aimAngle) * step)
+            if app.ballVelocityX <= 0 and app.ballVelocityY <= 0:
+                app.ballInMotion = False
+                app.putting = False
+                app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+        else:
+            step = (1/app.stepsPerSecond)
+            app.ballX += app.ballVelocityX * step
+            app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
+            app.ballZ += app.ballVelocityZ * step
+            app.shadowX = app.ballX
+            app.shadowY += app.ballVelocityY * step
+            
+            # Apply gravity to Z velocity
+            app.ballVelocityZ -= (app.gravity * step)
+            app.scrollX += app.ballVelocityX * step
+            app.scrollY = app.scrollY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
+            # Check if ball has landed
+            if app.ballZ <= 0 and app.ballVelocityZ < 0:
+                app.ballZ = 0
+                app.shadowY = app.ballY
+                app.ballInMotion = False
+                app.ballVelocityZ = 0 
+                app.targetX, app.targetY= findHoleCenter(app)
+                app.aimAngle = math.atan2(app.targetY - app.ballY,
+                                app.targetX - app.ballX)
     
     
     elif not app.ballInMotion:
@@ -380,7 +382,6 @@ def onKeyPress(app, key):
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
-                app.ballInMotion = True
 
 
 def drawAimLine(app):
