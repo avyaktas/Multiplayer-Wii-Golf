@@ -1,12 +1,7 @@
 from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
-<<<<<<< HEAD
 import math, random
-=======
-import math
-from playerClass import Player
->>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -51,10 +46,6 @@ def onAppStart(app):
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
-<<<<<<< HEAD
-    app.currentHole = 3
-=======
->>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 
     app.targetX, app.targetY = findHoleCenter(app)
     app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
@@ -120,12 +111,8 @@ def redrawAll(app):
         drawStart(app)
     elif app.hole1:
         drawOcean(app)
-<<<<<<< HEAD
         drawCliff(app)
-        drawHole1(app)
-=======
-        drawHole(app)
->>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
+        # drawHole1(app)
         drawBall(app)
         if not app.ballInMotion:
             drawAimLine(app)  # Draw the ball in every frame
@@ -147,10 +134,6 @@ def drawOcean(app):
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f8d08258530601e9f2d545c6258653ce4b9ee277
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
     screenY = y - app.scrollY + app.height / 3
