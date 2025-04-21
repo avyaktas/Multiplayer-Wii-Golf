@@ -244,8 +244,9 @@ def onStep(app):
     if app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
-        app.ballY += app.ballVelocityY * step
+        app.ballY -= app.ballVelocityZ * step 
         app.ballZ += app.ballVelocityZ * step
+        app.shadowX = app.ballX
         app.shadowY += app.ballVelocityZ * step
         
         # Apply gravity to Z velocity
