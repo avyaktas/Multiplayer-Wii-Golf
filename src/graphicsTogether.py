@@ -32,7 +32,8 @@ def onAppStart(app):
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880)]
     app.ballX = app.ballStarts[app.currentHole -1][0]
     app.ballY = app.ballStarts[app.currentHole -1][1]
-    app.shadowY = 0 
+    app.shadowX = app.ballX
+    app.shadowY = app.ballY
     app.ballZ = 0
     app.ballVelocityX = 0
     app.ballVelocityY = 0
@@ -313,15 +314,15 @@ def onStep(app):
     elif app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
-        app.ballY = app.ballY - (app.ballVelocityZ * step) - (app.ballVelocityY * step)
+        app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
         app.ballZ += app.ballVelocityZ * step
         app.shadowX = app.ballX
-        app.shadowY -= app.ballVelocityY * step
+        app.shadowY += app.ballVelocityY * step
         
         # Apply gravity to Z velocity
         app.ballVelocityZ -= (app.gravity * step)
         app.scrollX += app.ballVelocityX * step
-        app.scrollY -= app.ballVelocityZ * step
+        app.scrollY = app.scrollY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0

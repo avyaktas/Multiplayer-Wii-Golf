@@ -10,7 +10,7 @@ def getPhyphoxAddress():
     port = input(f"Enter the port number (press Enter for default {defaultPort}): ") or defaultPort
     return f"http://{ip}:{port}"
 
-PP_ADDRESS = "http://172.26.79.225:80"
+PP_ADDRESS = "http://172.20.10.1:80"
 PP_CHANNELS = ["acc"]
 
 def getURL():
