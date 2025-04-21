@@ -41,6 +41,7 @@ def onAppStart(app):
     app.ballVelocityZ = 0
     app.gravity = 9.81
     app.ballInMotion = False
+    app.ballInHole = False
     app.ballRadius = 3
     app.onTeebox = False
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
@@ -61,6 +62,9 @@ def onAppStart(app):
     app.score = 0
     app.velocity = 0
     app.angle = 0
+    app.putting = False
+    app.rollingDeceleration = 2.0
+    app.onGreen = False
 
     oceanStart(app)
 def oceanStart(app):
@@ -288,7 +292,26 @@ def takeShot(app, velocity, angle):
 
 def onStep(app):
     app.count += 1
-    if app.ballInMotion:
+    if app.ballInHole:
+            app.ballInMotion = False
+            app.putting = False
+            app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+    if app.putting:
+        step = (1/app.stepsPerSecond)
+        app.ballX += app.ballVelocityX * step
+        app.ballY += app.ballVelocityY * step
+        app.scrollX += app.ballVelocityX * step
+        app.scrollY -= app.ballVelocityY * step
+        app.ballVelocityX -= (app.rollingDeceleration * math.cos(app.aimAngle) * step)
+        app.ballVelocityY -= (app.rollingDeceleration * math.sin(app.aimAngle) * step)
+        if app.ballVelocityX <= 0 or app.ballVelocityY <= 0:
+            app.ballInMotion = False
+            app.putting = False
+            app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+    
+    
+    
+    elif app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
         app.ballY = app.ballY - (app.ballVelocityZ * step) - (app.ballVelocityY * step)
@@ -309,12 +332,14 @@ def onStep(app):
             app.targetX, app.targetY = findHoleCenter()
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
-    if not app.ballInMotion:
+    
+    
+    elif not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
         holeX, holeY = findHoleCenter()
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
-            app.cardPage = True 
+            app.cardPage = True
     # Draws the ocean
     if not app.startPage:
         if app.count % 5 == 0: # Only updates every 5 steps
