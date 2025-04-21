@@ -2,6 +2,7 @@ from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math
+from playerClass import player
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -313,7 +314,7 @@ def onStep(app):
     elif app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
-        app.ballY = app.ballY - (app.ballVelocityZ * step) - (app.ballVelocityY * step)
+        app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
         app.ballZ += app.ballVelocityZ * step
         app.shadowX = app.ballX
         app.shadowY -= app.ballVelocityY * step
@@ -336,8 +337,6 @@ def onStep(app):
     elif not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
-        region = getBallTerrain(app)
-        print("Ball is now in:", region)
         holeX, holeY = findHoleCenter(app)
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True
@@ -347,6 +346,10 @@ def onStep(app):
             app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
+            app.count = 0
+        if app.count % 20 == 0:
+            region = getBallTerrain(app)
+            print("Ball is now in:", region)
     
 
 
