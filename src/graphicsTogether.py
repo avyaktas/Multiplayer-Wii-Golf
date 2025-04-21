@@ -32,8 +32,6 @@ def onAppStart(app):
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880)]
     app.ballX = app.ballStarts[app.currentHole -1][0]
     app.ballY = app.ballStarts[app.currentHole -1][1]
-    # app.ballX = 0 
-    # app.ballY = 0 
     app.shadowY = 0 
     app.ballZ = 0
     app.ballVelocityX = 0
@@ -59,12 +57,16 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
+<<<<<<< HEAD
     app.score = 0
     app.velocity = 0
     app.angle = 0
     app.putting = False
     app.rollingDeceleration = 2.0
     app.onGreen = False
+=======
+    app.strokeCount = 0 
+>>>>>>> fc3dcfa662375d1ccfab6a321d61901fc7945ec6
 
     oceanStart(app)
 def oceanStart(app):
@@ -288,7 +290,7 @@ def takeShot(app, velocity, angle):
     
     app.ballInMotion = True
     app.onTeebox = False
-    app.score += 1 
+    app.strokeCount  += 1 
 
 def onStep(app):
     app.count += 1
@@ -329,7 +331,7 @@ def onStep(app):
             app.shadowY = app.ballY
             app.ballInMotion = False
             app.ballVelocityZ = 0 
-            app.targetX, app.targetY = findHoleCenter()
+            app.targetX, app.targetY= findHoleCenter()
             app.aimAngle = math.atan2(app.targetY - app.ballY,
                               app.targetX - app.ballX)
     
@@ -337,6 +339,8 @@ def onStep(app):
     elif not app.ballInMotion:
         app.ballVelocityX = 0
         app.ballVelocityY = 0 
+        region = getBallTerrain(app)
+        print("Ball is now in:", region)
         holeX, holeY = findHoleCenter()
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True
@@ -373,7 +377,6 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.showClubSelection = False
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
-                app.velocity, app.angle = velocity, angle
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
                 app.ballInMotion = True
@@ -392,7 +395,7 @@ def findHoleCenter():
     Reads outlines with getHoleOutlines, grabs the first green polygon,
     and returns its centroid.
     """
-    outlines = getHoleOutlines('Hole.jpg')
+    outlines = getHoleData(app) 
     greens   = outlines.get('green', [])
     if not greens:
         return 0, 0
@@ -403,6 +406,45 @@ def findHoleCenter():
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
     return cx, cy
+
+def pointInPolygon(x, y, poly):
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        x0, y0 = poly[i]
+        x1, y1 = poly[(i+1) % n]
+        # check if edge straddles horizontal ray at y
+        if ((y0 > y) != (y1 > y)):
+            # find x coordinate of intersection
+            t = (y - y0) / (y1 - y0)
+            xi = x0 + t * (x1 - x0)
+            if xi >= x:
+                inside = not inside
+    return inside
+
+def normalizePolygons(raw):
+    out = []
+    for entry in raw:
+        if isinstance(entry, dict) and 'points' in entry:
+            out.append(entry['points'])
+        else:
+            out.append(entry)
+    return out
+
+def getBallTerrain(app):
+    bx, by = app.ballX, app.ballY
+    outlines = getHoleData(app) 
+
+    # check in this priority order
+    for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
+        raw = outlines.get(terrain, [])
+        for poly in normalizePolygons(raw):
+            if pointInPolygon(bx, by, poly):
+                # map 'outline' → 'rough'
+                return 'rough' if terrain == 'outline' else terrain
+
+    return 'out of bounds'
+
 
 
 def drawClubSelection(app):
@@ -455,41 +497,7 @@ def drawClubSelection(app):
                 menuX + menuWidth//2, 
                 menuY + menuHeight - 10,
                 size=12)
-    
-    # Draw club stats (optional)
-    # if app.selectedClub:
-    #     # Power meter
-    #     powerBarWidth = menuWidth - 40
-    #     powerBarHeight = 10
-    #     powerBarX = menuX + 20
-    #     powerTextY = menuY + topOffset + len(app.clubs) * lineHeight + 10
-    #     powerBarY = powerTextY + 15
-    #     powerWidth = menuWidth - 40
-        
-    #     # Club power values (0-100)
-    #     clubPower = {
-    #         'driver': 100,
-    #         'wood': 80,
-    #         'iron': 60,
-    #         'wedge': 40,
-    #         'putter': 20
-    #     }
-        
-    #     # Draw power bar background
-    #     drawRect(powerBarX, powerBarY, powerBarWidth, powerBarHeight, 
-    #             fill='lightGray')
-        
-    #     # Draw power level
-    #     power = clubPower.get(app.selectedClub, 0)
-    #     drawRect(powerBarX, powerBarY, 
-    #             powerBarWidth * (power/100), powerBarHeight,
-    #             fill='green')
-        
-    #     # Draw power label
-    #     drawLabel(f'Power: {power}%',
-    #                 menuX + menuWidth//2,
-    #                 powerBarY - 10,
-    #                 size=12)
+
             
 def drawCardButton(app): 
     if app.hole1:
