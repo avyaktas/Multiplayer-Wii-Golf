@@ -112,7 +112,7 @@ def redrawAll(app):
     elif app.hole1:
         drawOcean(app)
         drawCliff(app)
-        # drawHole1(app)
+        drawHole(app)
         drawBall(app)
         if not app.ballInMotion:
             drawAimLine(app)  # Draw the ball in every frame
