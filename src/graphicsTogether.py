@@ -457,6 +457,9 @@ def drawCardPage(app):
             drawLabel(str(app.scores[row][col]), 
                     x + cardColWidth//2, y + cardRowHeight//2,
                     size=16, fill='black', bold=True)
+            
+    drawLabel('112 Country Club Front 9', app.width//2, 80, size = 30, 
+              bold = True, fill = 'white')
                      
 
     
