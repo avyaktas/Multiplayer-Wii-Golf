@@ -8,6 +8,7 @@ def distance(x1, y1, x2, y2):
 
 
 def onAppStart(app):
+    # Initialize the app
     app.startPage = True 
     app.hole1 = False
     app.cardPage = False
@@ -17,11 +18,6 @@ def onAppStart(app):
     app.scrollY = 650
     app.courseWidth = 3000
     app.courseHeight = 1800
-    # Play button dimensions
-    # app.playButtonX = playButtonX
-    # app.playButtonY = playButtonY
-    # app.playButtonWidth = 
-    # app.playButtonHeight = 60
     app.cardButtonX = 30 
     app.cardButtonY = 30
     app.cardButtonWidth = 100
@@ -48,10 +44,8 @@ def onAppStart(app):
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
-
     app.targetX, app.targetY = findHoleCenter()
-    app.aimAngle = math.atan2(app.targetY - app.ballY,
-                              app.targetX - app.ballX)
+    app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
     app.stepsPerSecond = 10
     app.scores = [
         ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72],
@@ -62,14 +56,17 @@ def onAppStart(app):
     ]
 
     app.score = 0 
+
     oceanStart(app)
-
-
 def oceanStart(app):
     app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
     app.currentFrameIndex = 0
-    app.tileWidth = 600  # Width of each tile
-    app.tileHeight = 600  # Height of each tile
+    app.tileWidth = 500  # Width of each tile
+    app.tileHeight = 500  # Height of each tile
+    app.offsetX = 0  # Horizontal offset for wave movement
+    app.offsetY = 0  # Vertical offset for wave movement
+    app.offsetSpeed = 5  # Speed of the diagonal movement
+    app.count = 0
 
 
 def redrawAll(app):
@@ -77,6 +74,7 @@ def redrawAll(app):
         drawStart(app)
     elif app.hole1:
         drawOcean(app)
+        # drawCliff(app)
         drawHole1(app)
         drawBall(app)
         if not app.ballInMotion:
@@ -92,9 +90,25 @@ def redrawAll(app):
 def drawOcean(app):
     # Display the current frame in tiled chunks
     currentFrame = app.frames[app.currentFrameIndex]
-    for x in range(0, app.width, app.tileWidth):
-        for y in range(0, app.height, app.tileHeight):
-            drawImage(currentFrame, x, y, width=app.tileWidth, height=app.tileHeight)
+    for x in range(-app.tileWidth, app.width, app.tileWidth):
+        for y in range(-app.tileHeight, app.height, app.tileHeight):
+            drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
+                      width=app.tileWidth, height=app.tileHeight)
+
+# def drawCliff(app):
+#     # Dynamically calculate the cliff's position and size
+#     cliffHeight = app.height * 0.2  # Cliff height as 20% of the screen height
+#     bottomLeftX, bottomLeftY = getScreenCoords(app, -app.tileWidth, app.height)
+#     bottomRightX, bottomRightY = getScreenCoords(app, app.width + app.tileWidth, app.height)
+#     topRightX, topRightY = getScreenCoords(app, app.width + app.tileWidth, app.height - cliffHeight)
+#     topLeftX, topLeftY = getScreenCoords(app, 0, app.height - cliffHeight)
+#     cliffPoints = [
+#         (bottomLeftX, bottomLeftY),
+#         (bottomRightX, bottomRightY),
+#         (topRightX, topRightY),
+#         (topLeftX, topLeftY)
+#     ]
+#     drawPolygon(*flatten(cliffPoints), fill='saddlebrown', border='black')
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -273,6 +287,7 @@ def takeShot(app, velocity, angle):
     app.score += 1 
 
 def onStep(app):
+    app.count += 1
     if app.ballInMotion:
         step = (1/app.stepsPerSecond)
         app.ballX += app.ballVelocityX * step
@@ -298,8 +313,12 @@ def onStep(app):
         holeX, holeY = findHoleCenter()
         if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
             app.cardPage = True 
-    if not app.startPage: # For the the ocean
-        app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
+    # Draws the ocean
+    if not app.startPage:
+        if app.count % 5 == 0: # Only updates every 5 steps
+            app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
+            app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
+            app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
     
 
 
