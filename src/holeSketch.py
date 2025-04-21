@@ -14,26 +14,36 @@ def getHoleOutlines(imagePath):
     # Convert to HSV color space for better color detection
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    # Define color ranges in HSV
-    pinkLower = np.array([160, 100, 100])
-    pinkUpper = np.array([175, 255, 255])
     
-    orangeLower = np.array([15, 100, 100]) 
+    # PINK (outline/background area)
+    pinkLower = np.array([150, 80, 80])
+    pinkUpper = np.array([170, 255, 255])
+
+    # ORANGE (fairway)
+    orangeLower = np.array([10, 100, 100])
     orangeUpper = np.array([25, 255, 255])
-    
-    redLower = np.array([0, 100, 100])
-    redUpper = np.array([10, 255, 255])
-    
-    purpleLower = np.array([130, 30, 30])
-    purpleUpper = np.array([160, 255, 255])
-    
-    blueLower = np.array([100, 100, 100])
-    blueUpper = np.array([130, 255, 255])
+
+    # RED (teebox) — red wraps in HSV so use two ranges
+    redLower1 = np.array([0, 100, 100])
+    redUpper1 = np.array([10, 255, 255])
+    redLower2 = np.array([170, 100, 100])
+    redUpper2 = np.array([180, 255, 255])
+
+    # PURPLE (sandtraps)
+    purpleLower = np.array([130, 50, 50])
+    purpleUpper = np.array([155, 255, 255])
+
+    # BLUE (green)
+    blueLower = np.array([90, 100, 100])
+    blueUpper = np.array([120, 255, 255])
+ 
 
     # Create masks for each color
     holeMask = cv2.inRange(hsv, pinkLower, pinkUpper)
     fairwayMask = cv2.inRange(hsv, orangeLower, orangeUpper)
-    teeboxMask = cv2.inRange(hsv, redLower, redUpper)
+    redMask1 = cv2.inRange(hsv, redLower1, redUpper1)
+    redMask2 = cv2.inRange(hsv, redLower2, redUpper2)
+    teeboxMask = redMask1 | redMask2
     sandtrapMask = cv2.inRange(hsv, purpleLower, purpleUpper)
     greenMask = cv2.inRange(hsv, blueLower, blueUpper)
     

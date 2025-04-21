@@ -48,6 +48,7 @@ def onAppStart(app):
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
+    app.currentHole = 4
 
     app.targetX, app.targetY = findHoleCenter()
     app.aimAngle = math.atan2(app.targetY - app.ballY,
@@ -101,8 +102,15 @@ def getScreenCoords(app, x, y):
     screenY = y - app.scrollY + app.height / 3
     return screenX, screenY
 
-def getHoleData():
-    imagePath = 'Hole.jpg'
+def getHoleData(app):
+    if app.currentHole == 1:
+        imagePath = 'Hole1.jpg'
+    elif app.currentHole == 2:
+        imagePath = 'Hole2.jpg'
+    elif app.currentHole == 3:
+        imagePath = 'Hole3.jpg'
+    elif app.currentHole == 4:
+        imagePath = 'Hole4.jpg'
     outlines = getHoleOutlines(imagePath)
     return outlines
 
@@ -115,7 +123,7 @@ def flatten(points):
     return [coord for point in points for coord in point]
 
 def drawHole1(app):
-    outlines = getHoleData()
+    outlines = getHoleData(app)
 
     #Used chatGPT to help with the drawCoursePolygon function
     def drawCoursePolygon(app, poly, fill, border): 
