@@ -57,7 +57,9 @@ def onAppStart(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
 
-    app.score = 0 
+    app.score = 0
+    app.velocity = 0
+    app.angle = 0
 
     oceanStart(app)
 def oceanStart(app):
@@ -359,6 +361,7 @@ def onKeyPress(app, key):
         if key == 'space':
                 app.showClubSelection = False
                 velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
+                app.velocity, app.angle, aimDeviation = calculateVelocity(app.selectedClub)
                 app.aimAngle += aimDeviation
                 takeShot(app, velocity, angle)
                 app.ballInMotion = True
