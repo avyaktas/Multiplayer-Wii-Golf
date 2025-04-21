@@ -291,6 +291,7 @@ def onStep(app):
         # Check if ball has landed
         if app.ballZ <= 0 and app.ballVelocityZ < 0:
             app.ballZ = 0
+            app.shadowY = app.ballY
             app.ballInMotion = False
             app.ballVelocityZ = 0 
             app.aimAngle = math.atan2(app.targetY - app.ballY,
