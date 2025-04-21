@@ -28,11 +28,13 @@ def onAppStart(app):
     app.holeButtonHeight = app.cardButtonHeight
     
     # Ball state remains the same
-    app.ballStartX = 100
-    app.ballStartY = 615
-    app.ballX = 100
-    app.ballY = 615
-    app.shadowY = 615
+    app.currentHole = 4
+    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880)]
+    app.ballX = app.ballStarts[app.currentHole -1][0]
+    app.ballY = app.ballStarts[app.currentHole -1][1]
+    # app.ballX = 0 
+    # app.ballY = 0 
+    app.shadowY = 0 
     app.ballZ = 0
     app.ballVelocityX = 0
     app.ballVelocityY = 0
@@ -44,7 +46,6 @@ def onAppStart(app):
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
-    app.currentHole = 4
 
     app.targetX, app.targetY = findHoleCenter()
     app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
@@ -78,8 +79,7 @@ def redrawAll(app):
         drawStart(app)
     elif app.hole1:
         drawOcean(app)
-        # drawCliff(app)
-        drawHole1(app)
+        drawHole(app)
         drawBall(app)
         if not app.ballInMotion:
             drawAimLine(app)  # Draw the ball in every frame
@@ -99,20 +99,6 @@ def drawOcean(app):
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
 
-# def drawCliff(app):
-#     # Dynamically calculate the cliff's position and size
-#     cliffHeight = app.height * 0.2  # Cliff height as 20% of the screen height
-#     bottomLeftX, bottomLeftY = getScreenCoords(app, -app.tileWidth, app.height)
-#     bottomRightX, bottomRightY = getScreenCoords(app, app.width + app.tileWidth, app.height)
-#     topRightX, topRightY = getScreenCoords(app, app.width + app.tileWidth, app.height - cliffHeight)
-#     topLeftX, topLeftY = getScreenCoords(app, 0, app.height - cliffHeight)
-#     cliffPoints = [
-#         (bottomLeftX, bottomLeftY),
-#         (bottomRightX, bottomRightY),
-#         (topRightX, topRightY),
-#         (topLeftX, topLeftY)
-#     ]
-#     drawPolygon(*flatten(cliffPoints), fill='saddlebrown', border='black')
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -139,7 +125,7 @@ def findAimAngle(app):
 def flatten(points):
     return [coord for point in points for coord in point]
 
-def drawHole1(app):
+def drawHole(app):
     outlines = getHoleData(app)
 
     #Used chatGPT to help with the drawCoursePolygon function
