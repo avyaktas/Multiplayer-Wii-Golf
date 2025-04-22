@@ -333,15 +333,23 @@ def takeShot(app, player, velocity, angle):
     player.onTeebox = False
     player.strokes += 1
 
-def takeBounce(app, player, velocity, angle, xMultiplier):
+def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
         player.velX = player.velY = player.velZ = 0
-    else:
+    # elif getBallTerrain(app) == 'out of bounds':
+        
+    elif getBallTerrain(app) == 'rough':
+        xMultiplier = 0.1
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
         player.velY = flatVelocity * math.sin(player.aimAngle)
-        player.onTeebox = False
+    else:
+        xMultiplier = 0.4
+        player.velZ = velocity * math.sin(angle)
+        flatVelocity = velocity * math.cos(angle)
+        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
+        player.velY = flatVelocity * math.sin(player.aimAngle)
 
 def onStep(app):
     app.count += 1
@@ -380,7 +388,7 @@ def onStep(app):
                 player.velZ = 0
                 app.velocity /= 3
                 if app.velocity > 10:
-                    takeBounce(app, player, app.velocity, app.angle, 0.3)
+                    takeBounce(app, player, app.velocity, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
 
