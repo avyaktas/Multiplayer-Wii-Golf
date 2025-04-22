@@ -7,23 +7,23 @@ Example:
 
 tkolenci
     -Designed image Converter
+    -touched up graphics
 <<<<<<< HEAD
     
 =======
 Nelson
-    -Preliminary accelerometer api
-    -holeSketch and graphicsTogether(perlimary startPage and hole1)
+    - accelerometer api(with andrew)
+    - holeSketch and graphicsTogether(perlimary startPage and hole1)
+    - ball moving logic  and physics
+    - terrian logic
     - 
 
 Andrew
     -Preliminary accelerometer api (spent hours with Nelson debugging)
-    -Ball motion
-    -Ball shadow
-    -Ball physics
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
-      into values that work for cmu graphics. Got the courses on visible.
-    - Worked on graphics and logic on for the score card in graphicsTogether
+      into values that work for cmu graphics 
+    - perlimary score card, and working on multiplater logic 
 
 ------------------------------------>
