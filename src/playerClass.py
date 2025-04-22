@@ -7,6 +7,8 @@ class Player:
         self.ballY = self.startY
         self.ballZ = 0
         self.shadowY = self.ballY
+        self.shadowOverLandX = self.ballX
+        self.shadowOverLandY = self.shadowY
         self.velX = self.velY = self.velZ = 0
         self.onTeebox = True
         self.strokes = 0
