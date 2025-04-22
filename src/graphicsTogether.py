@@ -275,9 +275,9 @@ def drawStart(app):
              playButtonY - playButtonHeight // 2,
              playButtonWidth, playButtonHeight,
              fill=color, border='cornSilk', borderWidth=3)
-    drawLabel('Press the here to begin', playButtonX-2.5, playButtonY-2,
+    drawLabel('Press Here To Begin', playButtonX-2.5, playButtonY-2,
               size=int(30 * factor), fill='black', bold=True, font='impact')
-    drawLabel('Press the here to begin', playButtonX, playButtonY,
+    drawLabel('Press Here To Begin', playButtonX, playButtonY,
               size=int(30 * factor), fill='cornSilk', font='impact')
 
 def getPlayButtonCoord(app):
@@ -449,7 +449,7 @@ def onStep(app):
             app.currentIdx = app.players.index(farthest)
             farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                    holeX - farthest.ballX)
-            centerOnPlayer(app, farthest)
+            #centerOnPlayer(app, farthest)
 
     # Ocean frame animation
     if not app.startPage:
@@ -474,7 +474,9 @@ def drawBall(app):
         shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
         drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
     # Display current player info
-    drawLabel(f"{current.name} – Shots: {current.strokes}", 900, 30, size=16, fill='white')
+    playerName = app.playerNames[app.currentIdx]
+    drawLabel(f'{playerName} - Shots: {current.strokes}', 900, 30, size = 20, 
+              fill='white', bold=True)
 
     # Draw all other players first
     for i, player in enumerate(app.players):
