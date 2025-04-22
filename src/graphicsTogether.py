@@ -4,8 +4,6 @@ from physics import calculateVelocity
 import math, random
 from playerClass import Player
 
-def distance(x1, y1, x2, y2):
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
 
 def onAppStart(app):
@@ -373,7 +371,7 @@ def onStep(app):
 
         # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if distance(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius:
+        if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius:
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
@@ -386,12 +384,16 @@ def onStep(app):
 
         if alivePlayers:
             holeX, holeY = findHoleCenter(app)
-            # Choose player farthest from hole
-            distance = distance(p.ballX, p.ballY, holeX, holeY)
-            farthestPlayer = max(alivePlayers, key=distance)
-            app.currentIdx = app.players.index(farthestPlayer)
-            # Update aim angle
-            farthestPlayer.aimAngle = math.atan2(holeY - farthestPlayer.ballY, holeX - farthestPlayer.ballX)
+            farthest = None
+            maxD = -1
+            for p in alivePlayers:
+                d = dist(p.ballX, p.ballY, holeX, holeY)
+                if d > maxD:
+                    maxD, farthest = d, p
+
+            app.currentIdx = app.players.index(farthest)
+            farthest.aimAngle = math.atan2(holeY - farthest.ballY,
+                                   holeX - farthest.ballX)
 
     # Ocean frame animation
     if not app.startPage:
@@ -505,7 +507,7 @@ def normalizePolygons(raw):
     return out
 
 def getBallTerrain(app):
-    player = app.currentPlayer 
+    player = app.players[app.currentIdx]
     bx, by = player.ballX, player.ballY
     outlines = getHoleData(app) 
 
@@ -626,8 +628,8 @@ def drawCardPage(app):
     drawLabel('112 Country Club Front 9', app.width//2, 80, size = 30, 
               bold = True, fill = 'white')
                      
-
-    
+def dist(x1, y1, x2, y2):
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
 runApp()
 
