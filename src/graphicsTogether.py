@@ -368,7 +368,7 @@ def takeBounce(app, player, velocity, angle):
         player.strokes += 1
         player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
     elif getBallTerrain(app) == 'rough':
-        xMultiplier = 0.1
+        xMultiplier = 0.2
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
@@ -392,6 +392,8 @@ def onStep(app):
             player.velZ = 0
             player.ballX += player.velX * step
             player.ballY += player.velY * step
+            player.shadowX = player.ballX
+            player.shadowY = player.ballY
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
 
