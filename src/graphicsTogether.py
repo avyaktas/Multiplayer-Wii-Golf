@@ -332,7 +332,7 @@ def onMousePress(app, mouseX, mouseY):
         app.hole1 = True
 
 def onKeyHold(app, keys): 
-    move = 30
+    move = 20
     if 'left' in keys: app.scrollX -= move
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
@@ -364,11 +364,12 @@ def takeShot(app, player, velocity, angle):
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
         player.velX = player.velY = player.velZ = 0
+
     elif getBallTerrain(app) == 'out of bounds':
         player.strokes += 1
         player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
     elif getBallTerrain(app) == 'rough':
-        xMultiplier = 0.2
+        xMultiplier = 0.1
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
@@ -392,8 +393,6 @@ def onStep(app):
             player.velZ = 0
             player.ballX += player.velX * step
             player.ballY += player.velY * step
-            player.shadowX = player.ballX
-            player.shadowY = player.ballY
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
 
@@ -403,6 +402,9 @@ def onStep(app):
 
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
+            holeX, holeY = findHoleCenter(app)
+            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius + app.holeRadius):
+                player.holed = True
         else:
             # Flying logic
             player.ballX += player.velX * step
@@ -465,7 +467,7 @@ def onStep(app):
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius * 2:
+        if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius + app.holeRadius):
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
