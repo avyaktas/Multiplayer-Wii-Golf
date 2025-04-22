@@ -418,6 +418,7 @@ def onStep(app):
             app.currentIdx = app.players.index(farthest)
             farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                    holeX - farthest.ballX)
+            centerOnPlayer(app, farthest)
 
     # Ocean frame animation
     if not app.startPage:
@@ -426,6 +427,14 @@ def onStep(app):
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
+
+def centerOnPlayer(app, player):
+    # want ball at (app.width/2, app.height/3) on screen
+    targetScrollX = player.ballX - app.width/2
+    targetScrollY = player.ballY - app.height/3
+    # clamp to course bounds
+    app.scrollX = max(0, min(targetScrollX, app.courseWidth - app.width))
+    app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
 
 
 def drawBall(app):
