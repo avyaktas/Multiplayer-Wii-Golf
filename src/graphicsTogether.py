@@ -18,10 +18,10 @@ def onAppStart(app):
     app.scrollY = 650
     app.courseWidth = 3000
     app.courseHeight = 1800
-    app.cardButtonX = 30 
-    app.cardButtonY = 30
-    app.cardButtonWidth = 100
-    app.cardButtonHeight = 30
+    app.cardButtonX = 20 
+    app.cardButtonY = 20
+    app.cardButtonWidth = 140
+    app.cardButtonHeight = 40
     app.holeButtonX = app.cardButtonX
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
@@ -136,6 +136,7 @@ def redrawAll(app):
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
+    # Draw the score card
         
 def drawOcean(app):
     # Display the current frame in chunks
@@ -277,9 +278,9 @@ def drawStart(app):
              playButtonWidth, playButtonHeight,
              fill=color, border='cornSilk', borderWidth=3)
     drawLabel('Press Here To Begin', playButtonX-2.5, playButtonY-2,
-              size=int(30 * factor), fill='black', bold=True, font='impact')
+              size=int(30 * factor), fill='black', bold=True, font='Phosphate')
     drawLabel('Press Here To Begin', playButtonX, playButtonY,
-              size=int(30 * factor), fill='cornSilk', font='impact')
+              size=int(30 * factor), fill='cornSilk', font='Phosphate')
 
 def getPlayButtonCoord(app):
     playButtonX = app.width // 2
@@ -452,11 +453,11 @@ def onStep(app):
                         farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                             holeX - farthest.ballX)
                         centerOnPlayer(app, farthest)
-                    else: 
-                        if app.currentHole < 9:
-                            app.currentHole += 1
-                        else:
-                            app.podium = True 
+                else: 
+                    if app.currentHole < 9:
+                        app.currentHole += 1
+                    else:
+                        app.podium = True 
                         for p in app.players:
                             aimAngle = math.atan2(holeY - farthest.ballY,
                                             holeX - farthest.ballX)
@@ -692,18 +693,18 @@ def drawClubSelection(app):
                 menuX + menuWidth//2, 
                 menuY + menuHeight - 10,
                 size=12)
-
             
 def drawCardButton(app): 
     if app.hole1:
         drawRect(app.cardButtonX, app.cardButtonY, 
                 app.cardButtonWidth, app.cardButtonHeight,
-                fill='white', border='black', borderWidth=2,
-                opacity = 80)
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
         
-        drawLabel('Card', app.cardButtonX + app.cardButtonWidth//2,
+        drawLabel('Score Card', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=16, fill='black', bold=True)
+                 size=22, fill='black', font='American Typewriter', italic=True,
+                 border='green')
         
 def drawHoleButton(app): 
     if app.cardPage:
@@ -716,47 +717,75 @@ def drawHoleButton(app):
                  app.cardButtonY + app.cardButtonHeight//2,
                  size=16, fill='black', bold=True)
         
-def drawCardPage(app): 
-    drawRect(0, 0, app.width, app.height, fill = 'green')
-    cardTopX = 50
-    cardTopY = 180
-    cardColWidth = 75
-    cardRowHeight = 60
-
-    rows, cols = len(app.scores), len(app.scores[0])
+def drawCardPage(app):
+    # Draw Background
+    drawImage('15112-LandingPage.png', 0, 0, 
+              width=app.width, height=app.height)
     
-    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT', 'TOTAL']
-    for col in range(cols):
-        x = cardTopX + col * cardColWidth
-        drawRect(x, cardTopY - cardRowHeight, cardColWidth, cardRowHeight, 
-                 fill='gainsboro', border='black')
-        drawLabel(holeLabels[col], x + cardColWidth//2, 
-                  cardTopY - cardRowHeight//2, size=20, 
-                  bold=True, fill='black', font='American Typewriter')
-        drawRect(cardTopX, cardTopY, 
-            cardColWidth * cols, cardRowHeight * rows,
-            fill='white', border='black', borderWidth=2)
-        # drawRect(cardTopX, cardTopY, ,)
+    # Score Card margins
+    margin = 0.2 * min(app.width, app.height)
     
+    # Card bounds
+    cardLeft = margin
+    cardTop = margin
+    cardRight = app.width - margin
+    cardBottom = app.height - margin
+    
+    cardWidth  = cardRight  - cardLeft
+    cardHeight = cardBottom - cardTop
+    
+    #  Outer white box with black border
+    drawRect(cardLeft, cardTop,
+             cardWidth, cardHeight,
+             fill='lemonChiffon',
+             border='black', borderWidth=4)
+    rows = len(app.scores)
+    cols = len(app.scores[0])
+    
+    # Make header bigger
+    headerHeight = cardHeight * 0.2
+    gridHeight   = cardHeight - headerHeight
+    
+    colWidth  = cardWidth  / cols
+    rowHeight = gridHeight / rows
+    
+    # draw Labels
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
+    holeLabels = holeLabels[:cols]  # ensure it matches your number of columns
+    
+    for c in range(cols):
+        x = cardLeft + c * colWidth
+        y = cardTop
+        drawRect(x, y,
+                 colWidth, headerHeight,
+                 fill='silver',
+                 border='black', borderWidth=2)
+        drawLabel(holeLabels[c],
+                  x + colWidth/2,
+                  y + headerHeight/2,
+                  size=int(headerHeight * 0.25),
+                  bold=True, fill='ivory', font='Phosphate')
+    
+    # Draw the score cells
     for row in range(rows):
-        for col in range(cols): 
-            x = cardTopX + col * cardColWidth
-            y = cardTopY + row * cardRowHeight
-            drawRect(x, y, cardColWidth, cardRowHeight,
-                    fill='white', border='black', borderWidth=2)
-            drawLabel(str(app.scores[row][col]), 
-                    x + cardColWidth//2, y + cardRowHeight//2,
-                    size=16, fill='black', bold=True)
-    drawLabel('112 Country Club Front 9', app.width//2-3.5, 80-3.5, size = 45, 
-              bold = True, fill = 'black', font='American Typewriter') 
-    drawLabel('112 Country Club Front 9', app.width//2, 80, size = 45, 
-              bold = True, fill = 'cornSilk', font='American Typewriter')
+        for col in range(cols):
+            x = cardLeft + col * colWidth
+            y = cardTop + headerHeight + row * rowHeight
+            drawRect(x, y,
+                     colWidth, rowHeight,
+                     fill='lemonChiffon', border='black', borderWidth=2)
+            drawLabel(str(app.scores[row][col]),
+                      x + colWidth/2, y + rowHeight/2,
+                      size=int(rowHeight * 0.25), fill='black',
+                      font='Phosphate', bold=True) 
+
                      
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
 def drawLandingPage(app): 
-    drawRect(0, 0, app.width, app.height, fill = 'blue')
+    drawImage('15112-LandingPage.png', 0, 0, 
+              width=app.width, height=app.height)
     drawLabel('Choose Number of Players', app.width//2, 80, size=30, bold=True)
 
     for i in range(1, 5):
@@ -774,8 +803,11 @@ def drawLandingPage(app):
     drawLabel(app.ipAddress, 590, 470, size=16, fill='black', align='center')
     drawLabel('Enter IP Address Here:', 300, 470, size=16)  
 
-    drawRect(app.startButtonX, app.startButtonY, app.startButtonWidth, app.startButtonHeight, fill='darkGreen', border='white', borderWidth=2)
-    drawLabel("Start Game", app.width//2, app.height - 60, size=20, fill='white', bold=True)
+    drawRect(app.startButtonX, app.startButtonY, app.startButtonWidth, 
+             app.startButtonHeight, fill='darkGreen', 
+             border='white', borderWidth=2)
+    drawLabel("Start Game", app.width//2, app.height - 60,
+              size=20, fill='white', bold=True)
 
 
 def landingMousePress(app, x, y):
