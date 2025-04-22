@@ -332,7 +332,7 @@ def onMousePress(app, mouseX, mouseY):
         app.hole1 = True
 
 def onKeyHold(app, keys): 
-    move = 20
+    move = 30
     if 'left' in keys: app.scrollX -= move
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
