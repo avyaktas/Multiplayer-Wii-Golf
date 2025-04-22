@@ -1,4 +1,4 @@
-from graphicsTogether import app 
+#from graphicsTogether import app 
 import requests
 import json
 import time
@@ -10,7 +10,7 @@ def getPhyphoxAddress():
     port = input(f"Enter the port number (press Enter for default {defaultPort}): ") or defaultPort
     return f"http://{ip}:{port}"
 
-PP_ADDRESS = app.ipAddress + ":80"
+PP_ADDRESS = 'http://172.20.10.1:80'
 PP_CHANNELS = ["acc"]
 
 def getURL():
