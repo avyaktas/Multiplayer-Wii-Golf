@@ -449,7 +449,7 @@ def onStep(app):
             app.currentIdx = app.players.index(farthest)
             farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                    holeX - farthest.ballX)
-            #centerOnPlayer(app, farthest)
+            centerOnPlayer(app, farthest)
 
     # Ocean frame animation
     if not app.startPage:

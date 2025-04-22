@@ -8,31 +8,21 @@ Example:
 tkolenci
     -Designed image Converter
     -touched up graphics
-<<<<<<< HEAD
-    
-=======
+
 Nelson
     - accelerometer api(with andrew)
     - holeSketch and graphicsTogether(perlimary startPage and hole1)
-    - ball moving logic  and physics
-    - terrian logic
+    - Ball moving logic and physics
+    - get Terrian function to find what surface the current ball l
+    - Top down redesign to support multiplayer 
     - 
 
 Andrew
-    -Accelerometer api (with Nelson)
-    -Initial ball motion
-    -Ball physics
-    -Shadow motion and logic
-    -Club physics
-    -Bounce logic
-    -Landing in different terrain logic
-    -Landing out of bounds logic
-    -Putting physics
-    -Deviation logic
+    -Preliminary accelerometer api (spent hours with Nelson debugging)
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
-    - perlimary score card, and working on multiplater logic 
+    - score card
 
 ------------------------------------>
