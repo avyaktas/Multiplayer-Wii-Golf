@@ -37,6 +37,7 @@ def onAppStart(app):
     app.selectedNumPlayers = 1
     app.playerNames = ['', '', '', '']
     app.currentHole = 8
+    app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballRadius = 3
@@ -434,11 +435,19 @@ def onStep(app):
                             d = dist(p.ballX, p.ballY, holeX, holeY)
                             if d > maxD:
                                 maxD, farthest = d, p
-
                         app.currentIdx = app.players.index(farthest)
                         farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                             holeX - farthest.ballX)
                         centerOnPlayer(app, farthest)
+                    else: 
+                        if app.currentHole < 9:
+                            app.currentHole += 1
+                        else:
+                            app.podium = True 
+                        for p in app.players:
+                            aimAngle = math.atan2(holeY - farthest.ballY,
+                                            holeX - farthest.ballX)
+                            p.resetForHole(aimAngle)
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)

@@ -19,7 +19,7 @@ class Player:
     def __repr__(self):
         return f'{self.name}'
 
-    def reset_for_hole(self, aimAngle):
+    def resetForHole(self, aimAngle):
         self.ballX, self.ballY = self.startX, self.startY
         self.ballZ = self.shadowY = 0
         self.velX = self.velY = self.velZ = 0
