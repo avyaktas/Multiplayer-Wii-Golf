@@ -1,6 +1,6 @@
 
 class Player:
-    def __init__(self, name, startPos, ballRadius):
+    def __init__(self, name, startPos):
         self.name = name
         self.startX, self.startY = startPos
         self.ballX = self.startX
@@ -12,6 +12,10 @@ class Player:
         self.strokes = 0
         self.holed = False
         self.aimAngle = 0
+        self.putting = False
+    
+    def __repr__(self):
+        return f'{self.name}'
 
     def reset_for_hole(self, aimAngle):
         self.ballX, self.ballY = self.startX, self.startY

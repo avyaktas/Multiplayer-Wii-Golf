@@ -2,6 +2,7 @@ from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math, random
+from playerClass import Player
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -26,29 +27,28 @@ def onAppStart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
-    
-    # Ball state remains the same
-    app.currentHole = 9
+
+    app.currentHole = 1
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),(120, 600), (120, 600), (120, 600),(120, 600)]
-    app.ballX = app.ballStarts[app.currentHole -1][0]
-    app.ballY = app.ballStarts[app.currentHole -1][1]
-    app.shadowX = app.ballX
-    app.shadowY = app.ballY
-    app.ballZ = 0
-    app.ballVelocityX = 0
-    app.ballVelocityY = 0
-    app.ballVelocityZ = 0
-    app.gravity = 9.81
-    app.ballInMotion = False
-    app.ballInHole = False
     app.ballRadius = 3
-    app.onTeebox = False
+    app.gravity = 9.81
+
+    # build 4 players
+    app.players = [
+        Player(f"Player {i+1}", app.ballStarts[app.currentHole -1])
+        for i in range(4)
+    ]
+    app.currentIdx = 0      
+    app.currentPlayer = app.players[app.currentIdx]              # which player's turn
+    # give first player an initial aimAngle
+    first = app.players[0]
+    holeX, holeY = findHoleCenter(app)
+    first.aimAngle = math.atan2(holeY - first.ballY, holeX - first.ballX)
+
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
 
-    app.targetX, app.targetY = findHoleCenter(app)
-    app.aimAngle = math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
     app.stepsPerSecond = 10
     app.scores = [
         ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72],
@@ -109,17 +109,20 @@ def makeCliffBetter(poly, baseDepth=20, jag=1):
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
+
     elif app.hole1:
         drawOcean(app)
         drawCliff(app)
         drawHole(app)
-        drawBall(app)
-        if not app.ballInMotion:
-            drawAimLine(app)  # Draw the ball in every frame
+        drawBall(app)  # Only call once now, it handles everything
+
+        current = app.players[app.currentIdx]
+        if current.velX == 0 and current.velY == 0 and current.velZ == 0:
+            drawAimLine(app)
             drawClubSelection(app)
-        drawAimLine(app)
-        drawBall(app)  # Draw the ball in every frame
+
         drawCardButton(app)
+
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
@@ -319,118 +322,137 @@ def onKeyHold(app, keys):
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
 
-def takeShot(app, velocity, angle):
+def takeShot(app, player, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
     # Set initial velocities  # 45 degree launch angle
     if getBallTerrain(app) == 'green':
-        app.putting = True
-    app.ballVelocityZ = velocity * math.sin(angle)
+        player.putting = True
+    player.velZ = velocity * math.sin(angle)
     flatVelocity = velocity * math.cos(angle)
-    app.ballVelocityX = flatVelocity * math.cos(app.aimAngle)
-    app.ballVelocityY = flatVelocity * math.sin(app.aimAngle)
-    
-    app.ballInMotion = True
-    app.onTeebox = False
-    app.strokeCount  += 1 
+    player.velX = flatVelocity * math.cos(player.aimAngle)
+    player.velY = flatVelocity * math.sin(player.aimAngle)
+    player.onTeebox = False
+    player.strokes += 1
 
 def onStep(app):
     app.count += 1
-    if app.ballInHole:
-            app.ballInMotion = False
-            app.putting = False
-            app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
-    
-    
-    if app.ballInMotion:
-        if app.putting:
-            step = (1/app.stepsPerSecond)
-            app.ballX += app.ballVelocityX * step
-            app.ballY += app.ballVelocityY * step
-            app.scrollX += app.ballVelocityX * step
-            app.scrollY += app.ballVelocityY * step
-            app.ballVelocityX -= (app.rollingDeceleration * math.cos(app.aimAngle) * step)
-            app.ballVelocityY -= (app.rollingDeceleration * math.sin(app.aimAngle) * step)
-            if app.ballVelocityX <= 0 and app.ballVelocityY <= 0:
-                app.ballInMotion = False
-                app.putting = False
-                app.ballVelocityX = app.ballVelocityY = app.ballVelocityZ = 0
+    player = app.players[app.currentIdx]
+    step = 1 / app.stepsPerSecond
+
+    if player.velX != 0 or player.velY != 0 or player.velZ != 0:
+        # In motion
+        if player.putting:
+            # Putting logic
+            player.ballX += player.velX * step
+            player.ballY += player.velY * step
+            app.scrollX += player.velX * step
+            app.scrollY += player.velY * step
+
+            decel = app.rollingDeceleration
+            player.velX -= decel * math.cos(player.aimAngle) * step
+            player.velY -= decel * math.sin(player.aimAngle) * step
+
+            if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
+                player.velX = player.velY = 0
         else:
-            step = (1/app.stepsPerSecond)
-            app.ballX += app.ballVelocityX * step
-            app.ballY = app.ballY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
-            app.ballZ += app.ballVelocityZ * step
-            app.shadowX = app.ballX
-            app.shadowY += app.ballVelocityY * step
-            
-            # Apply gravity to Z velocity
-            app.ballVelocityZ -= (app.gravity * step)
-            app.scrollX += app.ballVelocityX * step
-            app.scrollY = app.scrollY - (app.ballVelocityZ * step) + (app.ballVelocityY * step)
-            # Check if ball has landed
-            if app.ballZ <= 0 and app.ballVelocityZ < 0:
-                app.ballZ = 0
-                app.shadowY = app.ballY
-                app.ballInMotion = False
-                app.ballVelocityZ = 0 
-                app.targetX, app.targetY= findHoleCenter(app)
-                app.aimAngle = math.atan2(app.targetY - app.ballY,
-                                app.targetX - app.ballX)
-    
-    
-    elif not app.ballInMotion:
-        app.ballVelocityX = 0
-        app.ballVelocityY = 0 
+            # Flying logic
+            player.ballX += player.velX * step
+            player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
+            player.ballZ += player.velZ * step
+            player.shadowY += player.velY * step
+            app.scrollX += player.velX * step
+            app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
+
+            player.velZ -= app.gravity * step
+
+            if player.ballZ <= 0 and player.velZ < 0:
+                player.ballZ = 0
+                player.shadowY = player.ballY
+                player.velZ = 0
+
+        # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if distance(app.ballX, app.ballY, holeX, holeY) <= app.ballRadius:
-            app.cardPage = True
-    # Draws the ocean
+        if distance(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius:
+            player.holed = True
+            player.velX = player.velY = player.velZ = 0
+
+    else:
+        # Ball stopped – find next player
+        alivePlayers = [p for p in app.players if not p.holed]
+        if alivePlayers:
+            holeX, holeY = findHoleCenter(app)
+            # Choose player farthest from hole
+            def dist(p): return distance(p.ballX, p.ballY, holeX, holeY)
+            farthestPlayer = max(alivePlayers, key=dist)
+            app.currentIdx = app.players.index(farthestPlayer)
+            # Update aim angle
+            farthestPlayer.aimAngle = math.atan2(holeY - farthestPlayer.ballY, holeX - farthestPlayer.ballX)
+
+    # Ocean frame animation
     if not app.startPage:
-        if app.count % 5 == 0: # Only updates every 5 steps
+        if app.count % 5 == 0:
             app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
-        if app.count % 20 == 0:
-            region = getBallTerrain(app)
-            print("Ball is now in:", region)
-    
 
 
 
 def drawBall(app):
-    if app.ballInMotion:
-        shadowX, shadowY = getScreenCoords(app, app.ballX, app.shadowY)
-        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity = 60)
-    screenX, screenY = getScreenCoords(app, app.ballX, app.ballY)
-    drawCircle(screenX, screenY, app.ballRadius, fill='white')
+    # Show whose turn it is and how many strokes they've taken
+    current = app.players[app.currentIdx]
+    drawLabel(f"{current.name} – Shots: {current.strokes}", 900, 30, size=16, fill='white')
+
+    for i, player in enumerate(app.players):
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+
+        # Highlight the current player’s ball in white, others in gray
+        ballColor = 'white' if i == app.currentIdx else 'gray'
+        drawCircle(sx, sy, app.ballRadius, fill=ballColor)
+
+        # Optional: show shadow if current player's ball is moving
+        if i == app.currentIdx and (player.velX != 0 or player.velY != 0 or player.velZ != 0):
+            shadowX, shadowY = getScreenCoords(app, player.ballX, player.shadowY)
+            drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
     
 
 def onKeyPress(app, key):
-    if not app.ballInMotion:
+    player = app.players[app.currentIdx]
+
+    # Only allow input when the current player's ball is at rest
+    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+
+        # Club selection
         if key == 'w':
             app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
             app.selectedClub = app.clubs[app.clubIndex]
         elif key == 's':
             app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
             app.selectedClub = app.clubs[app.clubIndex]
-        if key == 'a':                # turn left
-            app.aimAngle -= math.radians(3)
-        elif key == 'd':              # turn right
-            app.aimAngle += math.radians(3)
-        if key == 'space':
-                app.showClubSelection = False
-                velocity, angle, aimDeviation = calculateVelocity(app.selectedClub)
-                app.aimAngle += aimDeviation
-                takeShot(app, velocity, angle)
+
+        # Aiming left/right
+        elif key == 'a':
+            player.aimAngle -= math.radians(3)
+        elif key == 'd':
+            player.aimAngle += math.radians(3)
+
+        # Taking the shot
+        elif key == 'space':
+            app.showClubSelection = False
+            velocity, angle, dev = calculateVelocity(app.selectedClub)
+            player.aimAngle += dev
+            takeShot(app, player, velocity, angle)
+
 
 
 def drawAimLine(app):
-    if not app.ballInMotion:
-        sx, sy = getScreenCoords(app, app.ballX, app.ballY)
+    player = app.players[app.currentIdx]
+    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
         length = 60
-        ex = sx + length * math.cos(app.aimAngle)
-        ey = sy + length * math.sin(app.aimAngle)
+        ex = sx + length * math.cos(player.aimAngle)
+        ey = sy + length * math.sin(player.aimAngle)
         drawLine(sx, sy, ex, ey, fill='white', lineWidth=2)
 
 def findHoleCenter(app):
@@ -475,7 +497,8 @@ def normalizePolygons(raw):
     return out
 
 def getBallTerrain(app):
-    bx, by = app.ballX, app.ballY
+    player = app.currentPlayer 
+    bx, by = player.ballX, player.ballY
     outlines = getHoleData(app) 
 
     # check in this priority order
