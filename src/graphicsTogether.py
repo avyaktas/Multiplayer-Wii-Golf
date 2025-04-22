@@ -11,6 +11,7 @@ def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
     app.cardPage = False
+    app.landingPage = False
     app.width = 1000
     app.height = 600
     app.scrollX = 500
@@ -25,7 +26,16 @@ def onAppStart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
-
+    app.startButtonX = app.width//2 - 70
+    app.startButtonY = app.height - 80
+    app.startButtonWidth = 140
+    app.startButtonHeight = 40
+    app.nameIndex = 0
+    app.ipAddress = ''
+    app.ipBoxSelected = False
+    app.nameBoxSelected = False
+    app.selectedNumPlayers = 1
+    app.playerNames = ['', '', '', '']
     app.currentHole = 1
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (120, 600), (120, 600), (120, 600),(120, 600)]
@@ -107,13 +117,14 @@ def makeCliffBetter(poly, baseDepth=20, jag=1):
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
-
+    elif app.landingPage:
+        drawLandingPage(app)
     elif app.hole1:
         drawOcean(app)
         drawCliff(app)
         drawHole(app)
         drawBall(app)  # Only call once now, it handles everything
-
+        
         current = app.players[app.currentIdx]
         if current.velX == 0 and current.velY == 0 and current.velZ == 0:
             drawAimLine(app)
@@ -296,13 +307,21 @@ def isInHoleButton(app, x, y):
     return (app.holeButtonX <= x <= app.holeButtonX + app.holeButtonWidth and
             app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
 
+def isInStartButton(app, x, y):
+    return (app.startButtonX <= x <= app.startButtonX + app.startButtonWidth and
+            app.startButtonY <= y <= app.startButtonY + app.startButtonHeight)
 
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
-        app.hole1 = True
-        app.onTeebox = True 
-        app.showClubSelection = True
+        app.landingPage = True
+    elif app.landingPage: 
+        landingMousePress(app, mouseX, mouseY)
+        if isInStartButton(app, mouseX, mouseY):
+            app.landingPage = False
+            app.hole1 = True
+            app.onTeebox = True 
+            app.showClubSelection = True
     elif app.hole1 and isInCardButton(app, mouseX, mouseY):
         app.hole1 = False
         app.cardPage = True
@@ -453,32 +472,48 @@ def drawBall(app):
     
 
 def onKeyPress(app, key):
-    player = app.players[app.currentIdx]
-
+    if app.landingPage: 
+        if app.ipBoxSelected:
+            if key == 'backspace': 
+                app.ipAddress = app.ipAddress[:-1]
+            elif len(key) == 1 and len(app.ipAddress) <= 15:
+                app.ipAddress += key
+            return
+        elif app.nameBoxSelected:
+            if key == 'backspace': 
+                app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
+            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 12:
+                app.playerNames[app.nameIndex] += key
+            return
+    if app.hole1:
+        player = app.players[app.currentIdx]
     # Only allow input when the current player's ball is at rest
-    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+        if player.velX == 0 and player.velY == 0 and player.velZ == 0:
 
-        # Club selection
-        if key == 'w':
-            app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
-            app.selectedClub = app.clubs[app.clubIndex]
-        elif key == 's':
-            app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
-            app.selectedClub = app.clubs[app.clubIndex]
+            # Club selection
+            if key == 'w':
+                app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+                app.selectedClub = app.clubs[app.clubIndex]
+            elif key == 's':
+                app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+                app.selectedClub = app.clubs[app.clubIndex]
 
-        # Aiming left/right
-        elif key == 'a':
-            player.aimAngle -= math.radians(3)
-        elif key == 'd':
-            player.aimAngle += math.radians(3)
+            # Aiming left/right
+            elif key == 'a':
+                player.aimAngle -= math.radians(3)
+            elif key == 'd':
+                player.aimAngle += math.radians(3)
 
-        # Taking the shot
-        elif key == 'space':
-            app.showClubSelection = False
-            velocity, angle, dev = calculateVelocity(app.selectedClub)
-            app.velocity, app.angle = velocity, angle
-            player.aimAngle += dev
-            takeShot(app, player, velocity, angle)
+            # Taking the shot
+            elif key == 'space':
+                app.showClubSelection = False
+                velocity, angle, dev = calculateVelocity(app.selectedClub)
+                app.velocity, app.angle = velocity, angle
+                player.aimAngle += dev
+                takeShot(app, player, velocity, angle)
+
+
+    
 
 
 
@@ -656,6 +691,53 @@ def drawCardPage(app):
                      
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
+
+def drawLandingPage(app): 
+    drawRect(0, 0, app.width, app.height, fill = 'blue')
+    drawLabel('Choose Number of Players', app.width//2, 80, size=30, bold=True)
+
+    for i in range(1, 5):
+        x = app.width//2 - 150 + i*60
+        y = 140
+        drawRect(x-25, y-25, 50, 50, fill='white' if app.selectedNumPlayers != i else 'lightGreen', border='black')
+        drawLabel(str(i), x, y, size=20, bold=True)
+
+    for i in range(app.selectedNumPlayers):
+        drawLabel(f"Enter Name for Player {i+1}:", 300, 230 + i*60, size=16)
+        drawRect(500, 210 + i*60, 180, 40, fill='white', border='black')
+        drawLabel(app.playerNames[i], 590, 230 + i*60, size=16, align='center')
+
+    drawRect(500, 450, 180, 40, fill='white', border='black')
+    drawLabel(app.ipAddress, 590, 470, size=16, fill='black', align='center')
+    drawLabel('Enter IP Address Here:', 300, 470, size=16)  
+
+    drawRect(app.startButtonX, app.startButtonY, app.startButtonWidth, app.startButtonHeight, fill='darkGreen', border='white', borderWidth=2)
+    drawLabel("Start Game", app.width//2, app.height - 60, size=20, fill='white', bold=True)
+
+
+def landingMousePress(app, x, y):
+    for i in range(1, 5):
+        boxX = app.width//2 - 150 + i*60
+        if (boxX - 25 <= x <= boxX + 25 and 115 <= y <= 165):
+            app.selectedNumPlayers = i
+            return
+    for i in range(app.selectedNumPlayers):
+        if (500 <= x <= 680 and 210 + i*60 <= y <= 250 + i*60):
+            app.nameIndex = i
+            app.nameBoxSelected = True
+            app.ipBoxSelected = False
+            return
+        
+    ipBoxX, ipBoxY = 500, 450
+    if ipBoxX <= x <= ipBoxX + 180 and ipBoxY <= y <= ipBoxY + 40:
+        app.ipBoxSelected = True
+        app.nameBoxSelected = False
+    else: 
+        app.ipBoxSelected = False
+
+        
+    
+
 
 runApp()
 
