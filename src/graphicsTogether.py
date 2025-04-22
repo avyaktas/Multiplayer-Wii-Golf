@@ -335,6 +335,13 @@ def onKeyHold(app, keys):
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
     if 'down' in keys: app.scrollY += move
+    
+    player = app.players[app.currentIdx]
+    if player.velX==0 and player.velY==0 and player.velZ==0:
+        if 'a' in keys:
+            player.aimAngle -= math.radians(3)
+        if 'd' in keys:
+            player.aimAngle += math.radians(3)
 
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
@@ -355,8 +362,9 @@ def takeShot(app, player, velocity, angle):
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
         player.velX = player.velY = player.velZ = 0
-    # elif getBallTerrain(app) == 'out of bounds':
-        
+    elif getBallTerrain(app) == 'out of bounds':
+        player.strokes += 1
+        player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
     elif getBallTerrain(app) == 'rough':
         xMultiplier = 0.1
         player.velZ = velocity * math.sin(angle)
@@ -379,6 +387,7 @@ def onStep(app):
         # In motion
         if player.putting:
             # Putting logic
+            player.velZ = 0
             player.ballX += player.velX * step
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
@@ -396,6 +405,9 @@ def onStep(app):
             player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
             player.ballZ += player.velZ * step
             player.shadowY += player.velY * step
+            if getShadowTerrain(app) != 'out of bounds':
+                player.shadowOverLandX = player.ballX
+                player.shadowOverLandY = player.shadowY
             app.scrollX += player.velX * step
             app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
 
@@ -437,6 +449,7 @@ def onStep(app):
             app.currentIdx = app.players.index(farthest)
             farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                    holeX - farthest.ballX)
+            centerOnPlayer(app, farthest)
 
     # Ocean frame animation
     if not app.startPage:
@@ -445,6 +458,14 @@ def onStep(app):
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
+
+def centerOnPlayer(app, player):
+    # want ball at (app.width/2, app.height/3) on screen
+    targetScrollX = player.ballX - app.width/2
+    targetScrollY = player.ballY - app.height/3
+    # clamp to course bounds
+    app.scrollX = max(0, min(targetScrollX, app.courseWidth - app.width))
+    app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
 
 
 def drawBall(app):
@@ -570,6 +591,21 @@ def normalizePolygons(raw):
 def getBallTerrain(app):
     player = app.players[app.currentIdx]
     bx, by = player.ballX, player.ballY
+    outlines = getHoleData(app) 
+
+    # check in this priority order
+    for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
+        raw = outlines.get(terrain, [])
+        for poly in normalizePolygons(raw):
+            if pointInPolygon(bx, by, poly):
+                # map 'outline' → 'rough'
+                return 'rough' if terrain == 'outline' else terrain
+
+    return 'out of bounds'
+
+def getShadowTerrain(app):
+    player = app.players[app.currentIdx]
+    bx, by = player.ballX, player.shadowY
     outlines = getHoleData(app) 
 
     # check in this priority order
