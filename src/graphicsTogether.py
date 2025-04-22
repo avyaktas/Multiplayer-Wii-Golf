@@ -36,7 +36,7 @@ def onAppStart(app):
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
     app.playerNames = ['', '', '', '']
-    app.currentHole = 8
+    app.currentHole = 6
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballRadius = 3
@@ -434,6 +434,18 @@ def onStep(app):
                             d = dist(p.ballX, p.ballY, holeX, holeY)
                             if d > maxD:
                                 maxD, farthest = d, p
+                everyoneHoled = True
+                for i in range(app.selectedNumPlayers): 
+                    if not app.players[i].holed: 
+                        everyoneHoled = False
+                        break
+                if everyoneHoled: 
+                        for i in range(app.selectedNumPlayers):
+                            app.scores[i+1][app.currentHole] = app.players[i].strokes
+                            app.hole1 = False
+                            app.cardPage = True
+                        
+
 
                         app.currentIdx = app.players.index(farthest)
                         farthest.aimAngle = math.atan2(holeY - farthest.ballY,
@@ -442,7 +454,7 @@ def onStep(app):
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius:
+        if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius * 2:
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
