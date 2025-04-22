@@ -436,11 +436,16 @@ def onStep(app):
                             d = dist(p.ballX, p.ballY, holeX, holeY)
                             if d > maxD:
                                 maxD, farthest = d, p
-                        app.currentIdx = app.players.index(farthest)
-                        farthest.aimAngle = math.atan2(holeY - farthest.ballY,
-                                            holeX - farthest.ballX)
-                        centerOnPlayer(app, farthest)
-                    else: 
+                    everyoneHoled = True
+                    for i in range(app.selectedNumPlayers): 
+                        if not app.players[i].holed: 
+                            everyoneHoled = False
+                            break
+                    if everyoneHoled: 
+                        for i in range(app.selectedNumPlayers):
+                            app.scores[i+1][app.currentHole] = app.players[i].strokes
+                            app.hole1 = False
+                            app.cardPage = True
                         if app.currentHole < 9:
                             app.currentHole += 1
                         else:
@@ -450,6 +455,11 @@ def onStep(app):
                             aimAngle = math.atan2(holeY - p.ballY,
                                             holeX - p.ballX)
                             p.resetForHole(aimAngle)
+                    app.currentIdx = app.players.index(farthest)
+                    farthest.aimAngle = math.atan2(holeY - farthest.ballY,
+                                        holeX - farthest.ballX)
+                    centerOnPlayer(app, farthest)
+                        
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
