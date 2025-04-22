@@ -403,7 +403,7 @@ def onStep(app):
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
             holeX, holeY = findHoleCenter(app)
-            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius + app.holeRadius):
+            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.holed = True
         else:
             # Flying logic
@@ -467,7 +467,7 @@ def onStep(app):
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius + app.holeRadius):
+        if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
