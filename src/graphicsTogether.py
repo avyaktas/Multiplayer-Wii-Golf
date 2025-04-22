@@ -635,11 +635,15 @@ def drawCardPage(app):
     holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT', 'TOTAL']
     for col in range(cols):
         x = cardTopX + col * cardColWidth
-        drawRect(x, cardTopY - cardRowHeight, cardColWidth, cardRowHeight, fill='gray', border='black')
-        drawLabel(holeLabels[col], x + cardColWidth//2, cardTopY - cardRowHeight//2, size=14, bold=True, fill='white')
+        drawRect(x, cardTopY - cardRowHeight, cardColWidth, cardRowHeight, 
+                 fill='gainsboro', border='black')
+        drawLabel(holeLabels[col], x + cardColWidth//2, 
+                  cardTopY - cardRowHeight//2, size=20, 
+                  bold=True, fill='black', font='American Typewriter')
         drawRect(cardTopX, cardTopY, 
             cardColWidth * cols, cardRowHeight * rows,
             fill='white', border='black', borderWidth=2)
+        # drawRect(cardTopX, cardTopY, ,)
     
     for row in range(rows):
         for col in range(cols): 
@@ -650,9 +654,10 @@ def drawCardPage(app):
             drawLabel(str(app.scores[row][col]), 
                     x + cardColWidth//2, y + cardRowHeight//2,
                     size=16, fill='black', bold=True)
-            
-    drawLabel('112 Country Club Front 9', app.width//2, 80, size = 30, 
-              bold = True, fill = 'white')
+    drawLabel('112 Country Club Front 9', app.width//2-3.5, 80-3.5, size = 45, 
+              bold = True, fill = 'black', font='American Typewriter') 
+    drawLabel('112 Country Club Front 9', app.width//2, 80, size = 45, 
+              bold = True, fill = 'cornSilk', font='American Typewriter')
                      
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
