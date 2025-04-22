@@ -29,7 +29,8 @@ def onAppStart(app):
     app.holeButtonHeight = app.cardButtonHeight
 
     app.currentHole = 1
-    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),(120, 600), (120, 600), (120, 600),(120, 600)]
+    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
+                      (120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballRadius = 3
     app.gravity = 9.81
 
@@ -379,12 +380,16 @@ def onStep(app):
 
     else:
         # Ball stopped – find next player
-        alivePlayers = [p for p in app.players if not p.holed]
+        alivePlayers = []
+        for p in app.players:
+            if not p.holed:
+                alivePlayers.append(p)
+
         if alivePlayers:
             holeX, holeY = findHoleCenter(app)
             # Choose player farthest from hole
-            def dist(p): return distance(p.ballX, p.ballY, holeX, holeY)
-            farthestPlayer = max(alivePlayers, key=dist)
+            distance = distance(p.ballX, p.ballY, holeX, holeY)
+            farthestPlayer = max(alivePlayers, key=distance)
             app.currentIdx = app.players.index(farthestPlayer)
             # Update aim angle
             farthestPlayer.aimAngle = math.atan2(holeY - farthestPlayer.ballY, holeX - farthestPlayer.ballX)
