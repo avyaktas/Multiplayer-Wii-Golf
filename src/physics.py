@@ -17,11 +17,11 @@ def calculateVelocity(club): #add ground later
     # Base multiplier for acceleration to velocity conversion
     # Club-specific velocity multipliers
     clubMultipliers = {
-        'driver': 1,  # Highest velocity multiplier
-        'wood': .8,
+        'driver': .8,  # Highest velocity multiplier
+        'wood': .7,
         'iron': .55,
         'wedge': .3,
-        'putter': .1  # Lowest velocity multiplier
+        'putter': .2  # Lowest velocity multiplier
     }
     # Initial launch angles for each club
     launchAngles = {
@@ -39,15 +39,15 @@ def calculateVelocity(club): #add ground later
     velocity = acceleration * clubMultiplier 
 
     deviation = 0 
-    if velocity > 100:
+    if acceleration > 100:
         deviation = random.randint(-1, 1)
-    if velocity > 170:
+    if acceleration > 170:
         deviation = random.randint(-3, 3)
-    if velocity > 210:
+    if acceleration > 210:
         deviation = random.randint(-15, 15)
 
     if club == 'driver':
-        maxVelocity = 180
+        maxVelocity = 140
     elif club == 'wood':
         maxVelocity = 110
     elif club == 'iron':
