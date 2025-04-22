@@ -710,12 +710,13 @@ def drawHoleButton(app):
     if app.cardPage:
         drawRect(app.cardButtonX, app.cardButtonY, 
                 app.cardButtonWidth, app.cardButtonHeight,
-                fill='white', border='black', borderWidth=2,
-                opacity = 80)
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
         
-        drawLabel('Hole', app.cardButtonX + app.cardButtonWidth//2,
+        drawLabel('Back', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=16, fill='black', bold=True)
+                 size=26, fill='black', font='American Typewriter', italic=True,
+                 border='green')
         
 def drawCardPage(app):
     # Draw Background
@@ -778,6 +779,10 @@ def drawCardPage(app):
                       x + colWidth/2, y + rowHeight/2,
                       size=int(rowHeight * 0.25), fill='black',
                       font='Phosphate', bold=True) 
+    drawLabel('Score Card', app.width//2-3, 50-2, size=64, bold=True, 
+              fill='white', font='American Typewriter')
+    drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
+              fill='black', font='American Typewriter')
 
                      
 def dist(x1, y1, x2, y2):
