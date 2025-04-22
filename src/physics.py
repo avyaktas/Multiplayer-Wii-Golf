@@ -29,7 +29,7 @@ def calculateVelocity(club): #add ground later
         'wood': 25,
         'iron': 40,
         'wedge': 50,
-        'putter': 1
+        'putter': 0  # Putter has no launch angle
     }
     launchAngle = launchAngles.get(club.lower(), launchAngles['putter'])
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])

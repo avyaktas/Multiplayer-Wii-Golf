@@ -361,6 +361,7 @@ def onStep(app):
         # In motion
         if player.putting:
             # Putting logic
+            player.velZ = 0
             player.ballX += player.velX * step
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
