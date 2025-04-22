@@ -334,11 +334,14 @@ def takeShot(app, player, velocity, angle):
     player.strokes += 1
 
 def takeBounce(app, player, velocity, angle, xMultiplier):
-    player.velZ = velocity * math.sin(angle)
-    flatVelocity = velocity * math.cos(angle)
-    player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-    player.velY = flatVelocity * math.sin(player.aimAngle)
-    player.onTeebox = False
+    if getBallTerrain(app) == 'sandtrap':
+        player.velX = player.velY = player.velZ = 0
+    else:
+        player.velZ = velocity * math.sin(angle)
+        flatVelocity = velocity * math.cos(angle)
+        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
+        player.velY = flatVelocity * math.sin(player.aimAngle)
+        player.onTeebox = False
 
 def onStep(app):
     app.count += 1
