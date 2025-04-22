@@ -316,6 +316,13 @@ def onKeyHold(app, keys):
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
     if 'down' in keys: app.scrollY += move
+    
+    player = app.players[app.currentIdx]
+    if player.velX==0 and player.velY==0 and player.velZ==0:
+        if 'a' in keys:
+            player.aimAngle -= math.radians(3)
+        if 'd' in keys:
+            player.aimAngle += math.radians(3)
 
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
