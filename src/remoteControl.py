@@ -2,7 +2,7 @@ from cmu_graphics import *
 import requests
 import json
 import time
-# the get logic for using channel and getting data is inspired from phyPhox 
+# the get logic for using channel and getting data is inspired from phyPhox api 
 # phyphox configuration
 def getPhyphoxAddress():
     defaultPort = "80"
@@ -10,7 +10,7 @@ def getPhyphoxAddress():
     port = input(f"Enter the port number (press Enter for default {defaultPort}): ") or defaultPort
     return f"http://{ip}:{port}"
 
-PP_ADDRESS = "http://170.20.10.1:80"
+PP_ADDRESS = "http://172.26.79.225:80"
 PP_CHANNELS = ["acc"]
 
 def getURL():
@@ -25,7 +25,7 @@ def getAcceleration():
     Fetch the latest acceleration magnitude from PhyPhox.
     """
     url = getURL()   # ← use getURL(), not PP_ADDRESS
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(url, timeout=1)
     resp.raise_for_status()
     data = resp.json()
     return data["buffer"]["acc"]["buffer"][0]
