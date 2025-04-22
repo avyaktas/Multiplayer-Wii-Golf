@@ -71,7 +71,7 @@ def onAppStart(app):
     app.velocity = 0
     app.angle = 0
     app.putting = False
-    app.rollingDeceleration = 2.0
+    app.rollingDeceleration = 3.0
     app.onGreen = False
     app.strokeCount = 0 
     oceanStart(app)
