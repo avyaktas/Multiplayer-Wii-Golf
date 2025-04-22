@@ -32,7 +32,6 @@ def calculateVelocity(club): #add ground later
         'putter': 1
     }
     launchAngle = launchAngles.get(club.lower(), launchAngles['putter'])
-    launchAngleRad = math.radians(launchAngle)
     clubMultiplier = clubMultipliers.get(club.lower(), clubMultipliers['putter'])
     
     # Calculate velocity using acceleration and club multiplier
@@ -54,9 +53,19 @@ def calculateVelocity(club): #add ground later
         maxVelocity = 80
     elif club == 'wedge':
         maxVelocity = 60
-    else:
+    elif club == 'putter':
         maxVelocity = 10
     
+    if velocity > maxVelocity:
+       if club != 'wedge' and club != 'putter':
+            randNumber = random.randint(0, 1)
+            if randNumber == 0:
+                randAngle = random.randint(-2, 0)
+            else:
+                randAngle = random.randint(0, 8)
+            launchAngle += randAngle
+
+    launchAngleRad = math.radians(launchAngle)
     
     print(velocity, launchAngleRad)
     return min(maxVelocity, velocity), launchAngleRad, math.radians(deviation)

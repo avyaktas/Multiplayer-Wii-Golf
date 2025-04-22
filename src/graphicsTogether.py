@@ -336,8 +336,9 @@ def takeShot(app, player, velocity, angle):
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
         player.velX = player.velY = player.velZ = 0
-    # elif getBallTerrain(app) == 'out of bounds':
-        
+    elif getBallTerrain(app) == 'out of bounds':
+        player.strokes += 1
+        player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
     elif getBallTerrain(app) == 'rough':
         xMultiplier = 0.1
         player.velZ = velocity * math.sin(angle)
@@ -377,6 +378,9 @@ def onStep(app):
             player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
             player.ballZ += player.velZ * step
             player.shadowY += player.velY * step
+            if getShadowTerrain(app) != 'out of bounds':
+                player.shadowOverLandX = player.ballX
+                player.shadowOverLandY = player.shadowY
             app.scrollX += player.velX * step
             app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
 
@@ -535,6 +539,21 @@ def normalizePolygons(raw):
 def getBallTerrain(app):
     player = app.players[app.currentIdx]
     bx, by = player.ballX, player.ballY
+    outlines = getHoleData(app) 
+
+    # check in this priority order
+    for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
+        raw = outlines.get(terrain, [])
+        for poly in normalizePolygons(raw):
+            if pointInPolygon(bx, by, poly):
+                # map 'outline' → 'rough'
+                return 'rough' if terrain == 'outline' else terrain
+
+    return 'out of bounds'
+
+def getShadowTerrain(app):
+    player = app.players[app.currentIdx]
+    bx, by = player.ballX, player.shadowY
     outlines = getHoleData(app) 
 
     # check in this priority order
