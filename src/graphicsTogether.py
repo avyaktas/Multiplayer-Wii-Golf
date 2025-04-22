@@ -36,7 +36,7 @@ def onAppStart(app):
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
     app.playerNames = ['', '', '', '']
-    app.currentHole = 1
+    app.currentHole = 8
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (120, 600), (120, 600), (120, 600),(120, 600)]
     app.ballRadius = 3
@@ -45,7 +45,7 @@ def onAppStart(app):
     # build 4 players
     app.players = [
         Player(f"Player {i+1}", app.ballStarts[app.currentHole -1])
-        for i in range(4)
+        for i in range(app.selectedNumPlayers)
     ]
     app.currentIdx = 0                  # which player's turn
     # give first player an initial aimAngle
