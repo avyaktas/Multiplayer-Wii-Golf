@@ -422,34 +422,32 @@ def onStep(app):
                     takeBounce(app, player, app.velocity, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
+                    alivePlayers = []
+                    for p in app.players:
+                        if not p.holed:
+                            alivePlayers.append(p)
+                    if alivePlayers:
+                        holeX, holeY = findHoleCenter(app)
+                        farthest = None
+                        maxD = -1
+                        for p in alivePlayers:
+                            d = dist(p.ballX, p.ballY, holeX, holeY)
+                            if d > maxD:
+                                maxD, farthest = d, p
 
-
+                        app.currentIdx = app.players.index(farthest)
+                        farthest.aimAngle = math.atan2(holeY - farthest.ballY,
+                                            holeX - farthest.ballX)
+                        centerOnPlayer(app, farthest)
+    else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
         if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius:
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
-    else:
         # Ball stopped – find next player
-        alivePlayers = []
-        for p in app.players:
-            if not p.holed:
-                alivePlayers.append(p)
-
-        if alivePlayers:
-            holeX, holeY = findHoleCenter(app)
-            farthest = None
-            maxD = -1
-            for p in alivePlayers:
-                d = dist(p.ballX, p.ballY, holeX, holeY)
-                if d > maxD:
-                    maxD, farthest = d, p
-
-            app.currentIdx = app.players.index(farthest)
-            farthest.aimAngle = math.atan2(holeY - farthest.ballY,
-                                   holeX - farthest.ballX)
-            centerOnPlayer(app, farthest)
+       
 
     # Ocean frame animation
     if not app.startPage:
