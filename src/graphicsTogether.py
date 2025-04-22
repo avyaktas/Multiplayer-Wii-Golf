@@ -39,8 +39,7 @@ def onAppStart(app):
         Player(f"Player {i+1}", app.ballStarts[app.currentHole -1])
         for i in range(4)
     ]
-    app.currentIdx = 0      
-    app.currentPlayer = app.players[app.currentIdx]              # which player's turn
+    app.currentIdx = 0                  # which player's turn
     # give first player an initial aimAngle
     first = app.players[0]
     holeX, holeY = findHoleCenter(app)
@@ -403,23 +402,27 @@ def onStep(app):
             app.count = 0
 
 
-
 def drawBall(app):
-    # Show whose turn it is and how many strokes they've taken
     current = app.players[app.currentIdx]
+    # Display current player info
     drawLabel(f"{current.name} – Shots: {current.strokes}", 900, 30, size=16, fill='white')
 
+    # Draw all other players first
     for i, player in enumerate(app.players):
+        if player == current:
+            continue  # Skip current player for now
+
         sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+        drawCircle(sx, sy, app.ballRadius, fill='gray')
 
-        # Highlight the current player’s ball in white, others in gray
-        ballColor = 'white' if i == app.currentIdx else 'gray'
-        drawCircle(sx, sy, app.ballRadius, fill=ballColor)
+    # Then draw current player's ball last (on top)
+    sx, sy = getScreenCoords(app, current.ballX, current.ballY)
+    drawCircle(sx, sy, app.ballRadius, fill='white')
 
-        # Optional: show shadow if current player's ball is moving
-        if i == app.currentIdx and (player.velX != 0 or player.velY != 0 or player.velZ != 0):
-            shadowX, shadowY = getScreenCoords(app, player.ballX, player.shadowY)
-            drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    # Shadow (only for current player if ball is in motion)
+    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
+        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
     
 
 def onKeyPress(app, key):
