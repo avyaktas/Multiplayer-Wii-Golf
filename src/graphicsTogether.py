@@ -412,6 +412,9 @@ def onStep(app):
 
 def drawBall(app):
     current = app.players[app.currentIdx]
+    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
+        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
     # Display current player info
     drawLabel(f"{current.name} – Shots: {current.strokes}", 900, 30, size=16, fill='white')
 
@@ -428,9 +431,7 @@ def drawBall(app):
     drawCircle(sx, sy, app.ballRadius, fill='white')
 
     # Shadow (only for current player if ball is in motion)
-    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
-        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
-        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    
     
 
 def onKeyPress(app, key):
