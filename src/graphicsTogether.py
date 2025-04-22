@@ -320,7 +320,7 @@ def onKeyHold(app, keys):
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
 
-def takeShot(app, player, velocity, angle):
+def takeShot(app, player, velocity, angle, xMultiplier = 1):
     # Set initial ball position to teebox location
     # These values should match your teebox position
     # Set initial velocities  # 45 degree launch angle
@@ -328,7 +328,7 @@ def takeShot(app, player, velocity, angle):
         player.putting = True
     player.velZ = velocity * math.sin(angle)
     flatVelocity = velocity * math.cos(angle)
-    player.velX = flatVelocity * math.cos(player.aimAngle)
+    player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
     player.velY = flatVelocity * math.sin(player.aimAngle)
     player.onTeebox = False
     player.strokes += 1
@@ -368,6 +368,12 @@ def onStep(app):
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
+                app.velocity /= 3
+                if app.velocity > 10:
+                    takeShot(app, player, app.velocity, app.angle, 0.3)
+                else:
+                    player.velX = player.velY = player.velZ = 0
+
 
         # Check for holed
         holeX, holeY = findHoleCenter(app)
@@ -451,6 +457,7 @@ def onKeyPress(app, key):
         elif key == 'space':
             app.showClubSelection = False
             velocity, angle, dev = calculateVelocity(app.selectedClub)
+            app.velocity, app.angle = velocity, angle
             player.aimAngle += dev
             takeShot(app, player, velocity, angle)
 
