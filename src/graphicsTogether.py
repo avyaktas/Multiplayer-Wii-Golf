@@ -155,6 +155,7 @@ def getScreenCoords(app, x, y):
     return screenX, screenY
 
 def getHoleData(app):
+    #USED CHATGPT TO CACHE THE HOLES
     if app.currentHole not in app.cachedHoleOutlines:
         if app.currentHole == 1:
             imagePath = 'Hole1.jpg'
@@ -534,7 +535,7 @@ def onKeyPress(app, key):
         elif app.nameBoxSelected:
             if key == 'backspace': 
                 app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
-            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 12:
+            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 8:
                 app.playerNames[app.nameIndex] += key
             return
     if app.hole1:
