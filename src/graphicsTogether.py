@@ -39,9 +39,9 @@ def onAppStart(app):
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
     app.playerNames = ['', '', '', '']
-    app.currentHole = 3
+    app.currentHole = 1
     app.playerNames = ['' for i in range(5)]
-    app.currentHole = 3
+    app.currentHole = 4
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
@@ -371,9 +371,18 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
-            for p in app.players:
+                teeX, teeY = app.ballStarts[app.currentHole - 1]
+                for p in app.players:
+                    p.ballX, p.ballY  = teeX, teeY
+                    p.shadowY = teeY
+                    p.ballZ = 0
+                    p.putting = False
+                    p.strokes = 0
+                    p.velX = p.velY = p.velZ = 0
                 x, y = findHoleCenter(app)
-                p.resetForHole(math.atan2(y - p.ballY, x - p.ballX))
+                for p in app.players:
+                    p.aimAngle = (math.atan2(y - p.ballY, x - p.ballX))
+                centerOnPlayer(app, app.players[0])
             else:
                 app.cardPage = False
                 app.podium = True
