@@ -4,10 +4,12 @@ from physics import calculateVelocity
 import math, random
 from playerClass import Player
 
-
-
 def onAppStart(app):
-    # Initialize the app
+    # Audio sounds
+    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
+                  '15112-taylor2.mp3', '15112-taylor3.mp3']
+    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
+                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-kos4.mp3']
     app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.instructionsPage = False
@@ -29,7 +31,7 @@ def onAppStart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
-    # Landing page
+    # Landing page app follows
     app.startButtonX = app.width//2 - 70
     app.startButtonY = app.height - 80
     app.startButtonWidth = 180
@@ -39,6 +41,7 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
+    # General app 
     app.currentHole = 1
     app.playerNames = ['' for i in range(5)]
     app.currentHole = 3
@@ -250,7 +253,7 @@ def getHole(points):
     
     # Return the center as a tuple
     return centerX, centerY
-
+    
 def drawStart(app):
     # Draw background image scaled to fill the screen
     drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
@@ -417,7 +420,8 @@ def onKeyHold(app, keys):
 def takeShot(app, player, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
-    # Set initial velocities  # 45 degree launch angle
+    # Set initial velocities  # 45 degree launch anglex
+    app.onGreenPlayed = False
     if getBallTerrain(app) == 'green':
         player.putting = True
     player.velZ = velocity * math.sin(angle)
@@ -490,6 +494,13 @@ def onStep(app):
             player.velZ -= app.gravity * step
 
             if player.ballZ <= 0 and player.velZ < 0:
+                # Audio determination
+                terrain = getBallTerrain(app)
+                if terrain == 'green' and not app.onGreenPlayed:
+                    playSound(app, app.taylor)
+                    app.onGreenPlayed = True
+                elif terrain in ('sandtrap', 'out of bounds'):
+                        playSound(app, app.koz)
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
@@ -529,6 +540,7 @@ def onStep(app):
         # Check for holed
         holeX, holeY = findHoleCenter(app)
         if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+            playSound(app, app.taylor)
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
@@ -704,6 +716,17 @@ def getShadowTerrain(app):
 
     return 'out of bounds'
 
+def playSound(app, soundList):
+    if soundList == app.koz:
+        audioIndex = random.randint(0, 4)
+        audio = app.koz[audioIndex]
+        audio = Sound(audio)
+        audio.play()
+    elif soundList == app.taylor:
+        audioIndex = random.randint(0, 3)
+        audio = app.taylor[audioIndex]
+        audio = Sound(audio)
+        audio.play()
 
 
 def drawClubSelection(app):
@@ -886,7 +909,7 @@ def drawInstructionsPage(app):
         '6. Use arrow keys to navigate the game.',
         "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
     
-    startY     = app.height * 0.25
+    startY = app.height * 0.25
     lineHeight = app.height * 0.08
     textSize   = int(app.height * 0.03)
     for i, line in enumerate(instructions):
