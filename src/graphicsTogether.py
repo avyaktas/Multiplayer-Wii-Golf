@@ -6,6 +6,8 @@ from playerClass import Player
 
 def onAppStart(app):
     # Audio sounds
+    app.music = 'music.mp3'
+    playMusic(app)
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
     app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
@@ -146,8 +148,24 @@ def redrawAll(app):
 
     # Draw the score card
 def drawReconnect(app):
-    drawRect((app.width - 300)/2, (app.height - 150)/2, 300,150, fill='red', border = 'black' )
-    drawLabel('Connection Issue Restart App and input right address', app.width//2, app.height//2, size = 20)
+    drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
+    drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
+              fill='cornSilk', bold=True, font='HeadLineA', align='center')
+    drawLabel('Connection Issue!', app.width//2, app.height//6, size = 80,
+              fill='maroon', bold=True, font='HeadLineA', align='center')
+    drawLabel('Please restart your app and verify your connection.', 
+              app.width//2-2, app.height//1.5-2, font='HeadLineA', 
+              fill='cornSilk', bold=True, size=40)
+    drawLabel('Please restart your app and verify your connection.', 
+              app.width//2, app.height//1.5, font='HeadLineA', 
+              fill='maroon', bold=True, size=40, align='center')
+    drawLabel('We are sorry. :(', 
+              app.width//2-2, app.height//1.3-2, font='HeadLineA', 
+              fill='cornSilk', bold=True, size=40)
+    drawLabel('We are sorry. :(', app.width//2, app.height//1.3, 
+              font='HeadLineA', fill='maroon', bold=True, 
+              size=40, align='center')
+    drawRect()
     
 def drawOcean(app):
     # Display the current frame in chunks
@@ -790,7 +808,10 @@ def playSound(app, soundList):
         audio = Sound(audio)
         audio.play()
         return
-
+    
+def playMusic(app):
+    audio = Sound(app.music)
+    audio.play(loop=True)
 
 def drawClubSelection(app):
 
