@@ -4,6 +4,7 @@ from physics import calculateVelocity
 import math, random
 from playerClass import Player
 
+
 def onAppStart(app):
     # Audio sounds
     app.music = 'music.mp3'
@@ -278,7 +279,8 @@ def drawHole(app):
             drawCircle(screenX, screenY, 4, fill='black', border='white')
             
             # Draw flag
-            drawLine(screenX, screenY, screenX, screenY - 25, fill='white', lineWidth=2)
+            drawLine(screenX, screenY, screenX, screenY - 25, 
+                     fill='white', lineWidth=2)
             drawPolygon(screenX, screenY - 15, 
                        screenX - 15, screenY - 20,
                        screenX, screenY - 25,
@@ -495,7 +497,8 @@ def takeBounce(app, player, velocity, angle):
     elif getBallTerrain(app) == 'out of bounds':
         player.velX = player.velY = player.velZ = 0
         player.strokes += 1
-        player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
+        player.ballX, player.ballY = player.shadowOverLandX, 
+        player.shadowOverLandY
         player.shadowX = player.ballX
         player.shadowY = player.ballY
     elif getBallTerrain(app) == 'rough':
@@ -557,20 +560,23 @@ def onStep(app):
                     app.clubIndex = 4
                     app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
-            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+            if (dist(player.ballX, player.ballY, holeX, holeY) <= 
+                (app.ballRadius)):
                 player.putting = False
                 player.holed = True
         else:
             # Flying logic
             player.ballX += player.velX * step
-            player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
+            player.ballY = (player.ballY - (player.velZ * step) 
+                            + (player.velY * step))
             player.ballZ += player.velZ * step
             player.shadowY += player.velY * step
             if getShadowTerrain(app) != 'out of bounds':
                 player.shadowOverLandX = player.ballX
                 player.shadowOverLandY = player.shadowY
             app.scrollX += player.velX * step
-            app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
+            app.scrollY = (app.scrollY - 
+                           (player.velZ * step) + (player.velY * step))
 
             player.velZ -= app.gravity * step
 
@@ -609,7 +615,8 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
+                            d = dist(p.shadowOverLandX, 
+                                     p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
@@ -625,7 +632,8 @@ def onStep(app):
                         app.clubIndex = 0
                         app.selectedClub = app.clubs[app.clubIndex]
                         for i in range(app.selectedNumPlayers):
-                            app.scores[i+1][app.currentHole] = app.players[i].strokes
+                            app.scores[i+1][app.currentHole] = (
+                            app.players[i].strokes)
                         app.hole1 = False
                         app.cardPage = True
     else:
@@ -642,7 +650,8 @@ def onStep(app):
     # Ocean frame animation
     if not app.startPage:
         if app.count % 5 == 0:
-            app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
+            app.currentFrameIndex = (
+                (app.currentFrameIndex + 1) % len(app.frames))
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
@@ -674,9 +683,9 @@ def drawBall(app):
               borderWidth=0.5, align='right')
     # Display current player info
     playerName = app.playerNames[app.currentIdx]
-    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
-              app.height//1.05, size=32, fill='cornSilk', bold=True, 
-              font='American Typewriter', border='black', 
+    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', 
+              app.width//1.05, app.height//1.05, size=32, fill='cornSilk', 
+              bold=True, font='American Typewriter', border='black', 
               borderWidth=0.5, align='right')
 
     # Draw all other players first
@@ -706,7 +715,8 @@ def onKeyPress(app, key):
             return
         elif app.nameBoxSelected:
             if key == 'backspace': 
-                app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
+                app.playerNames[app.nameIndex] = (
+                    app.playerNames[app.nameIndex][:-1])
             elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 8:
                 app.playerNames[app.nameIndex] += key
             return
@@ -738,7 +748,8 @@ def onKeyPress(app, key):
                     app.connectionBad = True
                 if app.ipAddress: 
                     try:
-                        velocity, angle, dev = calculateVelocity(app.selectedClub, app.ipAddress)
+                        velocity, angle, dev = (
+                            calculateVelocity(app.selectedClub, app.ipAddress))
                         app.velocity, app.angle = velocity, angle
                         player.aimAngle += dev
                         takeShot(app, player, velocity, angle)
@@ -1009,7 +1020,8 @@ def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
 def drawInstructionsPage(app):
-    drawImage('15112-instructionsPage.png',0 , 0, width=app.width, height=app.height)
+    drawImage('15112-instructionsPage.png',0 , 0, 
+              width=app.width, height=app.height)
     titleY     = app.height * 0.1 - 10
     titleSize  = int(app.height * 0.15)
     drawLabel("Instructions",
@@ -1058,24 +1070,12 @@ def drawInstructionsPage(app):
 def instructionsPageMousePress(app, mouseX, mouseY):
     btnW = app.width  * 0.20
     btnH = app.height * 0.08
-    btnX = (app.width  - btnW) / 2
+    btnX = (app.width - btnW) / 2
     btnY = app.height * 0.80
 
     if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
         app.instructionsPage = False
-        app.landingPage      = True
-
-
-def instructionsPageMousePress(app, mouseX, mouseY):
-    btnW = app.width  * 0.20
-    btnH = app.height * 0.08
-    btnX = (app.width  - btnW) / 2
-    btnY = app.height * 0.80
-
-    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
-        app.instructionsPage = False
-        app.landingPage      = True
-
+        app.landingPage = True
 
 def drawLandingPage(app):
     # Find per-axis scales against reference 1000×600
@@ -1125,8 +1125,8 @@ def drawLandingPage(app):
         yRect  = (210 + i*60) * scaleY
 
         drawLabel(f"Enter Name for Player {i+1}:",
-                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, font='HeadlineA', 
-                  fill='darkOlivegreen', bold=True)
+                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, 
+                  font='HeadlineA', fill='darkOlivegreen', bold=True)
         drawLabel(f"Enter Name for Player {i+1}:",
                   labelX, labelY, size=int(16 * scaleY)+20, font='HeadlineA', 
                   fill='cornSilk', bold=True)
@@ -1239,7 +1239,8 @@ def drawPodium(app):
     for i in range(len(playerTotals)):
         for j in range(len(playerTotals)): 
             if playerTotals[j][1] < playerTotals[i][1]:
-                playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
+                playerTotals[i], playerTotals[j] = (
+                    playerTotals[j], playerTotals[i])
 
     for i in range(len(playerTotals)): 
         name = playerTotals[i][0]
