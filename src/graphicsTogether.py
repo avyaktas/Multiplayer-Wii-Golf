@@ -571,12 +571,17 @@ def onStep(app):
             app.count = 0
 
 def centerOnPlayer(app, player):
-    # want ball at (app.width/2, app.height/3) on screen
-    targetScrollX = player.ballX - app.width/2
-    targetScrollY = player.ballY - app.height/3
-    # clamp to course bounds
-    app.scrollX = max(0, min(targetScrollX, app.courseWidth  - app.width))
-    app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
+    targetScrollX = player.ballX
+    targetScrollY = player.ballY
+    halfW = app.width/2
+    halfH = app.height/3
+    minScrollX =  halfW
+    maxScrollX =  app.courseWidth  - halfW
+    minScrollY =  halfH
+    maxScrollY =  app.courseHeight - halfH
+
+    app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
+    app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
 
 
 def drawBall(app):
