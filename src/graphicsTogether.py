@@ -442,16 +442,18 @@ def takeBounce(app, player, velocity, angle):
         player.shadowY = player.ballY
     elif getBallTerrain(app) == 'rough':
         xMultiplier = 0.1
+        yMultiplier = 0.2
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle)
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
     else:
         xMultiplier = 0.4
+        yMultiplier = 0.6
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle)
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
 
 def onStep(app):
     if not app.hole1 or not app.players:
