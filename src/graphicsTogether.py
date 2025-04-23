@@ -147,6 +147,7 @@ def redrawAll(app):
         drawCardButton(app)
         if app.connectionBad:
             drawReconnect(app)
+            drawRestartButton(app)
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
@@ -154,7 +155,6 @@ def redrawAll(app):
     elif app.podium:
         drawPodium(app)
 
-    # Draw the score card
 def drawReconnect(app):
     drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
     drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
@@ -173,7 +173,6 @@ def drawReconnect(app):
     drawLabel('We are sorry. :(', app.width//2, app.height//1.3, 
               font='HeadLineA', fill='maroon', bold=True, 
               size=40, align='center')
-    drawRect()
     
 def drawOcean(app):
     # Display the current frame in chunks
@@ -191,10 +190,12 @@ def drawWindIndicator(app):
     dx = length * math.cos(app.windDirection)
     dy = length * math.sin(app.windDirection)
     # arrow line
-    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='white', arrowEnd = True)
+    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='cornSilk', 
+             arrowEnd = True)
     # speed label
     drawLabel(f'{app.windSpeed:.1f} mph',
-              x0, y0+30, size=16, fill='white')
+              x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
+              border='black', borderWidth=0.25, bold=True)
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -450,6 +451,10 @@ def onMousePress(app, mouseX, mouseY):
             elif app.currentHole >= 9:
                 app.cardPage = False
                 app.podium = True
+    elif app.connectionBad:
+        if isInRestartButton(app, mouseX, mouseY):
+            app.cardPage = False
+            app.startPage = True
     
 
 def onKeyHold(app, keys): 
@@ -1213,11 +1218,15 @@ def landingMousePress(app, x, y):
 
 
 def drawPodium(app):
-    drawImage('15112-LandingPage.png', 0, 0, 
+    drawImage('winner.png', 0, 0, 
               width=app.width, height=app.height)
 
+    drawLabel('FINAL RANKINGS', app.width//2-4, 60-4,
+              size=80, fill='black', bold=True, font='Impact', 
+              border='black', borderWidth=2)
     drawLabel('FINAL RANKINGS', app.width//2, 60,
-              size=60, fill='gold', bold=True, font='Impact', border='black', borderWidth=2)
+              size=80, fill='gold', bold=True, font='Impact', 
+              border='black', borderWidth=2)
 
     playerTotals = []
     for i in range(len(app.players)): 
@@ -1247,20 +1256,22 @@ def drawPodium(app):
             color = 'silver'
         elif i == 2: 
             place = 'Third Place'
-            color = 'bronze'
+            color = 'darkGoldenrod'
         else: 
             place = 'Fourth Place'
-            color = 'black'
+            color = 'white'
 
-        size = 40 - i * 5
+        size = 55 - i * 5
         y = 150 + i * 50
+        drawLabel(f'{place}: {name} - {strokes} strokes', app.width//2-2, y-2,
+                  size=size, fill='black', bold=True, font='Impact')
         drawLabel(f'{place}: {name} - {strokes} strokes',
                   app.width//2, y,
                   size=size, fill=color, bold=True,
-                  font='American Typewriter', border = 'black')
+                  font='Impact', border='black')
         
 def drawRestartButton(app): 
-    if app.cardPage:
+    if app.cardPage or app.connectionBad:
         x = (app.width - app.restartButtonWidth) // 2
         y = app.height - app.restartButtonHeight - 20
         
