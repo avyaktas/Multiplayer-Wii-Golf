@@ -528,7 +528,7 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.ballX, p.ballY, holeX, holeY)
+                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
@@ -580,6 +580,12 @@ def drawBall(app):
     if current.velX != 0 or current.velY != 0 or current.velZ != 0:
         shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
         drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    # Display current Hole 
+    drawLabel(f'Hole {app.currentHole}',
+              app.width//1.05, app.height//1.12,
+              size=32, fill='cornSilk', bold=True,
+              font='American Typewriter', border='black',
+              borderWidth=0.5, align='right')
     # Display current player info
     playerName = app.playerNames[app.currentIdx]
     drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
