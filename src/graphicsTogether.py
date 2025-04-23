@@ -488,8 +488,15 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
-
+            player.shadowX = player.ballX
+            player.shadowY = player.ballY
+            player.shadowOverLandX = player.ballX
+            player.shadowOverLandY = player.shadowY
             decel = app.rollingDeceleration
+            if getBallTerrain(app) != 'green':
+                app.clubIndex = 3
+                app.selectedClub = app.clubs[app.clubIndex]
+                decel = app.rollingDeceleration * 4
             player.velX -= decel * math.cos(player.aimAngle) * step
             player.velY -= decel * math.sin(player.aimAngle) * step
 
@@ -533,9 +540,10 @@ def onStep(app):
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
-                flatSpeed = (player.velX**2 + player.velY**2)**0.5
-                if flatSpeed > 1:
-                    takeBounce(app, player, flatSpeed, app.angle)
+                #flatSpeed = (player.velX**2 + player.velY**2)**0.5
+                app.velocity //= 3
+                if app.velocity  > 10:
+                    takeBounce(app, player, app.velocity, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
                     if getBallTerrain(app) == 'green':
