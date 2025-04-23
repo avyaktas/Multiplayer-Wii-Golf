@@ -26,9 +26,10 @@ def onAppStart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
+    # Landing page
     app.startButtonX = app.width//2 - 70
     app.startButtonY = app.height - 80
-    app.startButtonWidth = 140
+    app.startButtonWidth = 180
     app.startButtonHeight = 40
     app.nameIndex = 0
     app.ipAddress = ''
@@ -310,8 +311,14 @@ def isInHoleButton(app, x, y):
             app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
 
 def isInStartButton(app, x, y):
-    return (app.startButtonX <= x <= app.startButtonX + app.startButtonWidth and
-            app.startButtonY <= y <= app.startButtonY + app.startButtonHeight)
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+    btnW = 180 * scaleX
+    btnH =  40 * scaleY
+    btnX = app.width/2 - btnW/2
+    btnY = app.height - 80 * scaleY
+    return (btnX <= x <= btnX+btnW and
+            btnY <= y <= btnY+btnH)
 
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
@@ -330,6 +337,7 @@ def onMousePress(app, mouseX, mouseY):
     elif app.cardPage and isInHoleButton(app, mouseX, mouseY): 
         app.cardPage = False
         app.hole1 = True
+    
 
 def onKeyHold(app, keys): 
     move = 20
@@ -765,7 +773,7 @@ def drawCardPage(app):
                   x + colWidth/2,
                   y + headerHeight/2,
                   size=int(headerHeight * 0.25),
-                  bold=True, fill='ivory', font='Phosphate')
+                  bold=True, fill='ivory', font='HeadLineA')
     
     # Draw the score cells
     for row in range(rows):
@@ -778,7 +786,7 @@ def drawCardPage(app):
             drawLabel(str(app.scores[row][col]),
                       x + colWidth/2, y + rowHeight/2,
                       size=int(rowHeight * 0.25), fill='black',
-                      font='Phosphate', bold=True) 
+                      font='HeadLineA', bold=True) 
     drawLabel('Score Card', app.width//2-3, 50-2, size=64, bold=True, 
               fill='white', font='American Typewriter')
     drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
@@ -788,56 +796,143 @@ def drawCardPage(app):
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
-def drawLandingPage(app): 
+def drawLandingPage(app):
+    # Find per-axis scales against reference 1000×600
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+
+    # Full-screen background
     drawImage('15112-LandingPage.png', 0, 0, 
               width=app.width, height=app.height)
-    drawLabel('Choose Number of Players', app.width//2, 80, size=30, bold=True)
+
+    # Title
+    drawLabel('Choose Number of Players',
+              app.width//2 - 3, 80 * scaleY - 3, 
+              size=int(30 * scaleY)+30, bold=True, 
+              font='Impact', fill='black')
+    
+    drawLabel('Choose Number of Players',
+              app.width//2, 80 * scaleY,
+              size=int(30 * scaleY)+30, bold=True, 
+              font='Impact', fill='darkOliveGreen')
+
+    # Player-count boxes (1–4)
+    baseOffset = -150 
+    spacing = 60
+    boxSize = 50
 
     for i in range(1, 5):
-        x = app.width//2 - 150 + i*60
-        y = 140
-        drawRect(x-25, y-25, 50, 50, fill='white' if app.selectedNumPlayers != i else 'lightGreen', border='black')
-        drawLabel(str(i), x, y, size=20, bold=True)
+        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
+        cy = 140 * scaleY
+        w  = boxSize * scaleX
+        h = boxSize * scaleY
+        fill = ('honeyDew' if app.selectedNumPlayers == i else 'cornSilk')
+
+        drawRect(cx - w/2, cy - h/2,
+                 w, h, fill=fill, border='darkOlivegreen', borderWidth=2)
+        drawLabel(str(i), cx, cy, size=int(20 * scaleY) + 5, 
+                  bold=True, font='American TypeWriter')
+
+    # Name-entry fields
+    labelX = 300 * scaleX
+    inputX = 500 * scaleX
+    inputW = 180 * scaleX
+    inputH = 40 * scaleY
 
     for i in range(app.selectedNumPlayers):
-        drawLabel(f"Enter Name for Player {i+1}:", 300, 230 + i*60, size=16)
-        drawRect(500, 210 + i*60, 180, 40, fill='white', border='black')
-        drawLabel(app.playerNames[i], 590, 230 + i*60, size=16, align='center')
+        labelY = (230 + i*60) * scaleY
+        yRect  = (210 + i*60) * scaleY
 
-    drawRect(500, 450, 180, 40, fill='white', border='black')
-    drawLabel(app.ipAddress, 590, 470, size=16, fill='black', align='center')
-    drawLabel('Enter IP Address Here:', 300, 470, size=16)  
+        drawLabel(f"Enter Name for Player {i+1}:",
+                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, font='HeadlineA', 
+                  fill='darkOlivegreen', bold=True)
+        drawLabel(f"Enter Name for Player {i+1}:",
+                  labelX, labelY, size=int(16 * scaleY)+20, font='HeadlineA', 
+                  fill='cornSilk', bold=True)
 
-    drawRect(app.startButtonX, app.startButtonY, app.startButtonWidth, 
-             app.startButtonHeight, fill='darkGreen', 
-             border='white', borderWidth=2)
-    drawLabel("Start Game", app.width//2, app.height - 60,
-              size=20, fill='white', bold=True)
+        drawRect(inputX, yRect, inputW, inputH,
+                 fill='cornSilk', border='darkOliveGreen', borderWidth=4)
+
+        drawLabel(app.playerNames[i],
+                  inputX + inputW/2, labelY, size=int(16 * scaleY)+15,
+                  align='center', font='nanum pen script')
+
+    # IP-address box
+    yLabelIP = 470 * scaleY
+    yRectIP  = 450 * scaleY
+
+    drawLabel('Enter IP Address Here:',
+              labelX-2.5, yLabelIP-2.5, size=int(16 * scaleY)+20, 
+              font='HeadLineA', fill='darkOlivegreen', bold=True)
+    drawLabel('Enter IP Address Here:',
+              labelX, yLabelIP, size=int(16 * scaleY)+20, 
+              font='HeadLineA', fill='cornSilk', bold=True)
+
+    drawRect(inputX, yRectIP, inputW, inputH,
+             fill='cornSilk', border='darkOliveGreen', borderWidth=4)
+
+    drawLabel(app.ipAddress, inputX + inputW/2, yLabelIP,
+              size=int(16 * scaleY)+5, align='center', 
+              font='American Typewriter', bold=True)
+
+    # Start button
+    btnW = 180 * scaleX
+    btnH =  40 * scaleY
+    btnX = app.width/2 - btnW/2
+    btnY = app.height - 80 * scaleY
+
+    drawRect(btnX, btnY, btnW, btnH, fill='cornSilk',
+             border='darkOliveGreen', borderWidth=6)
+
+    drawLabel("START", app.width//2, app.height - 60 * scaleY,
+              size=int(20 * scaleY)+15, fill='darkOliveGreen', 
+              bold=True, font='Modak')
 
 
 def landingMousePress(app, x, y):
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+
+    # Checks for click in player-count boxes
+    baseOffset = -150
+    spacing = 60
+    boxSize = 50
     for i in range(1, 5):
-        boxX = app.width//2 - 150 + i*60
-        if (boxX - 25 <= x <= boxX + 25 and 115 <= y <= 165):
+        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
+        cy = 140 * scaleY
+        w  = boxSize * scaleX
+        h  = boxSize * scaleY
+
+        if (cx - w/2 <= x <= cx + w/2 and
+            cy - h/2 <= y <= cy + h/2):
             app.selectedNumPlayers = i
+            if app.nameIndex >= i:
+                app.nameIndex = 0
             return
+
+    # Checks for click in name boxes
+    inputX = 500 * scaleX
+    inputW = 180 * scaleX
+    inputH = 40 * scaleY
     for i in range(app.selectedNumPlayers):
-        if (500 <= x <= 680 and 210 + i*60 <= y <= 250 + i*60):
+        yRect = (210 + i*60) * scaleY
+        if (inputX <= x <= inputX + inputW and
+            yRect <= y <= yRect + inputH):
             app.nameIndex = i
             app.nameBoxSelected = True
             app.ipBoxSelected = False
             return
-        
-    ipBoxX, ipBoxY = 500, 450
-    if ipBoxX <= x <= ipBoxX + 180 and ipBoxY <= y <= ipBoxY + 40:
+
+    # Checks for click in IP Box
+    ipX = 500 * scaleX
+    ipY = 450 * scaleY
+    if (ipX <= x <= ipX + inputW and
+        ipY <= y <= ipY + inputH):
         app.ipBoxSelected = True
         app.nameBoxSelected = False
-    else: 
-        app.ipBoxSelected = False
-
-        
-    
-
+        return
+    # else deselect IP
+    app.ipBoxSelected = False
 
 runApp()
 
