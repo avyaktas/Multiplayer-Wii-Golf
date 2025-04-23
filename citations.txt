@@ -11,3 +11,4 @@ Avy -
 Used chatGPT to help with the flatten function used in the drawCoursePolygons function and also used 
 chat to help with th drawCourse Polygon function. Overall,  this fucntion heloped witht zooming in to the course 
 and using the keys to pan around the course. 
+Used chatGPT to cache the images for getHoleData
