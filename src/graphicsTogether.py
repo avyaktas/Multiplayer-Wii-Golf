@@ -470,6 +470,8 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
+            player.shadowX = player.ballX
+            player.shadowY = player.ballY
 
             decel = app.rollingDeceleration
             player.velX -= decel * math.cos(player.aimAngle) * step
