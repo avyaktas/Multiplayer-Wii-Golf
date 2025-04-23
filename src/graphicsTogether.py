@@ -525,7 +525,7 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.ballX, p.ballY, holeX, holeY)
+                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
