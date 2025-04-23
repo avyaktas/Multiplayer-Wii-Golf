@@ -2,7 +2,7 @@ from remoteControl import remoteControl
 import math
 import random 
 
-def calculateVelocity(club): #add ground later
+def calculateVelocity(club, ip): #add ground later
     """
     Calculates the ball velocity based on acceleration input and selected club.
     
@@ -13,7 +13,7 @@ def calculateVelocity(club): #add ground later
     Returns:
         float: Calculated velocity in m/s
     """
-    acceleration = remoteControl()
+    acceleration = remoteControl(ip)
     # Base multiplier for acceleration to velocity conversion
     # Club-specific velocity multipliers
     clubMultipliers = {

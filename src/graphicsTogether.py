@@ -29,6 +29,7 @@ def onAppStart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
+    app.connectionBad = False 
     # Landing page
     app.startButtonX = app.width//2 - 70
     app.startButtonY = app.height - 80
@@ -39,9 +40,8 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.currentHole = 1
     app.playerNames = ['' for i in range(5)]
-    app.currentHole = 3
+    app.currentHole = 7
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
@@ -133,12 +133,17 @@ def redrawAll(app):
         drawBall(app)  # Only call once now, it handles everything
 
         drawCardButton(app)
+        if app.connectionBad:
+            drawReconnect(app)
 
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
     # Draw the score card
-        
+def drawReconnect(app):
+    drawRect((app.width - 300)/2, (app.height - 150)/2, 300,150, fill='red', border = 'black' )
+    drawLabel('Connection Issue Restart App and input right address', app.width//2, app.height//2, size = 20)
+    
 def drawOcean(app):
     # Display the current frame in chunks
     currentFrame = app.frames[app.currentFrameIndex]
@@ -617,10 +622,16 @@ def onKeyPress(app, key):
             # Taking the shot
             elif key == 'space':
                 app.showClubSelection = False
-                velocity, angle, dev = calculateVelocity(app.selectedClub)
-                app.velocity, app.angle = velocity, angle
-                player.aimAngle += dev
-                takeShot(app, player, velocity, angle)
+                if app.ipAddress == '':
+                    app.connectionBad = True
+                if app.ipAddress: 
+                    try:
+                        velocity, angle, dev = calculateVelocity(app.selectedClub, app.ipAddress)
+                        app.velocity, app.angle = velocity, angle
+                        player.aimAngle += dev
+                        takeShot(app, player, velocity, angle)
+                    except:
+                        app.connectionBad = True
 
 
     
