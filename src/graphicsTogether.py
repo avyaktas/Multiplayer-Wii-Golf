@@ -8,6 +8,7 @@ from playerClass import Player
 
 def onAppStart(app):
     # Initialize the app
+    app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.hole1 = False
     app.cardPage = False
@@ -154,32 +155,35 @@ def getScreenCoords(app, x, y):
     return screenX, screenY
 
 def getHoleData(app):
-    if app.currentHole == 1:
-        imagePath = 'Hole1.jpg'
-    elif app.currentHole == 2:
-        imagePath = 'Hole2.jpg'
-    elif app.currentHole == 3:
-        imagePath = 'Hole3.jpg'
-    elif app.currentHole == 4:
-        imagePath = 'Hole4.jpg'
-    elif app.currentHole == 5:
-        imagePath = 'Hole5.jpg'
-    elif app.currentHole == 6:
-        imagePath = 'Hole6.jpg'
-    elif app.currentHole == 7:
-        imagePath = 'Hole7.jpg'
-    elif app.currentHole == 8:
-        imagePath = 'Hole8.jpg'
-    elif app.currentHole == 9:
-        imagePath = 'Hole9.jpg'
-    outlines = getHoleOutlines(imagePath)
-    return outlines
+    if app.currentHole not in app.cachedHoleOutlines:
+        if app.currentHole == 1:
+            imagePath = 'Hole1.jpg'
+        elif app.currentHole == 2:
+            imagePath = 'Hole2.jpg'
+        elif app.currentHole == 3:
+            imagePath = 'Hole3.jpg'
+        elif app.currentHole == 4:
+            imagePath = 'Hole4.jpg'
+        elif app.currentHole == 5:
+            imagePath = 'Hole5.jpg'
+        elif app.currentHole == 6:
+            imagePath = 'Hole6.jpg'
+        elif app.currentHole == 7:
+            imagePath = 'Hole7.jpg'
+        elif app.currentHole == 8:
+            imagePath = 'Hole8.jpg'
+        elif app.currentHole == 9:
+            imagePath = 'Hole9.jpg'
+        outlines = getHoleOutlines(imagePath)
+        app.cachedHoleOutlines[app.currentHole] = outlines
+    return app.cachedHoleOutlines[app.currentHole]
+
 
 def findAimAngle(app):
     app.targetX, app.targetY = findHoleCenter(app)
     return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
-#used chatGPT for the flatten function
 
+#used chatGPT for the flatten function
 def flatten(points):
     return [coord for point in points for coord in point]
 
@@ -571,7 +575,7 @@ def findHoleCenter(app):
     and returns its centroid.
     """
     outlines = getHoleData(app) 
-    greens   = outlines.get('green', [])
+    greens = outlines.get('green', [])
     if not greens:
         return 0, 0
     # handle dict vs list for outlines
