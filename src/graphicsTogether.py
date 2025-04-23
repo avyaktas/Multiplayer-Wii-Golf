@@ -37,7 +37,7 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.playerNames = ['' for i in range(app.selectedNumPlayers)]
+    app.playerNames = ['' for i in range(5)]
     app.currentHole = 3
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
