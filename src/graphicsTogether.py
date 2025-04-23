@@ -38,7 +38,6 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.playerNames = ['', '', '', '']
     app.currentHole = 1
     app.playerNames = ['' for i in range(5)]
     app.currentHole = 4
