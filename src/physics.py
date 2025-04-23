@@ -21,7 +21,7 @@ def calculateVelocity(club): #add ground later
         'wood': .7,
         'iron': .55,
         'wedge': .3,
-        'putter': .2  # Lowest velocity multiplier
+        'putter': .3  # Lowest velocity multiplier
     }
     # Initial launch angles for each club
     launchAngles = {
@@ -54,7 +54,7 @@ def calculateVelocity(club): #add ground later
     elif club == 'wedge':
         maxVelocity = 60
     elif club == 'putter':
-        maxVelocity = 10
+        maxVelocity = 35
     
     if velocity > maxVelocity:
        if club != 'wedge' and club != 'putter':

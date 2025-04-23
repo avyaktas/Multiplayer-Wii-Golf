@@ -8,6 +8,7 @@ from playerClass import Player
 
 def onAppStart(app):
     # Initialize the app
+    app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.hole1 = False
     app.cardPage = False
@@ -72,7 +73,7 @@ def onAppStart(app):
     app.velocity = 0
     app.angle = 0
     app.putting = False
-    app.rollingDeceleration = 2.0
+    app.rollingDeceleration = 3.0
     app.onGreen = False
     app.strokeCount = 0 
     oceanStart(app)
@@ -155,32 +156,36 @@ def getScreenCoords(app, x, y):
     return screenX, screenY
 
 def getHoleData(app):
-    if app.currentHole == 1:
-        imagePath = 'Hole1.jpg'
-    elif app.currentHole == 2:
-        imagePath = 'Hole2.jpg'
-    elif app.currentHole == 3:
-        imagePath = 'Hole3.jpg'
-    elif app.currentHole == 4:
-        imagePath = 'Hole4.jpg'
-    elif app.currentHole == 5:
-        imagePath = 'Hole5.jpg'
-    elif app.currentHole == 6:
-        imagePath = 'Hole6.jpg'
-    elif app.currentHole == 7:
-        imagePath = 'Hole7.jpg'
-    elif app.currentHole == 8:
-        imagePath = 'Hole8.jpg'
-    elif app.currentHole == 9:
-        imagePath = 'Hole9.jpg'
-    outlines = getHoleOutlines(imagePath)
-    return outlines
+    #USED CHATGPT TO CACHE THE HOLES
+    if app.currentHole not in app.cachedHoleOutlines:
+        if app.currentHole == 1:
+            imagePath = 'Hole1.jpg'
+        elif app.currentHole == 2:
+            imagePath = 'Hole2.jpg'
+        elif app.currentHole == 3:
+            imagePath = 'Hole3.jpg'
+        elif app.currentHole == 4:
+            imagePath = 'Hole4.jpg'
+        elif app.currentHole == 5:
+            imagePath = 'Hole5.jpg'
+        elif app.currentHole == 6:
+            imagePath = 'Hole6.jpg'
+        elif app.currentHole == 7:
+            imagePath = 'Hole7.jpg'
+        elif app.currentHole == 8:
+            imagePath = 'Hole8.jpg'
+        elif app.currentHole == 9:
+            imagePath = 'Hole9.jpg'
+        outlines = getHoleOutlines(imagePath)
+        app.cachedHoleOutlines[app.currentHole] = outlines
+    return app.cachedHoleOutlines[app.currentHole]
+
 
 def findAimAngle(app):
     app.targetX, app.targetY = findHoleCenter(app)
     return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
-#used chatGPT for the flatten function
 
+#used chatGPT for the flatten function
 def flatten(points):
     return [coord for point in points for coord in point]
 
@@ -340,7 +345,7 @@ def onMousePress(app, mouseX, mouseY):
     
 
 def onKeyHold(app, keys): 
-    move = 20
+    move = 25
     if 'left' in keys: app.scrollX -= move
     if 'right' in keys: app.scrollX += move
     if 'up' in keys: app.scrollY -= move
@@ -372,6 +377,7 @@ def takeShot(app, player, velocity, angle):
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
         player.velX = player.velY = player.velZ = 0
+
     elif getBallTerrain(app) == 'out of bounds':
         player.strokes += 1
         player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
@@ -409,6 +415,11 @@ def onStep(app):
 
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
+                player.putting = False
+            holeX, holeY = findHoleCenter(app)
+            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+                player.putting = False
+                player.holed = True
         else:
             # Flying logic
             player.ballX += player.velX * step
@@ -444,36 +455,34 @@ def onStep(app):
                             d = dist(p.ballX, p.ballY, holeX, holeY)
                             if d > maxD:
                                 maxD, farthest = d, p
-                everyoneHoled = True
-                for i in range(app.selectedNumPlayers): 
-                    if not app.players[i].holed: 
-                        everyoneHoled = False
-                        break
-                if everyoneHoled: 
+                    everyoneHoled = True
+                    for i in range(app.selectedNumPlayers): 
+                        if not app.players[i].holed: 
+                            everyoneHoled = False
+                            break
+                    if everyoneHoled: 
                         for i in range(app.selectedNumPlayers):
                             app.scores[i+1][app.currentHole] = app.players[i].strokes
                             app.hole1 = False
                             app.cardPage = True
-                        
-
-
-                        app.currentIdx = app.players.index(farthest)
-                        farthest.aimAngle = math.atan2(holeY - farthest.ballY,
-                                            holeX - farthest.ballX)
-                        centerOnPlayer(app, farthest)
-                else: 
-                    if app.currentHole < 9:
-                        app.currentHole += 1
-                    else:
-                        app.podium = True 
-                    for p in app.players:
-                        aimAngle = math.atan2(holeY - farthest.ballY,
+                        if app.currentHole < 9:
+                            app.currentHole += 1
+                        else:
+                            app.podium = True 
+                        for p in app.players:
+                            holeX, holeY = findHoleCenter(app)
+                            aimAngle = math.atan2(holeY - p.ballY,
+                                            holeX - p.ballX)
+                            p.resetForHole(aimAngle)
+                    app.currentIdx = app.players.index(farthest)
+                    farthest.aimAngle = math.atan2(holeY - farthest.ballY,
                                         holeX - farthest.ballX)
-                        p.resetForHole(aimAngle)
+                    centerOnPlayer(app, farthest)
+                        
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
-        if dist(player.ballX, player.ballY, holeX, holeY) <= app.ballRadius * 2:
+        if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
@@ -534,7 +543,7 @@ def onKeyPress(app, key):
         elif app.nameBoxSelected:
             if key == 'backspace': 
                 app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
-            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 12:
+            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 8:
                 app.playerNames[app.nameIndex] += key
             return
     if app.hole1:
@@ -584,7 +593,7 @@ def findHoleCenter(app):
     and returns its centroid.
     """
     outlines = getHoleData(app) 
-    greens   = outlines.get('green', [])
+    greens = outlines.get('green', [])
     if not greens:
         return 0, 0
     # handle dict vs list for outlines
