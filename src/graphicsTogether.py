@@ -186,10 +186,12 @@ def drawWindIndicator(app):
     dx = length * math.cos(app.windDirection)
     dy = length * math.sin(app.windDirection)
     # arrow line
-    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='white', arrowEnd = True)
+    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='cornSilk', 
+             arrowEnd = True)
     # speed label
     drawLabel(f'{app.windSpeed:.1f} mph',
-              x0, y0+30, size=16, fill='white')
+              x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
+              border='black', borderWidth=0.25, bold=True)
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
