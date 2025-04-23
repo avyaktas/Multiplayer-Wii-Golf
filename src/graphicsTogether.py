@@ -433,43 +433,52 @@ def onStep(app):
                 app.velocity /= 3
                 if app.velocity > 10:
                     takeBounce(app, player, app.velocity, app.angle)
+                else:
+                    player.velX = player.velY = player.velZ = 0
+                    alivePlayers = []
+                    for p in app.players:
+                        if not p.holed:
+                            alivePlayers.append(p)
+                    if alivePlayers:
+                        holeX, holeY = findHoleCenter(app)
+                        farthest = None
+                        maxD = -1
+                        for p in alivePlayers:
+                            d = dist(p.ballX, p.ballY, holeX, holeY)
+                            if d > maxD:
+                                maxD, farthest = d, p
+                    everyoneHoled = True
+                    for i in range(app.selectedNumPlayers): 
+                        if not app.players[i].holed: 
+                            everyoneHoled = False
+                            break
+                    if everyoneHoled: 
+                        for i in range(app.selectedNumPlayers):
+                            app.scores[i+1][app.currentHole] = app.players[i].strokes
+                            app.hole1 = False
+                            app.cardPage = True
+                        if app.currentHole < 9:
+                            app.currentHole += 1
+                        else:
+                            app.podium = True 
+                        for p in app.players:
+                            holeX, holeY = findHoleCenter(app)
+                            aimAngle = math.atan2(holeY - p.ballY,
+                                            holeX - p.ballX)
+                            p.resetForHole(aimAngle)
+                    app.currentIdx = app.players.index(farthest)
+                    farthest.aimAngle = math.atan2(holeY - farthest.ballY,
+                                        holeX - farthest.ballX)
+                    centerOnPlayer(app, farthest)
+                        
     else:
-        player.velX = player.velY = player.velZ = 0
+        # Check for holed
         holeX, holeY = findHoleCenter(app)
         if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
             player.holed = True
-        alivePlayers = []
-        for p in app.players:
-            if not p.holed:
-                alivePlayers.append(p)
-        if alivePlayers != []:
-            holeX, holeY = findHoleCenter(app)
-            farthest = None
-            maxD = -1
-            for p in alivePlayers:
-                d = dist(p.ballX, p.ballY, holeX, holeY)
-                if d > maxD:
-                    maxD, farthest = d, p
-            app.currentIdx = app.players.index(farthest)
-            farthest.aimAngle = math.atan2(holeY - farthest.ballY,
-                                holeX - farthest.ballX)
-            centerOnPlayer(app, farthest)        
-        else: 
-            for i in range(app.selectedNumPlayers):
-                app.scores[i+1][app.currentHole] = app.players[i].strokes
-                app.hole1 = False
-                app.cardPage = True
-            if app.currentHole < 9:
-                app.currentHole += 1
-            else:
-                app.podium = True 
-            for p in app.players:
-                holeX, holeY = findHoleCenter(app)
-                aimAngle = math.atan2(holeY - p.ballY,
-                                holeX - p.ballX)
-                p.resetForHole(aimAngle)
-        
-    
+            player.velX = player.velY = player.velZ = 0
+
+        # Ball stopped – find next player
        
 
     # Ocean frame animation
