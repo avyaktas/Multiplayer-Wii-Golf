@@ -20,7 +20,7 @@ def calculateVelocity(club): #add ground later
         'driver': .8,  # Highest velocity multiplier
         'wood': .7,
         'iron': .55,
-        'wedge': .4,
+        'wedge': .3,
         'putter': .3  # Lowest velocity multiplier
     }
     # Initial launch angles for each club
