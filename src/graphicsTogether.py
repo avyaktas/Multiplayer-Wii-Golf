@@ -37,8 +37,8 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.playerNames = ['', '', '', '']
-    app.currentHole = 6
+    app.playerNames = ['' for i in range(app.selectedNumPlayers)]
+    app.currentHole = 3
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
@@ -47,14 +47,10 @@ def onAppStart(app):
 
     # build 4 players
     app.players = [
-        Player(f"Player {i+1}", app.ballStarts[app.currentHole -1])
-        for i in range(app.selectedNumPlayers)
-    ]
+        Player(player, app.ballStarts[app.currentHole - 1])
+        for player in app.playerNames 
+                   ]
     app.currentIdx = 0                  # which player's turn
-    # give first player an initial aimAngle
-    first = app.players[0]
-    holeX, holeY = findHoleCenter(app)
-    first.aimAngle = math.atan2(holeY - first.ballY, holeX - first.ballX)
 
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
@@ -332,6 +328,24 @@ def onMousePress(app, mouseX, mouseY):
     elif app.landingPage: 
         landingMousePress(app, mouseX, mouseY)
         if isInStartButton(app, mouseX, mouseY):
+            app.players = [
+            Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
+            for name in app.playerNames
+                          ]
+            # 2) Regenerate the scores sheet in camelCase:
+            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
+            playerRows = [
+                        [name] + ['-' for _ in range(len(parRow) - 1)]
+                            for name in app.playerNames
+                        ]
+            app.scores = [parRow] + playerRows
+            # 3) Reset turn order:
+            app.currentIdx = 0
+            # 4) Give everyone an initial aimAngle toward the hole:
+            holeX, holeY = findHoleCenter(app)
+            for p in app.players:
+                p.aimAngle = math.atan2(holeY - p.ballY,
+                                        holeX - p.ballX)
             app.landingPage = False
             app.hole1 = True
             app.onTeebox = True 
@@ -395,6 +409,8 @@ def takeBounce(app, player, velocity, angle):
         player.velY = flatVelocity * math.sin(player.aimAngle)
 
 def onStep(app):
+    if not app.players:
+        return 
     app.count += 1
     player = app.players[app.currentIdx]
     step = 1 / app.stepsPerSecond
@@ -465,10 +481,6 @@ def onStep(app):
                             app.scores[i+1][app.currentHole] = app.players[i].strokes
                             app.hole1 = False
                             app.cardPage = True
-                        if app.currentHole < 9:
-                            app.currentHole += 1
-                        else:
-                            app.podium = True 
                         for p in app.players:
                             holeX, holeY = findHoleCenter(app)
                             aimAngle = math.atan2(holeY - p.ballY,
@@ -915,8 +927,7 @@ def landingMousePress(app, x, y):
         if (cx - w/2 <= x <= cx + w/2 and
             cy - h/2 <= y <= cy + h/2):
             app.selectedNumPlayers = i
-            if app.nameIndex >= i:
-                app.nameIndex = 0
+            app.playerNames = ['' for i in range(app.selectedNumPlayers)]
             return
 
     # Checks for click in name boxes
