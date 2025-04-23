@@ -430,6 +430,8 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
+                app.windSpeed     = random.uniform(0, 10)
+                app.windDirection = random.uniform(0, 2*math.pi)
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
                     p.ballX, p.ballY  = teeX, teeY
