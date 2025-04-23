@@ -9,7 +9,8 @@ def onAppStart(app):
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
     app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
-                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+    app.playedKozSound = False
     app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.instructionsPage = False
@@ -470,8 +471,6 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
-            player.shadowX = player.ballX
-            player.shadowY = player.ballY
 
             decel = app.rollingDeceleration
             player.velX -= decel * math.cos(player.aimAngle) * step
@@ -504,8 +503,13 @@ def onStep(app):
                 if terrain == 'green' and not app.onGreenPlayed:
                     playSound(app, app.taylor)
                     app.onGreenPlayed = True
-                elif terrain == 'sandtrap' or terrain == 'out of bounds':
-                        playSound(app, app.koz)
+                elif (terrain == 'sandtrap') or (terrain == 'out of bounds'):
+                    if not app.playedKozSound:
+                         playSound(app, app.koz)
+                         app.playedKozSound = True
+                else:
+                    player.playedKozSound = False
+                    
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
@@ -734,7 +738,7 @@ def playSound(app, soundList):
         audio = Sound(audio)
         audio.play()
         return
-    elif soundList == app.taylor and not app.cardPage:
+    elif soundList == app.taylor and not app.cardPage == False:
         audioIndex = random.randint(0, 3)
         audio = app.taylor[audioIndex]
         audio = Sound(audio)
