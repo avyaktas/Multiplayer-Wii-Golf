@@ -4,10 +4,12 @@ from physics import calculateVelocity
 import math, random
 from playerClass import Player
 
-
-
 def onAppStart(app):
-    # Initialize the app
+    # Audio sounds
+    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
+                  '15112-taylor2.mp3', '15112-taylor3.mp3']
+    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
+                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
     app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.instructionsPage = False
@@ -40,17 +42,14 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.playerNames = ['.','','','']
-    app.currentHole = 9
+    app.playerNames = ['' for i in range(5)]
+    app.currentHole = 1
     app.podium = False
-    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
+    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (150, 675),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
     app.ballRadius = 3
     app.gravity = 9.81
-    app.players = [
-            Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
-            for name in app.playerNames if name != ''
-                          ]
+    app.players = []
     app.currentIdx = 0                
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
@@ -124,7 +123,8 @@ def redrawAll(app):
         drawOcean(app)
         drawCliff(app)
         drawHole(app)
-        current = app.players[app.currentIdx]
+        if app.players and 0 <= app.currentIdx < len(app.players):
+            current = app.players[app.currentIdx]
         if current.velX == 0 and current.velY == 0 and current.velZ == 0:
             drawAimLine(app)
             drawClubSelection(app)
@@ -254,7 +254,7 @@ def getHole(points):
     
     # Return the center as a tuple
     return centerX, centerY
-
+    
 def drawStart(app):
     # Draw background image scaled to fill the screen
     drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
@@ -341,29 +341,24 @@ def onMousePress(app, mouseX, mouseY):
         app.instructionsPage = True
     elif app.instructionsPage:
         instructionsPageMousePress(app, mouseX, mouseY)
-    elif app.landingPage:
-        landingMousePress(app, mouseX, mouseY)
-        if isInStartButton(app, mouseX, mouseY):
-            app.landingPage = False
-            app.hole1 = True
-            app.onTeeBox = True
-            app.showClubSelection = True
     elif app.landingPage: 
         landingMousePress(app, mouseX, mouseY)
         if isInStartButton(app, mouseX, mouseY):
-            app.players = [
-            Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
-            for name in app.playerNames if name != ''
-                          ]
+            app.players = []
+            teeX, teeY = app.ballStarts[app.currentHole - 1]
+            for i in range(app.selectedNumPlayers):
+                name = app.playerNames[i]
+                app.players.append(Player(name, (teeX, teeY)))
+
             parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
             playerRows = [
                         [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
                         ]
             app.scores = [parRow] + playerRows
-            # 3) Reset turn order:
+            # Reset turn order:
             app.currentIdx = 0
-            # 4) Give everyone an initial aimAngle toward the hole:
+            # Give everyone an initial aimAngle toward the hole:
             holeX, holeY = findHoleCenter(app)
             for p in app.players:
                 p.aimAngle = math.atan2(holeY - p.ballY,
@@ -402,6 +397,8 @@ def onMousePress(app, mouseX, mouseY):
     
 
 def onKeyHold(app, keys): 
+    if not app.hole1 or not app.players:
+        return
     move = 25
     if 'left' in keys: app.scrollX -= move
     if 'right' in keys: app.scrollX += move
@@ -421,7 +418,8 @@ def onKeyHold(app, keys):
 def takeShot(app, player, velocity, angle):
     # Set initial ball position to teebox location
     # These values should match your teebox position
-    # Set initial velocities  # 45 degree launch angle
+    # Set initial velocities  # 45 degree launch anglex
+    app.onGreenPlayed = False
     if getBallTerrain(app) == 'green':
         player.putting = True
     player.velZ = velocity * math.sin(angle)
@@ -452,8 +450,8 @@ def takeBounce(app, player, velocity, angle):
         player.velY = flatVelocity * math.sin(player.aimAngle)
 
 def onStep(app):
-    if not app.players:
-        return 
+    if not app.hole1 or not app.players:
+        return
     app.count += 1
     player = app.players[app.currentIdx]
     step = 1 / app.stepsPerSecond
@@ -467,6 +465,8 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
+            player.shadowX = player.ballX
+            player.shadowY = player.ballY
 
             decel = app.rollingDeceleration
             player.velX -= decel * math.cos(player.aimAngle) * step
@@ -475,6 +475,9 @@ def onStep(app):
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
                 player.putting = False
+                if getBallTerrain(app) == 'green':
+                    app.clubIndex = 4
+                    app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
             if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.putting = False
@@ -494,14 +497,24 @@ def onStep(app):
             player.velZ -= app.gravity * step
 
             if player.ballZ <= 0 and player.velZ < 0:
+                # Audio determination
+                terrain = getBallTerrain(app)
+                if terrain == 'green' and not app.onGreenPlayed:
+                    playSound(app, app.taylor)
+                    app.onGreenPlayed = True
+                elif terrain == 'sandtrap' or terrain == 'out of bounds':
+                        playSound(app, app.koz)
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
-                app.velocity /= 3
-                if app.velocity > 10:
-                    takeBounce(app, player, app.velocity, app.angle)
+                flatSpeed = (player.velX**2 + player.velY**2)**0.5
+                if flatSpeed > 1:
+                    takeBounce(app, player, flatSpeed, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
+                    if getBallTerrain(app) == 'green':
+                        app.clubIndex = 4
+                        app.selectedClub = app.clubs[app.clubIndex]
                     alivePlayers = []
                     for p in app.players:
                         if not p.holed:
@@ -533,6 +546,7 @@ def onStep(app):
         # Check for holed
         holeX, holeY = findHoleCenter(app)
         if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+            playSound(app, app.taylor)
             player.holed = True
             player.velX = player.velY = player.velZ = 0
 
@@ -552,7 +566,7 @@ def centerOnPlayer(app, player):
     targetScrollX = player.ballX - app.width/2
     targetScrollY = player.ballY - app.height/3
     # clamp to course bounds
-    app.scrollX = max(0, min(targetScrollX, app.courseWidth - app.width))
+    app.scrollX = max(0, min(targetScrollX, app.courseWidth  - app.width))
     app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
 
 
@@ -606,11 +620,13 @@ def onKeyPress(app, key):
 
             # Club selection
             if key == 'w':
-                app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
             elif key == 's':
-                app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
 
             # Aiming left/right
             elif key == 'a':
@@ -714,6 +730,19 @@ def getShadowTerrain(app):
 
     return 'out of bounds'
 
+def playSound(app, soundList):
+    if soundList == app.koz:
+        audioIndex = random.randint(0, 4)
+        audio = app.koz[audioIndex]
+        audio = Sound(audio)
+        audio.play()
+        return
+    elif soundList == app.taylor and not app.cardPage:
+        audioIndex = random.randint(0, 3)
+        audio = app.taylor[audioIndex]
+        audio = Sound(audio)
+        audio.play()
+        return
 
 
 def drawClubSelection(app):
@@ -903,7 +932,7 @@ def drawInstructionsPage(app):
         '6. Use arrow keys to navigate the game.',
         "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
     
-    startY     = app.height * 0.25
+    startY = app.height * 0.25
     lineHeight = app.height * 0.08
     textSize   = int(app.height * 0.03)
     for i, line in enumerate(instructions):
