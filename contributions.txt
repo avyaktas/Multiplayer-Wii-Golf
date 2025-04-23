@@ -11,7 +11,7 @@ tkolenci
 Nelson
     - accelerometer api(with andrew), including the seemless integration with main app. 
     - Ball physics, including deviation, 
-    - get Terrian function to find what surface the current ball is
+    - get Terrian function to find what surface the current ball is.
     - Top down redesign to support multiplayer, including using OOP for players 
     - Wind logic 
     - Player logic 
