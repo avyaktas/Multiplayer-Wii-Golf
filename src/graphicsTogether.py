@@ -835,7 +835,7 @@ def drawLandingPage(app):
         cy = 140 * scaleY
         w  = boxSize * scaleX
         h = boxSize * scaleY
-        fill = ('honeyDew' if app.selectedNumPlayers == i else 'cornSilk')
+        fill = ('lightGreen' if app.selectedNumPlayers == i else 'cornSilk')
 
         drawRect(cx - w/2, cy - h/2,
                  w, h, fill=fill, border='darkOlivegreen', borderWidth=2)
