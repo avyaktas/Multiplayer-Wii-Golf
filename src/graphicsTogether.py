@@ -45,7 +45,6 @@ def onAppStart(app):
     app.ballRadius = 3
     app.gravity = 9.81
 
-    # build 4 players
     app.players = [
         Player(player, app.ballStarts[app.currentHole - 1])
         for player in app.playerNames 
