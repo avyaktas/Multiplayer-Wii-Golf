@@ -78,6 +78,9 @@ def onAppStart(app):
     app.rollingDeceleration = 3.0
     app.onGreen = False
     app.strokeCount = 0 
+    # wind Logic 
+    app.windSpeed     = random.uniform(0, 5)          
+    app.windDirection = random.uniform(0, 2*math.pi)
     oceanStart(app)
 
 def oceanStart(app):
@@ -136,6 +139,7 @@ def redrawAll(app):
             drawAimLine(app)
             drawClubSelection(app)
         drawBall(app)  # Only call once now, it handles everything
+        drawWindIndicator(app)
         drawCardButton(app)
         if app.connectionBad:
             drawReconnect(app)
@@ -176,6 +180,17 @@ def drawOcean(app):
             # Y values loop
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
+            
+def drawWindIndicator(app):
+    x0, y0 = app.width - 80, 60
+    length = 40
+    dx = length * math.cos(app.windDirection)
+    dy = length * math.sin(app.windDirection)
+    # arrow line
+    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='white', arrowEnd = True)
+    # speed label
+    drawLabel(f'{app.windSpeed:.1f} mph',
+              x0, y0+30, size=16, fill='white')
 
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
@@ -496,6 +511,15 @@ def onStep(app):
     app.count += 1
     player = app.players[app.currentIdx]
     step = 1 / app.stepsPerSecond
+
+    windAx = app.windSpeed * math.cos(app.windDirection)
+    windAy = app.windSpeed * math.sin(app.windDirection)
+
+    player = app.players[app.currentIdx]
+
+    if player.velZ != 0:
+        player.velX += windAx * step
+        player.velY += windAy * step
 
     if player.velX != 0 or player.velY != 0 or player.velZ != 0:
         # In motion
