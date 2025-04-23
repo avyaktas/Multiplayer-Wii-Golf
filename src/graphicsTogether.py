@@ -43,7 +43,7 @@ def onAppStart(app):
     app.playerNames = ['.','','','']
     app.currentHole = 1
     app.podium = False
-    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
+    app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (150, 675),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
     app.ballRadius = 3
     app.gravity = 9.81
