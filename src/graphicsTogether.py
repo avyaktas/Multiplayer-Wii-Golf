@@ -30,6 +30,10 @@ def onAppStart(app):
     app.cardButtonY = 20
     app.cardButtonWidth = 140
     app.cardButtonHeight = 40
+    app.restartButtonX = app.cardButtonX + app.width / 1.2
+    app.restartButtonY = 30
+    app.restartButtonWidth = 280
+    app.restartButtonHeight = 40
     app.holeButtonX = app.cardButtonX
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
@@ -138,6 +142,7 @@ def redrawAll(app):
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
+        drawRestartButton(app)
     elif app.podium:
         drawPodium(app)
 
@@ -337,6 +342,15 @@ def isInHoleButton(app, x, y):
     return (app.holeButtonX <= x <= app.holeButtonX + app.holeButtonWidth and
             app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
 
+def isInRestartButton(app,x, y):  
+    width = app.restartButtonWidth
+    height = app.restartButtonHeight
+    X = (app.width - width) // 2
+    Y = app.height - height - 20  
+
+    return ( X<= x <= X + width and
+            Y <= y <= Y + height)
+
 def isInStartButton(app, x, y):
     scaleX = app.width  / 1000
     scaleY = app.height / 600
@@ -374,7 +388,7 @@ def onMousePress(app, mouseX, mouseY):
                         [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
                         ]
-            app.scores = [parRow] + playerRows
+            app.scores = [parRow] + playerRows[:app.selectedNumPlayers]
             # Reset turn order:
             app.currentIdx = 0
             # Give everyone an initial aimAngle toward the hole:
@@ -393,6 +407,9 @@ def onMousePress(app, mouseX, mouseY):
         if isInHoleButton(app, mouseX, mouseY):
             app.cardPage = False
             app.hole1 = True
+        elif isInRestartButton(app, mouseX, mouseY):
+            app.cardPage = False
+            app.startPage = True
         elif isInNextHoleButton(app, mouseX, mouseY):
             if app.currentHole < 9:
                 app.currentHole += 1
@@ -460,16 +477,18 @@ def takeBounce(app, player, velocity, angle):
         player.shadowY = player.ballY
     elif getBallTerrain(app) == 'rough':
         xMultiplier = 0.1
+        yMultiplier = 0.2
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle)
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
     else:
         xMultiplier = 0.4
+        yMultiplier = 0.6
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle)
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
 
 def onStep(app):
     if not app.hole1 or not app.players:
@@ -532,9 +551,9 @@ def onStep(app):
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
-                app.velocity //= 2
-                if app.velocity > 10:
-                    takeBounce(app, player, app.velocity, app.angle)
+                flatSpeed = (player.velX**2 + player.velY**2)**0.5
+                if flatSpeed > 1:
+                    takeBounce(app, player, flatSpeed, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
                     if getBallTerrain(app) == 'green':
@@ -589,12 +608,17 @@ def onStep(app):
             app.count = 0
 
 def centerOnPlayer(app, player):
-    # want ball at (app.width/2, app.height/3) on screen
-    targetScrollX = player.ballX - app.width/2
-    targetScrollY = player.ballY - app.height/3
-    # clamp to course bounds
-    app.scrollX = max(0, min(targetScrollX, app.courseWidth  - app.width))
-    app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
+    targetScrollX = player.ballX
+    targetScrollY = player.ballY
+    halfW = app.width/2
+    halfH = app.height/3
+    minScrollX =  halfW
+    maxScrollX =  app.courseWidth  - halfW
+    minScrollY =  halfH
+    maxScrollY =  app.courseHeight - halfH
+
+    app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
+    app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
 
 
 def drawBall(app):
@@ -1197,6 +1221,22 @@ def drawPodium(app):
                   app.width//2, y,
                   size=size, fill=color, bold=True,
                   font='American Typewriter', border = 'black')
+        
+def drawRestartButton(app): 
+    if app.cardPage:
+        x = (app.width - app.restartButtonWidth) // 2
+        y = app.height - app.restartButtonHeight - 20
+        
+        drawRect(x, y,  
+                app.restartButtonWidth, app.restartButtonHeight,
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
+        
+        drawLabel('Restart Game', app.restartButtonWidth//2 + x,
+                 app.restartButtonHeight//2 + y,
+                 size=26, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
+
 
 
     
