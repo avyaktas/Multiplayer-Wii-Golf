@@ -448,6 +448,9 @@ def takeBounce(app, player, velocity, angle):
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
         player.velY = flatVelocity * math.sin(player.aimAngle)
     else:
+        if getBallTerrain(app) == 'green':
+            app.clubIndex = 4
+            app.selectedClub = app.clubs[app.clubIndex]
         xMultiplier = 0.4
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
@@ -619,11 +622,13 @@ def onKeyPress(app, key):
 
             # Club selection
             if key == 'w':
-                app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
             elif key == 's':
-                app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
 
             # Aiming left/right
             elif key == 'a':
