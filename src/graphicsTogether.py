@@ -329,7 +329,7 @@ def onMousePress(app, mouseX, mouseY):
         if isInStartButton(app, mouseX, mouseY):
             app.players = [
             Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
-            for name in app.playerNames
+            for name in app.playerNames if name != ''
                           ]
             # 2) Regenerate the scores sheet in camelCase:
             parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
@@ -463,33 +463,28 @@ def onStep(app):
                         if not p.holed:
                             alivePlayers.append(p)
                     if alivePlayers:
+                        # pick the farthest-out ball
                         holeX, holeY = findHoleCenter(app)
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
                             d = dist(p.ballX, p.ballY, holeX, holeY)
                             if d > maxD:
-                                maxD, farthest = d, p
-                    everyoneHoled = True
-                    for i in range(app.selectedNumPlayers): 
-                        if not app.players[i].holed: 
-                            everyoneHoled = False
-                            break
-                    if everyoneHoled: 
+                                maxD = d
+                                farthest = p
+                        # switch to that player
+                        app.currentIdx = app.players.index(farthest)
+                        farthest.aimAngle = math.atan2(
+                            holeY - farthest.ballY,
+                            holeX - farthest.ballX
+                        )
+                        centerOnPlayer(app, farthest)
+                    else:
+                        # everyone holed → record scores and flip to card
                         for i in range(app.selectedNumPlayers):
                             app.scores[i+1][app.currentHole] = app.players[i].strokes
-                            app.hole1 = False
-                            app.cardPage = True
-                        for p in app.players:
-                            holeX, holeY = findHoleCenter(app)
-                            aimAngle = math.atan2(holeY - p.ballY,
-                                            holeX - p.ballX)
-                            p.resetForHole(aimAngle)
-                    app.currentIdx = app.players.index(farthest)
-                    farthest.aimAngle = math.atan2(holeY - farthest.ballY,
-                                        holeX - farthest.ballX)
-                    centerOnPlayer(app, farthest)
-                        
+                        app.hole1 = False
+                        app.cardPage = True
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
