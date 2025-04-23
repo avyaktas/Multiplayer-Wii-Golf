@@ -40,20 +40,18 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
-    app.playerNames = ['' for i in range(5)]
-    app.currentHole = 7
+    app.playerNames = ['.','','','']
+    app.currentHole = 1
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
     app.ballRadius = 3
     app.gravity = 9.81
-
     app.players = [
-        Player(player, app.ballStarts[app.currentHole - 1])
-        for player in app.playerNames 
-                   ]
-    app.currentIdx = 0                  # which player's turn
-
+            Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
+            for name in app.playerNames if name != ''
+                          ]
+    app.currentIdx = 0                
     app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
     app.clubIndex = 0
     app.selectedClub = app.clubs[0]
@@ -101,7 +99,7 @@ def drawCliff(app):
         drawPolygon(*coords,
                     fill=color, border='black')
         # 3) rock‐strata lines
-        for _ in range(12):
+        for second in range(12):
             i = random.randrange(len(poly))
             x,y = poly[i]
             depth = 15 + random.uniform(-5,5)
@@ -131,14 +129,15 @@ def redrawAll(app):
             drawAimLine(app)
             drawClubSelection(app)
         drawBall(app)  # Only call once now, it handles everything
-
         drawCardButton(app)
         if app.connectionBad:
             drawReconnect(app)
-
     elif app.cardPage:
         drawCardPage(app)
         drawHoleButton(app)
+    elif app.podium:
+        #drawPodium(app)
+        pass
     # Draw the score card
 def drawReconnect(app):
     drawRect((app.width - 300)/2, (app.height - 150)/2, 300,150, fill='red', border = 'black' )
@@ -397,7 +396,7 @@ def onMousePress(app, mouseX, mouseY):
                 for p in app.players:
                     p.aimAngle = (math.atan2(y - p.ballY, x - p.ballX))
                 centerOnPlayer(app, app.players[0])
-            else:
+            elif app.currentHole >= 9:
                 app.cardPage = False
                 app.podium = True
     
