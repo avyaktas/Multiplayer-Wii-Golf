@@ -543,6 +543,8 @@ def onStep(app):
                         centerOnPlayer(app, farthest)
                     else:
                         # everyone holed → record scores and flip to card
+                        app.clubIndex = 0
+                        app.selectedClub = app.clubs[app.clubIndex]
                         for i in range(app.selectedNumPlayers):
                             app.scores[i+1][app.currentHole] = app.players[i].strokes
                         app.hole1 = False
@@ -626,11 +628,11 @@ def onKeyPress(app, key):
             # Club selection
             if key == 'w':
                 if getBallTerrain(app) != 'green':
-                    app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+                    app.clubIndex = (app.clubIndex - 1) % (len(app.clubs) - 1)
                     app.selectedClub = app.clubs[app.clubIndex]
             elif key == 's':
                 if getBallTerrain(app) != 'green':
-                    app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+                    app.clubIndex = (app.clubIndex + 1) % (len(app.clubs) - 1)
                     app.selectedClub = app.clubs[app.clubIndex]
 
             # Aiming left/right
