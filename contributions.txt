@@ -3,19 +3,19 @@ the code are predominantly your own original contributions, as described in
 the TP document: 
 https://www.cs.cmu.edu/~112/notes/term-project-and-hack112.html#personal-contributions
 
-Example: 
 
 tkolenci
     -Designed image Converter
     -touched up graphics
 
 Nelson
-    - accelerometer api(with andrew)
-    - holeSketch and graphicsTogether(perlimary startPage and hole1)
-    - Ball moving logic and physics
-    - get Terrian function to find what surface the current ball l
-    - Top down redesign to support multiplayer 
-    - 
+    - accelerometer api(with andrew), including the seemless integration with main app. 
+    - Ball physics, including deviation, 
+    - get Terrian function to find what surface the current ball is
+    - Top down redesign to support multiplayer, including using OOP for players 
+    - Wind logic 
+    - Player logic 
+
 
 Andrew
     -Preliminary accelerometer api (spent hours with Nelson debugging)
