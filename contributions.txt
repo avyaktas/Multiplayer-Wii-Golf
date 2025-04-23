@@ -17,8 +17,16 @@ Nelson
     - Top down redesign to support multiplayer 
     - 
 
-Andrew
-    -Preliminary accelerometer api (spent hours with Nelson debugging)
+achurche
+    - accelerometer api (with Nelson)
+    - ball motion physics
+    - different club physics
+    - Angle deviation physics
+    - Shadow physics
+    - Bouncing physics
+    - Landing in water physics
+    - Putting logic
+    - Which clubs are available logic
 
 Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
