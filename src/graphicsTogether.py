@@ -10,6 +10,7 @@ def onAppStart(app):
     # Initialize the app
     app.cachedHoleOutlines = dict()
     app.startPage = True 
+    app.instructionsPage = False
     app.hole1 = False
     app.cardPage = False
     app.nextHole = False
@@ -40,7 +41,7 @@ def onAppStart(app):
     app.selectedNumPlayers = 1
     app.currentHole = 1
     app.playerNames = ['' for i in range(5)]
-    app.currentHole = 4
+    app.currentHole = 3
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
@@ -117,18 +118,19 @@ def makeCliffBetter(poly, baseDepth=20, jag=1):
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
+    elif app.instructionsPage:
+        drawInstructionsPage(app)
     elif app.landingPage:
         drawLandingPage(app)
     elif app.hole1:
         drawOcean(app)
         drawCliff(app)
         drawHole(app)
-        drawBall(app)  # Only call once now, it handles everything
-        
         current = app.players[app.currentIdx]
         if current.velX == 0 and current.velY == 0 and current.velZ == 0:
             drawAimLine(app)
             drawClubSelection(app)
+        drawBall(app)  # Only call once now, it handles everything
 
         drawCardButton(app)
 
@@ -332,7 +334,16 @@ def isInNextHoleButton(app, x, y):
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
-        app.landingPage = True
+        app.instructionsPage = True
+    elif app.instructionsPage:
+        instructionsPageMousePress(app, mouseX, mouseY)
+    elif app.landingPage:
+        landingMousePress(app, mouseX, mouseY)
+        if isInStartButton(app, mouseX, mouseY):
+            app.landingPage = False
+            app.hole1 = True
+            app.onTeeBox = True
+            app.showClubSelection = True
     elif app.landingPage: 
         landingMousePress(app, mouseX, mouseY)
         if isInStartButton(app, mouseX, mouseY):
@@ -340,7 +351,6 @@ def onMousePress(app, mouseX, mouseY):
             Player(name, app.ballStarts[app.currentHole - 1])   # assuming hole 1 start
             for name in app.playerNames if name != ''
                           ]
-            # 2) Regenerate the scores sheet in camelCase:
             parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
             playerRows = [
                         [name] + ['-' for _ in range(len(parRow) - 1)]
@@ -549,8 +559,10 @@ def drawBall(app):
         drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
     # Display current player info
     playerName = app.playerNames[app.currentIdx]
-    drawLabel(f'{playerName} - Shots: {current.strokes}', 900, 30, size = 20, 
-              fill='white', bold=True)
+    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
+              app.height//1.05, size=32, fill='cornSilk', bold=True, 
+              font='American Typewriter', border='black', 
+              borderWidth=0.5, align='right')
 
     # Draw all other players first
     for i, player in enumerate(app.players):
@@ -562,7 +574,8 @@ def drawBall(app):
 
     # Then draw current player's ball last (on top)
     sx, sy = getScreenCoords(app, current.ballX, current.ballY)
-    drawCircle(sx, sy, app.ballRadius, fill='white')
+    drawCircle(sx, sy, app.ballRadius, fill='white', border='black',
+               borderWidth=0.75)
 
     # Shadow (only for current player if ball is in motion)
     
@@ -618,7 +631,7 @@ def drawAimLine(app):
         length = 60
         ex = sx + length * math.cos(player.aimAngle)
         ey = sy + length * math.sin(player.aimAngle)
-        drawLine(sx, sy, ex, ey, fill='white', lineWidth=2)
+        drawLine(sx, sy, ex, ey, fill='fireBrick', lineWidth=2, dashes=True)
 
 def findHoleCenter(app):
     """
@@ -695,23 +708,28 @@ def getShadowTerrain(app):
 
 def drawClubSelection(app):
 
-    # Draw semi-transparent background panel
-    menuX = 20  # Position menu on right side
-    menuY = app.height - 300  # Position from top
+    # Draw panel
+    menuX = 20
+    menuY = app.height - 300
     menuWidth = 180
     menuHeight = 270
     lineHeight = 28
     topOffset = 50
-    # menuX, menuY = getScreenCoords(app, menuX, menuY)
     
     # Draw main menu panel
     drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
-            fill='white', opacity=80)
+            fill='cornSilk', opacity=85, 
+            border='darkOliveGreen', borderWidth=3.5)
     
     # Draw title
     drawLabel('Club Selection', 
+                menuX + menuWidth//2-1, menuY + 30-1, 
+                size=20, bold=True, fill='black',
+                font='Snell Roundhand')
+    drawLabel('Club Selection', 
                 menuX + menuWidth//2, menuY + 30, 
-                size=16, bold=True, fill='black')
+                size=20, bold=True, fill='darkOliveGreen',
+                font='Snell Roundhand')
     
     
     
@@ -721,28 +739,28 @@ def drawClubSelection(app):
         if i == app.clubIndex:
             # Draw highlight background
             drawRect(menuX + 10, 
-                    menuY + topOffset + i* lineHeight,  # Vertical spacing
-                    160, 30,  # Size of highlight
-                    fill='lightGreen')
-            textColor = 'darkGreen'
+                    menuY + topOffset + i* lineHeight, 160, 30, 
+                    fill='darkOliveGreen', border='black', borderWidth=2)
+            textColor = 'cornSilk'
         else:
-            textColor = 'black'
+            textColor = 'darkOliveGreen'
         
         # Draw club name
-        drawLabel(club.title(),  # Capitalize club name
-                    menuX + menuWidth//2, 
-                    menuY + 60 + i*30,  # Vertical spacing
-                    fill=textColor)
+        drawLabel(club.title(),
+                    menuX + menuWidth//2, menuY + 60 + i*30,
+                    fill=textColor, font='American Typewriter',
+                    size=18, bold=True)
     
     # Draw instructions at bottom
-    drawLabel('w,s to select', 
+    drawLabel('Press w and s to select', 
                 menuX + menuWidth//2, 
-                menuY + menuHeight - 30,
-                size=12)
-    drawLabel('SPACE to confirm', 
+                menuY + menuHeight - 30, size=14, font='American Typewriter',
+                fill='darkOliveGreen', italic=True)
+    
+    drawLabel('Press SPACE to confirm', 
                 menuX + menuWidth//2, 
-                menuY + menuHeight - 10,
-                size=12)
+                menuY + menuHeight - 10, size=14, font='American Typewriter',
+                fill='darkOliveGreen', italic=True)
             
 def drawCardButton(app): 
     if app.hole1:
@@ -753,8 +771,8 @@ def drawCardButton(app):
         
         drawLabel('Score Card', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=22, fill='black', font='American Typewriter', 
-                 italic=True, border='green')
+                 size=22, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
         
 def drawHoleButton(app): 
     if app.cardPage:
@@ -765,8 +783,8 @@ def drawHoleButton(app):
         
         drawLabel('Back', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=26, fill='black', font='American Typewriter', 
-                 italic=True, border='green')
+                 size=26, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
         # Next hole button!
         nextHoleX = app.cardButtonX + app.width / 1.2
         nextHoleY = app.cardButtonY + app.height / 1.15
@@ -775,8 +793,8 @@ def drawHoleButton(app):
                 fill='lemonChiffon', border='black', borderWidth=4.5)
         drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
                  nextHoleY + app.cardButtonHeight//2,
-                 size=24, fill='black', font='American Typewriter', 
-                 italic=True, border='green')
+                 size=24, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True,)
 
 def drawCardPage(app):
     # Draw Background
@@ -819,8 +837,9 @@ def drawCardPage(app):
         drawLabel(holeLabels[c],
                   x + colWidth/2,
                   y + headerHeight/2,
-                  size=int(headerHeight * 0.25),
-                  bold=True, fill='ivory', font='HeadLineA')
+                  size=int(headerHeight * 0.25)+3,
+                  bold=True, fill='ivory', font='HeadLineA', border='black',
+                  borderWidth=0.75)
     
     # Draw the score cells
     for row in range(rows):
@@ -842,6 +861,75 @@ def drawCardPage(app):
                      
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
+
+def drawInstructionsPage(app):
+    drawImage('15112-instructionsPage.png',0 , 0, width=app.width, height=app.height)
+    titleY     = app.height * 0.1 - 10
+    titleSize  = int(app.height * 0.15)
+    drawLabel("Instructions",
+              app.width / 2 -3, titleY-3,size=titleSize, 
+              bold=True, fill='black',font='impact')
+    drawLabel("Instructions",
+              app.width / 2, titleY,size=titleSize, 
+              bold=True, fill='cornSilk', font='impact')
+
+    # Instructions text
+    instructions = [
+        '1. Download "phyphox" on your cellPhone.',
+        '2. Turn on your WIFI Hotspot on your cellPhone.',
+        "3. Connect to your cellPhone's Hotspot on your computer.",
+        '4. Enter the IP address of your cellPhone in the box on the' 
+            'page following.',
+        '6. Press space to initalize phyphox, you then have 7 seconds'
+            'to take your shot.',
+        '5. You must enter at least 1 player name.',
+        '6. Use arrow keys to navigate the game.',
+        "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
+    
+    startY     = app.height * 0.25
+    lineHeight = app.height * 0.08
+    textSize   = int(app.height * 0.03)
+    for i, line in enumerate(instructions):
+        drawLabel(line, app.width / 2-1.5, startY + i * lineHeight - 25,
+                  size=textSize, fill='black')
+        drawLabel(line, app.width / 2, startY + i * lineHeight - 25,
+                  size=textSize, fill='cornSilk')
+
+    # Continue button (centered)
+    btnW  = app.width  * 0.20
+    btnH  = app.height * 0.08
+    btnX  = (app.width  - btnW) / 2
+    btnY  = app.height * 0.80
+    txtY  = btnY + btnH / 2
+    txtSz = int(app.height * 0.04)
+
+    drawRect(btnX, btnY, btnW, btnH,
+             fill='darkGreen', border='white', borderWidth=2)
+    drawLabel("Continue",
+              app.width / 2, txtY,
+              size=txtSz, fill='white')
+
+def instructionsPageMousePress(app, mouseX, mouseY):
+    btnW = app.width  * 0.20
+    btnH = app.height * 0.08
+    btnX = (app.width  - btnW) / 2
+    btnY = app.height * 0.80
+
+    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
+        app.instructionsPage = False
+        app.landingPage      = True
+
+
+def instructionsPageMousePress(app, mouseX, mouseY):
+    btnW = app.width  * 0.20
+    btnH = app.height * 0.08
+    btnX = (app.width  - btnW) / 2
+    btnY = app.height * 0.80
+
+    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
+        app.instructionsPage = False
+        app.landingPage      = True
+
 
 def drawLandingPage(app):
     # Find per-axis scales against reference 1000×600
