@@ -5,7 +5,10 @@ import math, random
 from playerClass import Player
 
 def onAppStart(app):
-    # Audio sounds
+    restart(app)
+
+def restart(app):
+        # Audio sounds
     app.music = 'music.mp3'
     playMusic(app)
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
@@ -92,6 +95,7 @@ def oceanStart(app):
     app.offsetY = 0  # Vertical offset for wave movement
     app.offsetSpeed = 5  # Speed of the diagonal movement
     app.count = 0
+    
     
 
 def drawCliff(app):
@@ -423,8 +427,7 @@ def onMousePress(app, mouseX, mouseY):
             app.cardPage = False
             app.hole1 = True
         elif isInRestartButton(app, mouseX, mouseY):
-            app.cardPage = False
-            app.startPage = True
+            restart(app)
         elif isInNextHoleButton(app, mouseX, mouseY):
             if app.currentHole < 9:
                 app.currentHole += 1
@@ -1270,11 +1273,6 @@ def drawRestartButton(app):
                  app.restartButtonHeight//2 + y,
                  size=26, fill='darkOliveGreen', font='American Typewriter', 
                  italic=True)
-
-
-
-    
-
 
 
 runApp()
