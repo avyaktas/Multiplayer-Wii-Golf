@@ -9,7 +9,7 @@ def onAppStart(app):
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
     app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
-                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-kos4.mp3']
+                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
     app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.instructionsPage = False
@@ -465,6 +465,8 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
+            player.shadowX = player.ballX
+            player.shadowY = player.ballY
 
             decel = app.rollingDeceleration
             player.velX -= decel * math.cos(player.aimAngle) * step
@@ -473,6 +475,9 @@ def onStep(app):
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
                 player.putting = False
+                if getBallTerrain(app) == 'green':
+                    app.clubIndex = 4
+                    app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
             if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.putting = False
@@ -497,7 +502,7 @@ def onStep(app):
                 if terrain == 'green' and not app.onGreenPlayed:
                     playSound(app, app.taylor)
                     app.onGreenPlayed = True
-                elif terrain in ('sandtrap', 'out of bounds'):
+                elif terrain == 'sandtrap' or terrain == 'out of bounds':
                         playSound(app, app.koz)
                 player.ballZ = 0
                 player.shadowY = player.ballY
@@ -507,6 +512,9 @@ def onStep(app):
                     takeBounce(app, player, flatSpeed, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
+                    if getBallTerrain(app) == 'green':
+                        app.clubIndex = 4
+                        app.selectedClub = app.clubs[app.clubIndex]
                     alivePlayers = []
                     for p in app.players:
                         if not p.holed:
@@ -612,11 +620,13 @@ def onKeyPress(app, key):
 
             # Club selection
             if key == 'w':
-                app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex - 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
             elif key == 's':
-                app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
-                app.selectedClub = app.clubs[app.clubIndex]
+                if getBallTerrain(app) != 'green':
+                    app.clubIndex = (app.clubIndex + 1) % len(app.clubs)
+                    app.selectedClub = app.clubs[app.clubIndex]
 
             # Aiming left/right
             elif key == 'a':
@@ -726,11 +736,13 @@ def playSound(app, soundList):
         audio = app.koz[audioIndex]
         audio = Sound(audio)
         audio.play()
-    elif soundList == app.taylor:
+        return
+    elif soundList == app.taylor and not app.cardPage:
         audioIndex = random.randint(0, 3)
         audio = app.taylor[audioIndex]
         audio = Sound(audio)
         audio.play()
+        return
 
 
 def drawClubSelection(app):
