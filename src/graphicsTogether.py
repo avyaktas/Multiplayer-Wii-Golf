@@ -507,9 +507,9 @@ def onStep(app):
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
-                flatSpeed = (player.velX**2 + player.velY**2)**0.5
-                if flatSpeed > 1:
-                    takeBounce(app, player, flatSpeed, app.angle)
+                app.velocity //= 2
+                if app.velocity > 10:
+                    takeBounce(app, player, app.velocity, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
                     if getBallTerrain(app) == 'green':
