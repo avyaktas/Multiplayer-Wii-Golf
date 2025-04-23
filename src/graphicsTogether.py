@@ -448,9 +448,6 @@ def takeBounce(app, player, velocity, angle):
         player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
         player.velY = flatVelocity * math.sin(player.aimAngle)
     else:
-        if getBallTerrain(app) == 'green':
-            app.clubIndex = 4
-            app.selectedClub = app.clubs[app.clubIndex]
         xMultiplier = 0.4
         player.velZ = velocity * math.sin(angle)
         flatVelocity = velocity * math.cos(angle)
@@ -483,6 +480,9 @@ def onStep(app):
             if abs(player.velX) < 0.5 and abs(player.velY) < 0.5:
                 player.velX = player.velY = 0
                 player.putting = False
+                if getBallTerrain(app) == 'green':
+                    app.clubIndex = 4
+                    app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
             if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.putting = False
@@ -517,6 +517,9 @@ def onStep(app):
                     takeBounce(app, player, app.velocity, app.angle)
                 else:
                     player.velX = player.velY = player.velZ = 0
+                    if getBallTerrain(app) == 'green':
+                        app.clubIndex = 4
+                        app.selectedClub = app.clubs[app.clubIndex]
                     alivePlayers = []
                     for p in app.players:
                         if not p.holed:
