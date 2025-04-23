@@ -9,7 +9,8 @@ def onAppStart(app):
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
     app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
-                     '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+    app.playedKozSound = False
     app.cachedHoleOutlines = dict()
     app.startPage = True 
     app.instructionsPage = False
@@ -451,8 +452,11 @@ def takeBounce(app, player, velocity, angle):
         player.velX = player.velY = player.velZ = 0
 
     elif getBallTerrain(app) == 'out of bounds':
+        player.velX = player.velY = player.velZ = 0
         player.strokes += 1
         player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
+        player.shadowX = player.ballX
+        player.shadowY = player.ballY
     elif getBallTerrain(app) == 'rough':
         xMultiplier = 0.1
         player.velZ = velocity * math.sin(angle)
@@ -482,8 +486,6 @@ def onStep(app):
             player.ballY += player.velY * step
             app.scrollX += player.velX * step
             app.scrollY += player.velY * step
-            player.shadowX = player.ballX
-            player.shadowY = player.ballY
 
             decel = app.rollingDeceleration
             player.velX -= decel * math.cos(player.aimAngle) * step
@@ -519,8 +521,13 @@ def onStep(app):
                 if terrain == 'green' and not app.onGreenPlayed:
                     playSound(app, app.taylor)
                     app.onGreenPlayed = True
-                elif terrain == 'sandtrap' or terrain == 'out of bounds':
-                        playSound(app, app.koz)
+                elif (terrain == 'sandtrap') or (terrain == 'out of bounds'):
+                    if not app.playedKozSound:
+                         playSound(app, app.koz)
+                         app.playedKozSound = True
+                else:
+                    player.playedKozSound = False
+                    
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
@@ -542,7 +549,7 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.ballX, p.ballY, holeX, holeY)
+                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
@@ -581,12 +588,17 @@ def onStep(app):
             app.count = 0
 
 def centerOnPlayer(app, player):
-    # want ball at (app.width/2, app.height/3) on screen
-    targetScrollX = player.ballX - app.width/2
-    targetScrollY = player.ballY - app.height/3
-    # clamp to course bounds
-    app.scrollX = max(0, min(targetScrollX, app.courseWidth  - app.width))
-    app.scrollY = max(0, min(targetScrollY, app.courseHeight - app.height))
+    targetScrollX = player.ballX
+    targetScrollY = player.ballY
+    halfW = app.width/2
+    halfH = app.height/3
+    minScrollX =  halfW
+    maxScrollX =  app.courseWidth  - halfW
+    minScrollY =  halfH
+    maxScrollY =  app.courseHeight - halfH
+
+    app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
+    app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
 
 
 def drawBall(app):
@@ -594,6 +606,12 @@ def drawBall(app):
     if current.velX != 0 or current.velY != 0 or current.velZ != 0:
         shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
         drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    # Display current Hole 
+    drawLabel(f'Hole {app.currentHole}',
+              app.width//1.05, app.height//1.12,
+              size=32, fill='cornSilk', bold=True,
+              font='American Typewriter', border='black',
+              borderWidth=0.5, align='right')
     # Display current player info
     playerName = app.playerNames[app.currentIdx]
     drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
@@ -756,7 +774,7 @@ def playSound(app, soundList):
         audio = Sound(audio)
         audio.play()
         return
-    elif soundList == app.taylor and not app.cardPage:
+    elif soundList == app.taylor and not app.cardPage == False:
         audioIndex = random.randint(0, 3)
         audio = app.taylor[audioIndex]
         audio = Sound(audio)
