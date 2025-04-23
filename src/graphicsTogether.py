@@ -41,7 +41,7 @@ def onAppStart(app):
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
     app.playerNames = ['.','','','']
-    app.currentHole = 1
+    app.currentHole = 9
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (120, 600),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
@@ -136,8 +136,8 @@ def redrawAll(app):
         drawCardPage(app)
         drawHoleButton(app)
     elif app.podium:
-        #drawPodium(app)
-        pass
+        drawPodium(app)
+
     # Draw the score card
 def drawReconnect(app):
     drawRect((app.width - 300)/2, (app.height - 150)/2, 300,150, fill='red', border = 'black' )
@@ -801,10 +801,17 @@ def drawHoleButton(app):
         drawRect(nextHoleX, nextHoleY, 
                  app.cardButtonWidth+5, app.cardButtonHeight+5,
                 fill='lemonChiffon', border='black', borderWidth=4.5)
-        drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
+        if app.currentHole < 9:
+            drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
                  nextHoleY + app.cardButtonHeight//2,
                  size=24, fill='darkOliveGreen', font='American Typewriter', 
                  italic=True,)
+        elif app.currentHole == 9: 
+            drawLabel('Podium!', nextHoleX + 3 + app.cardButtonWidth//2,
+                 nextHoleY + app.cardButtonHeight//2,
+                 size=24, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True,)
+
 
 def drawCardPage(app):
     # Draw Background
@@ -1077,6 +1084,59 @@ def landingMousePress(app, x, y):
         return
     # else deselect IP
     app.ipBoxSelected = False
+
+
+def drawPodium(app):
+    drawImage('15112-LandingPage.png', 0, 0, 
+              width=app.width, height=app.height)
+
+    drawLabel('FINAL RANKINGS', app.width//2, 60,
+              size=60, fill='gold', bold=True, font='Impact', border='black', borderWidth=2)
+
+    playerTotals = []
+    for i in range(len(app.players)): 
+        player = app.players[i]
+        total = 0
+        for hole in range(1, 10): 
+            score = app.scores[i+1][hole]
+            if isinstance(score, int):
+                total += score
+        playerTotals.append([player.name.strip(), total])
+
+    for i in range(len(playerTotals)):
+        for j in range(len(playerTotals)): 
+            if playerTotals[j][1] < playerTotals[i][1]:
+                playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
+
+    for i in range(len(playerTotals)): 
+        name = playerTotals[i][0]
+        if name == '' or name == '.':
+            name = 'Unnamed Player'
+        strokes = playerTotals[i][1]
+        if i == 0: 
+            place = 'First Place'
+            color = 'gold'
+        elif i == 1: 
+            place = 'Second Place'
+            color = 'silver'
+        elif i == 2: 
+            place = 'Third Place'
+            color = 'bronze'
+        else: 
+            place = 'Fourth Place'
+            color = 'black'
+
+        size = 40 - i * 5
+        y = 150 + i * 50
+        drawLabel(f'{place}: {name} - {strokes} strokes',
+                  app.width//2, y,
+                  size=size, fill=color, bold=True,
+                  font='American Typewriter', border = 'black')
+
+
+    
+
+
 
 runApp()
 

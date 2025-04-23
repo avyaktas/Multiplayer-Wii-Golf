@@ -24,5 +24,9 @@ Avy
     - got the graphicsTogether hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
     - score card
+    - drew podium
+    - worked on ball physics
+    - worked on landing page and finsihed it
+    - worked on inputting names on landing page and selecting how many players are playing
 
 ------------------------------------>
