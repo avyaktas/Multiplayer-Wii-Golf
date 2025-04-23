@@ -12,6 +12,7 @@ def onAppStart(app):
     app.startPage = True 
     app.hole1 = False
     app.cardPage = False
+    app.nextHole = False
     app.landingPage = False
     app.width = 1000
     app.height = 600
@@ -37,6 +38,8 @@ def onAppStart(app):
     app.ipBoxSelected = False
     app.nameBoxSelected = False
     app.selectedNumPlayers = 1
+    app.playerNames = ['', '', '', '']
+    app.currentHole = 3
     app.playerNames = ['' for i in range(5)]
     app.currentHole = 3
     app.podium = False
@@ -207,10 +210,10 @@ def drawHole(app):
     # Draw course features in 2D
     if 'outline' in outlines:
         drawPolygons(app, outlines['outline'], 
-                     fill='forestGreen', border='black')
-    drawPolygons(app, outlines['fairway'], fill='green', border=None)
+                     fill='green', border='black')
+    drawPolygons(app, outlines['fairway'], fill='forestGreen', border=None)
     drawPolygons(app, outlines['sandtrap'], fill='tan', border='black')
-    drawPolygons(app, outlines['green'], fill='forestGreen', border='black')
+    drawPolygons(app, outlines['green'], fill='yellowGreen', border='black')
     drawPolygons(app, outlines['teebox'], fill='forestGreen', border='black')
     
     # Draw hole and flag in 2D
@@ -320,6 +323,13 @@ def isInStartButton(app, x, y):
     return (btnX <= x <= btnX+btnW and
             btnY <= y <= btnY+btnH)
 
+def isInNextHoleButton(app, x, y):
+    nextX = app.cardButtonX + app.width / 1.2
+    nextY = app.cardButtonY + app.height / 1.15
+    w = app.cardButtonWidth + 5
+    h = app.cardButtonHeight + 5
+    return (nextX <= x <= nextX + w) and (nextY <= y <= nextY + h)
+
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
@@ -352,9 +362,21 @@ def onMousePress(app, mouseX, mouseY):
     elif app.hole1 and isInCardButton(app, mouseX, mouseY):
         app.hole1 = False
         app.cardPage = True
-    elif app.cardPage and isInHoleButton(app, mouseX, mouseY): 
-        app.cardPage = False
-        app.hole1 = True
+    elif app.cardPage:
+        if isInHoleButton(app, mouseX, mouseY):
+            app.cardPage = False
+            app.hole1 = True
+        elif isInNextHoleButton(app, mouseX, mouseY):
+            if app.currentHole < 9:
+                app.currentHole += 1
+                app.cardPage = False
+                app.hole1 = True
+            for p in app.players:
+                x, y = findHoleCenter(app)
+                p.resetForHole(math.atan2(y - p.ballY, x - p.ballX))
+            else:
+                app.cardPage = False
+                app.podium = True
     
 
 def onKeyHold(app, keys): 
@@ -581,9 +603,6 @@ def onKeyPress(app, key):
 
 
     
-
-
-
 def drawAimLine(app):
     player = app.players[app.currentIdx]
     if player.velX == 0 and player.velY == 0 and player.velZ == 0:
@@ -726,8 +745,8 @@ def drawCardButton(app):
         
         drawLabel('Score Card', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=22, fill='black', font='American Typewriter', italic=True,
-                 border='green')
+                 size=22, fill='black', font='American Typewriter', 
+                 italic=True, border='green')
         
 def drawHoleButton(app): 
     if app.cardPage:
@@ -738,9 +757,19 @@ def drawHoleButton(app):
         
         drawLabel('Back', app.cardButtonX + app.cardButtonWidth//2,
                  app.cardButtonY + app.cardButtonHeight//2,
-                 size=26, fill='black', font='American Typewriter', italic=True,
-                 border='green')
-        
+                 size=26, fill='black', font='American Typewriter', 
+                 italic=True, border='green')
+        # Next hole button!
+        nextHoleX = app.cardButtonX + app.width / 1.2
+        nextHoleY = app.cardButtonY + app.height / 1.15
+        drawRect(nextHoleX, nextHoleY, 
+                 app.cardButtonWidth+5, app.cardButtonHeight+5,
+                fill='lemonChiffon', border='black', borderWidth=4.5)
+        drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
+                 nextHoleY + app.cardButtonHeight//2,
+                 size=24, fill='black', font='American Typewriter', 
+                 italic=True, border='green')
+
 def drawCardPage(app):
     # Draw Background
     drawImage('15112-LandingPage.png', 0, 0, 
@@ -754,15 +783,10 @@ def drawCardPage(app):
     cardTop = margin
     cardRight = app.width - margin
     cardBottom = app.height - margin
-    
+
     cardWidth  = cardRight  - cardLeft
     cardHeight = cardBottom - cardTop
-    
-    #  Outer white box with black border
-    drawRect(cardLeft, cardTop,
-             cardWidth, cardHeight,
-             fill='lemonChiffon',
-             border='black', borderWidth=4)
+             
     rows = len(app.scores)
     cols = len(app.scores[0])
     
@@ -775,7 +799,7 @@ def drawCardPage(app):
     
     # draw Labels
     holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
-    holeLabels = holeLabels[:cols]  # ensure it matches your number of columns
+    holeLabels = holeLabels[:cols]
     
     for c in range(cols):
         x = cardLeft + c * colWidth
