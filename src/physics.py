@@ -27,9 +27,7 @@ def calculateVelocity(club, ip): #add ground later
     # Calculate velocity using acceleration and club multiplier
     velocity = acceleration * clubMultiplier 
 
-    deviation  = computeDeviation(acceleration)
-
-    maxVelocity = getMaxVelo(club)
+    deviation, maxVelocity = computeDeviation(acceleration), getMaxVelo(club)
     
     if velocity > maxVelocity:
         if club != 'wedge' and club != 'putter':
