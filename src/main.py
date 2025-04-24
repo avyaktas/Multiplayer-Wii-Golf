@@ -351,6 +351,20 @@ def isInPlayButton(app, x, y):
     # This ends the title Page.
 
     # Secondly, this will draw the instruction page and provide logic for such.
+
+def getInstructions():
+    instructions = [
+        '1. Download "phyphox" on your cellPhone.',
+        '2. Turn on your WIFI Hotspot on your cellPhone.',
+        "3. Connect to your cellPhone's Hotspot on your computer.",
+        '4. Enter the IP address of your cellPhone in the box on the' 
+            'page following.',
+        '6. Press space to initalize phyphox, you then have 7 seconds'
+            'to take your shot.',
+        '5. You must enter at least 1 player name.',
+        '6. Use arrow keys to navigate the game.',
+        "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
+    return instructions
 def drawInstructionsPage(app):
     drawImage('15112-instructionsPage.png',0 , 0, width=app.width, 
               height=app.height)
@@ -363,19 +377,7 @@ def drawInstructionsPage(app):
               app.width / 2, titleY,size=titleSize, 
               bold=True, fill='cornSilk', font='impact')
 
-    # Instructions text
-    instructions = [
-        '1. Download "phyphox" on your cellPhone.',
-        '2. Turn on your WIFI Hotspot on your cellPhone.',
-        "3. Connect to your cellPhone's Hotspot on your computer.",
-        '4. Enter the IP address of your cellPhone in the box on the' 
-            'page following.',
-        '6. Press space to initalize phyphox, you then have 7 seconds'
-            'to take your shot.',
-        '5. You must enter at least 1 player name.',
-        '6. Use arrow keys to navigate the game.',
-        "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
-    
+    instructions = getInstructions() 
     startY = app.height * 0.25
     lineHeight = app.height * 0.08
     textSize = int(app.height * 0.03)
