@@ -23,6 +23,8 @@ tkolenci:
         -drawCardPage: very little, just minor debugging.
         -drawReconnect: None.
         -DrawPodium: None.
+        -Also, it should be noted Python and stackOverFlow were helpful
+         for installing all things.
         
         
         
