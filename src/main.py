@@ -293,7 +293,229 @@ def getHole(points):
     return centerX, centerY
 # All openCV logic ends here.
 
-# The following chunk contains the drawing of all the pages.
+# The following chunk contains the drawing of all the pages and their 
+# respective button logic.
+def drawStart(app):
+    # First, draw the title page.
+    drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
+    
+    titleX = app.width // 2
+    titleY = app.height // 6
+    baseFontSize = 75
+    factor = min(app.width / 1000, app.height / 600)
+    titleFontSize = int(baseFontSize * factor)
+
+    drawLabel('Wii Golf 112', titleX-7, titleY-3, 
+             size=titleFontSize, fill='black', font='impact')
+    drawLabel('Wii Golf 112', titleX, titleY,
+             size=titleFontSize, fill='cornSilk', font='impact')
+    
+    factor = min(app.width / 1000, app.height / 600)
+    # Note, the idea of a factor was from OpenAI and is implemented in many
+    # functions, this makes the screen size responsive.
+    playButtonWidth = int(400 * factor)
+    playButtonHeight = int(50 * factor)
+    playButtonX = app.width // 2
+    playButtonY = int(app.height // 1.3)
+
+    # Draw play button.
+    color = gradient('darkGreen', 'lightGreen')
+    drawRect(playButtonX - playButtonWidth // 2,
+             playButtonY - playButtonHeight // 2,
+             playButtonWidth, playButtonHeight,
+             fill=color, border='cornSilk', borderWidth=3)
+    drawLabel('Press Here To Begin', playButtonX-2.5, playButtonY-2,
+              size=int(30 * factor), fill='black', bold=True, font='Phosphate')
+    drawLabel('Press Here To Begin', playButtonX, playButtonY,
+              size=int(30 * factor), fill='cornSilk', font='Phosphate')
+
+def getPlayButtonCoord(app):
+    playButtonX = app.width // 2
+    playButtonY = int(app.height // 1.3)
+    return (playButtonX, playButtonY)
+
+def getPlayButtonSize(app):
+    factor = min(app.width / 1000, app.height / 600)
+    playButtonWidth = int(400 * factor)
+    playButtonHeight = int(50 * factor)
+    return (playButtonWidth, playButtonHeight)
+
+def isInPlayButton(app, x, y):
+    playButtonX, playButtonY = getPlayButtonCoord(app)
+    playButtonWidth, playButtonHeight = getPlayButtonSize(app)
+    return (playButtonX - playButtonWidth // 2 <= x <= 
+            playButtonX + playButtonWidth // 2 and
+            playButtonY - playButtonHeight // 2 <= y <= 
+            playButtonY + playButtonHeight // 2)
+    #This ends the title Page.
+
+    # Secondly, this will draw the instruction page and provide logic for such.
+def drawInstructionsPage(app):
+    drawImage('15112-instructionsPage.png',0 , 0, width=app.width, 
+              height=app.height)
+    titleY = app.height * 0.1 - 10
+    titleSize = int(app.height * 0.15)
+    drawLabel("Instructions",
+              app.width / 2 -3, titleY-3,size=titleSize, 
+              bold=True, fill='black',font='impact')
+    drawLabel("Instructions",
+              app.width / 2, titleY,size=titleSize, 
+              bold=True, fill='cornSilk', font='impact')
+
+    # Instructions text
+    instructions = [
+        '1. Download "phyphox" on your cellPhone.',
+        '2. Turn on your WIFI Hotspot on your cellPhone.',
+        "3. Connect to your cellPhone's Hotspot on your computer.",
+        '4. Enter the IP address of your cellPhone in the box on the' 
+            'page following.',
+        '6. Press space to initalize phyphox, you then have 7 seconds'
+            'to take your shot.',
+        '5. You must enter at least 1 player name.',
+        '6. Use arrow keys to navigate the game.',
+        "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
+    
+    startY = app.height * 0.25
+    lineHeight = app.height * 0.08
+    textSize = int(app.height * 0.03)
+    for i, line in enumerate(instructions):
+        drawLabel(line, app.width / 2-1.5, startY + i * lineHeight - 25,
+                  size=textSize, fill='black')
+        drawLabel(line, app.width / 2, startY + i * lineHeight - 25,
+                  size=textSize, fill='cornSilk')
+
+    # Continue button (centered)
+    btnW = app.width  * 0.20
+    btnH = app.height * 0.08
+    btnX = (app.width  - btnW) / 2
+    btnY = app.height * 0.80
+    txtY = btnY + btnH / 2
+    txtSz = int(app.height * 0.04)
+    drawRect(btnX, btnY, btnW, btnH,
+             fill='darkGreen', border='white', borderWidth=2)
+    drawLabel("Continue",
+              app.width / 2, txtY,
+              size=txtSz, fill='white')
+    # This is the end of the instructions page.
+
+    # Thirdly, this will draw the landing page and provide logic for such.
+    # This was particularly grueling due to the need to bound all boxes.
+def drawLandingPage(app):
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+
+    drawImage('15112-LandingPage.png', 0, 0, 
+              width=app.width, height=app.height)
+
+    drawLabel('Choose Number of Players',
+              app.width//2 - 3, 80 * scaleY - 3, 
+              size=int(30 * scaleY)+30, bold=True, 
+              font='Impact', fill='black')
+    
+    drawLabel('Choose Number of Players',
+              app.width//2, 80 * scaleY,
+              size=int(30 * scaleY)+30, bold=True, 
+              font='Impact', fill='darkOliveGreen')
+
+    # Player-count boxes (1–4).
+    baseOffset = -150 
+    spacing = 60
+    boxSize = 50
+
+    for i in range(1, 5):
+        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
+        cy = 140 * scaleY
+        w  = boxSize * scaleX
+        h = boxSize * scaleY
+        fill = 'lightGreen' if app.selectedNumPlayers == i else 'cornSilk'
+
+        drawRect(cx - w/2, cy - h/2,
+                 w, h, fill=fill, border='darkOlivegreen', borderWidth=2)
+        drawLabel(str(i), cx, cy, size=int(20 * scaleY) + 5, 
+                  bold=True, font='American TypeWriter')
+
+    # Name-entry fields
+    labelX = 300 * scaleX
+    inputX = 500 * scaleX
+    inputW = 180 * scaleX
+    inputH = 40 * scaleY
+
+    for i in range(app.selectedNumPlayers):
+        labelY = (230 + i*60) * scaleY
+        yRect  = (210 + i*60) * scaleY
+
+        drawLabel(f"Enter Name for Player {i+1}:",
+                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, font='HeadlineA', 
+                  fill='darkOlivegreen', bold=True)
+        drawLabel(f"Enter Name for Player {i+1}:",
+                  labelX, labelY, size=int(16 * scaleY)+20, font='HeadlineA', 
+                  fill='cornSilk', bold=True)
+
+        drawRect(inputX, yRect, inputW, inputH,
+                 fill='cornSilk', border='darkOliveGreen', borderWidth=4)
+
+        drawLabel(app.playerNames[i],
+                  inputX + inputW/2, labelY, size=int(16 * scaleY)+15,
+                  align='center', font='nanum pen script')
+
+    # IP-address box
+    yLabelIP = 470 * scaleY
+    yRectIP  = 450 * scaleY
+
+    drawLabel('Enter IP Address Here:',
+              labelX-2.5, yLabelIP-2.5, size=int(16 * scaleY)+20, 
+              font='HeadLineA', fill='darkOlivegreen', bold=True)
+    drawLabel('Enter IP Address Here:',
+              labelX, yLabelIP, size=int(16 * scaleY)+20, 
+              font='HeadLineA', fill='cornSilk', bold=True)
+
+    drawRect(inputX, yRectIP, inputW, inputH,
+             fill='cornSilk', border='darkOliveGreen', borderWidth=4)
+
+    drawLabel(app.ipAddress, inputX + inputW/2, yLabelIP,
+              size=int(16 * scaleY)+5, align='center', 
+              font='American Typewriter', bold=True)
+
+    # Start button
+    btnW = 180 * scaleX
+    btnH =  40 * scaleY
+    btnX = app.width/2 - btnW/2
+    btnY = app.height - 80 * scaleY
+
+    drawRect(btnX, btnY, btnW, btnH, fill='cornSilk',
+             border='darkOliveGreen', borderWidth=6)
+
+    drawLabel("START", app.width//2, app.height - 60 * scaleY,
+              size=int(20 * scaleY)+15, fill='darkOliveGreen', 
+              bold=True, font='Modak')
+
+def isInCardButton(app, x, y): 
+    return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
+            app.cardButtonY <= y <= app.cardButtonY + app.cardButtonHeight)
+
+def isInHoleButton(app, x, y):
+    return (app.holeButtonX <= x <= app.holeButtonX + app.holeButtonWidth and
+            app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
+
+def isInRestartButton(app,x, y):  
+    width = app.restartButtonWidth
+    height = app.restartButtonHeight
+    X = (app.width - width) // 2
+    Y = app.height - height - 20  
+
+    return ( X<= x <= X + width and
+            Y <= y <= Y + height)
+
+def isInStartButton(app, x, y):
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+    btnW = 180 * scaleX
+    btnH =  40 * scaleY
+    btnX = app.width/2 - btnW/2
+    btnY = app.height - 80 * scaleY
+    return (btnX <= x <= btnX+btnW and
+            btnY <= y <= btnY+btnH)
+
 def drawReconnect(app):
     drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
     drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
@@ -325,88 +547,6 @@ def drawWindIndicator(app):
     drawLabel(f'{app.windSpeed:.1f} mph',
               x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
               border='black', borderWidth=0.25, bold=True)
-    
-def drawStart(app):
-    # Draw background image scaled to fill the screen
-    drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
-    
-    # Draw title
-    titleX = app.width // 2
-    titleY = app.height // 6
-    baseFontSize = 75
-    factor = min(app.width / 1000, app.height / 600)
-    titleFontSize = int(baseFontSize * factor)
-
-    drawLabel('Wii Golf 112', titleX-7, titleY-3, 
-             size=titleFontSize, fill='black', font='impact')
-    drawLabel('Wii Golf 112', titleX, titleY,
-             size=titleFontSize, fill='cornSilk', font='impact')
-    
-    # Calculate scaling factor
-    factor = min(app.width / 1000, app.height / 600)
-
-    # Adjust play button dimensions and position
-    playButtonWidth = int(400 * factor)
-    playButtonHeight = int(50 * factor)
-    playButtonX = app.width // 2
-    playButtonY = int(app.height // 1.3)
-
-    # Draw play button
-    color = gradient('darkGreen', 'lightGreen')
-    drawRect(playButtonX - playButtonWidth // 2,
-             playButtonY - playButtonHeight // 2,
-             playButtonWidth, playButtonHeight,
-             fill=color, border='cornSilk', borderWidth=3)
-    drawLabel('Press Here To Begin', playButtonX-2.5, playButtonY-2,
-              size=int(30 * factor), fill='black', bold=True, font='Phosphate')
-    drawLabel('Press Here To Begin', playButtonX, playButtonY,
-              size=int(30 * factor), fill='cornSilk', font='Phosphate')
-
-def getPlayButtonCoord(app):
-    playButtonX = app.width // 2
-    playButtonY = int(app.height // 1.3)
-    return (playButtonX, playButtonY)
-
-def getPlayButtonSize(app):
-    factor = min(app.width / 1000, app.height / 600)
-    playButtonWidth = int(400 * factor)
-    playButtonHeight = int(50 * factor)
-    return (playButtonWidth, playButtonHeight)
-
-def isInPlayButton(app, x, y):
-    playButtonX, playButtonY = getPlayButtonCoord(app)
-    playButtonWidth, playButtonHeight = getPlayButtonSize(app)
-    return (playButtonX - playButtonWidth // 2 <= x <= 
-            playButtonX + playButtonWidth // 2 and
-            playButtonY - playButtonHeight // 2 <= y <= 
-            playButtonY + playButtonHeight // 2)
-
-def isInCardButton(app, x, y): 
-    return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
-            app.cardButtonY <= y <= app.cardButtonY + app.cardButtonHeight)
-
-def isInHoleButton(app, x, y):
-    return (app.holeButtonX <= x <= app.holeButtonX + app.holeButtonWidth and
-            app.holeButtonY <= y <= app.holeButtonY + app.holeButtonHeight)
-
-def isInRestartButton(app,x, y):  
-    width = app.restartButtonWidth
-    height = app.restartButtonHeight
-    X = (app.width - width) // 2
-    Y = app.height - height - 20  
-
-    return ( X<= x <= X + width and
-            Y <= y <= Y + height)
-
-def isInStartButton(app, x, y):
-    scaleX = app.width  / 1000
-    scaleY = app.height / 600
-    btnW = 180 * scaleX
-    btnH =  40 * scaleY
-    btnX = app.width/2 - btnW/2
-    btnY = app.height - 80 * scaleY
-    return (btnX <= x <= btnX+btnW and
-            btnY <= y <= btnY+btnH)
 
 def isInNextHoleButton(app, x, y):
     nextX = app.cardButtonX + app.width / 1.2
@@ -1040,53 +1180,6 @@ def drawCardPage(app):
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
 
-def drawInstructionsPage(app):
-    drawImage('15112-instructionsPage.png',0 , 0, width=app.width, height=app.height)
-    titleY     = app.height * 0.1 - 10
-    titleSize  = int(app.height * 0.15)
-    drawLabel("Instructions",
-              app.width / 2 -3, titleY-3,size=titleSize, 
-              bold=True, fill='black',font='impact')
-    drawLabel("Instructions",
-              app.width / 2, titleY,size=titleSize, 
-              bold=True, fill='cornSilk', font='impact')
-
-    # Instructions text
-    instructions = [
-        '1. Download "phyphox" on your cellPhone.',
-        '2. Turn on your WIFI Hotspot on your cellPhone.',
-        "3. Connect to your cellPhone's Hotspot on your computer.",
-        '4. Enter the IP address of your cellPhone in the box on the' 
-            'page following.',
-        '6. Press space to initalize phyphox, you then have 7 seconds'
-            'to take your shot.',
-        '5. You must enter at least 1 player name.',
-        '6. Use arrow keys to navigate the game.',
-        "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
-    
-    startY = app.height * 0.25
-    lineHeight = app.height * 0.08
-    textSize   = int(app.height * 0.03)
-    for i, line in enumerate(instructions):
-        drawLabel(line, app.width / 2-1.5, startY + i * lineHeight - 25,
-                  size=textSize, fill='black')
-        drawLabel(line, app.width / 2, startY + i * lineHeight - 25,
-                  size=textSize, fill='cornSilk')
-
-    # Continue button (centered)
-    btnW  = app.width  * 0.20
-    btnH  = app.height * 0.08
-    btnX  = (app.width  - btnW) / 2
-    btnY  = app.height * 0.80
-    txtY  = btnY + btnH / 2
-    txtSz = int(app.height * 0.04)
-
-    drawRect(btnX, btnY, btnW, btnH,
-             fill='darkGreen', border='white', borderWidth=2)
-    drawLabel("Continue",
-              app.width / 2, txtY,
-              size=txtSz, fill='white')
-
 def instructionsPageMousePress(app, mouseX, mouseY):
     btnW = app.width  * 0.20
     btnH = app.height * 0.08
@@ -1096,111 +1189,6 @@ def instructionsPageMousePress(app, mouseX, mouseY):
     if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
         app.instructionsPage = False
         app.landingPage      = True
-
-
-def instructionsPageMousePress(app, mouseX, mouseY):
-    btnW = app.width  * 0.20
-    btnH = app.height * 0.08
-    btnX = (app.width  - btnW) / 2
-    btnY = app.height * 0.80
-
-    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
-        app.instructionsPage = False
-        app.landingPage      = True
-
-
-def drawLandingPage(app):
-    # Find per-axis scales against reference 1000×600
-    scaleX = app.width  / 1000
-    scaleY = app.height / 600
-
-    # Full-screen background
-    drawImage('15112-LandingPage.png', 0, 0, 
-              width=app.width, height=app.height)
-
-    # Title
-    drawLabel('Choose Number of Players',
-              app.width//2 - 3, 80 * scaleY - 3, 
-              size=int(30 * scaleY)+30, bold=True, 
-              font='Impact', fill='black')
-    
-    drawLabel('Choose Number of Players',
-              app.width//2, 80 * scaleY,
-              size=int(30 * scaleY)+30, bold=True, 
-              font='Impact', fill='darkOliveGreen')
-
-    # Player-count boxes (1–4)
-    baseOffset = -150 
-    spacing = 60
-    boxSize = 50
-
-    for i in range(1, 5):
-        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
-        cy = 140 * scaleY
-        w  = boxSize * scaleX
-        h = boxSize * scaleY
-        fill = ('lightGreen' if app.selectedNumPlayers == i else 'cornSilk')
-
-        drawRect(cx - w/2, cy - h/2,
-                 w, h, fill=fill, border='darkOlivegreen', borderWidth=2)
-        drawLabel(str(i), cx, cy, size=int(20 * scaleY) + 5, 
-                  bold=True, font='American TypeWriter')
-
-    # Name-entry fields
-    labelX = 300 * scaleX
-    inputX = 500 * scaleX
-    inputW = 180 * scaleX
-    inputH = 40 * scaleY
-
-    for i in range(app.selectedNumPlayers):
-        labelY = (230 + i*60) * scaleY
-        yRect  = (210 + i*60) * scaleY
-
-        drawLabel(f"Enter Name for Player {i+1}:",
-                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, font='HeadlineA', 
-                  fill='darkOlivegreen', bold=True)
-        drawLabel(f"Enter Name for Player {i+1}:",
-                  labelX, labelY, size=int(16 * scaleY)+20, font='HeadlineA', 
-                  fill='cornSilk', bold=True)
-
-        drawRect(inputX, yRect, inputW, inputH,
-                 fill='cornSilk', border='darkOliveGreen', borderWidth=4)
-
-        drawLabel(app.playerNames[i],
-                  inputX + inputW/2, labelY, size=int(16 * scaleY)+15,
-                  align='center', font='nanum pen script')
-
-    # IP-address box
-    yLabelIP = 470 * scaleY
-    yRectIP  = 450 * scaleY
-
-    drawLabel('Enter IP Address Here:',
-              labelX-2.5, yLabelIP-2.5, size=int(16 * scaleY)+20, 
-              font='HeadLineA', fill='darkOlivegreen', bold=True)
-    drawLabel('Enter IP Address Here:',
-              labelX, yLabelIP, size=int(16 * scaleY)+20, 
-              font='HeadLineA', fill='cornSilk', bold=True)
-
-    drawRect(inputX, yRectIP, inputW, inputH,
-             fill='cornSilk', border='darkOliveGreen', borderWidth=4)
-
-    drawLabel(app.ipAddress, inputX + inputW/2, yLabelIP,
-              size=int(16 * scaleY)+5, align='center', 
-              font='American Typewriter', bold=True)
-
-    # Start button
-    btnW = 180 * scaleX
-    btnH =  40 * scaleY
-    btnX = app.width/2 - btnW/2
-    btnY = app.height - 80 * scaleY
-
-    drawRect(btnX, btnY, btnW, btnH, fill='cornSilk',
-             border='darkOliveGreen', borderWidth=6)
-
-    drawLabel("START", app.width//2, app.height - 60 * scaleY,
-              size=int(20 * scaleY)+15, fill='darkOliveGreen', 
-              bold=True, font='Modak')
-
 
 def landingMousePress(app, x, y):
     scaleX = app.width  / 1000
