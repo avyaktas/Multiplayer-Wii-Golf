@@ -357,9 +357,9 @@ def getInstructions():
         '1. Download "phyphox" on your cellPhone.',
         '2. Turn on your WIFI Hotspot on your cellPhone.',
         "3. Connect to your cellPhone's Hotspot on your computer.",
-        '4. Enter the IP address of your cellPhone in the box on the' 
+        '4. Enter the IP address of your cellPhone in the box on the' ' ' 
             'page following.',
-        '6. Press space to initalize phyphox, you then have 7 seconds'
+        '6. Press space to initalize phyphox, you then have 7 seconds' ' '
             'to take your shot.',
         '5. You must enter at least 1 player name.',
         '6. Use arrow keys to navigate the game.',
