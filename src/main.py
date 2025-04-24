@@ -1019,8 +1019,8 @@ def onStep(app):
                     app.onGreenPlayed = True
                 elif (terrain == 'sandtrap') or (terrain == 'out of bounds'):
                     if not app.playedKozSound:
-                         playSound(app, app.koz)
-                         app.playedKozSound = True
+                        playSound(app, app.koz)
+                        app.playedKozSound = True
                 else:
                     player.playedKozSound = False
                     
@@ -1162,8 +1162,7 @@ def landingMousePress(app, x, y):
             return
 
     inputX = 500 * scaleX
-    inputW = 180 * scaleX
-    inputH = 40 * scaleY
+    inputW, inputH = 180 * scaleX, 40 * scaleY
     for i in range(app.selectedNumPlayers):
         yRect = (210 + i*60) * scaleY
         if (inputX <= x <= inputX + inputW and
@@ -1173,8 +1172,7 @@ def landingMousePress(app, x, y):
             app.ipBoxSelected = False
             return
 
-    ipX = 500 * scaleX
-    ipY = 450 * scaleY
+    ipX, ipY = 500 * scaleX, 450 * scaleY
     if (ipX <= x <= ipX + inputW and
         ipY <= y <= ipY + inputH):
         app.ipBoxSelected = True
