@@ -89,7 +89,7 @@ def whichPageApp(app):
     app.connectionBad = False 
 
 def windApp(app):
-    app.windSpeed = random.uniform(0, 5)          
+    app.windSpeed = random.uniform(10, 15)          
     app.windDirection = random.uniform(0, 2*math.pi)
 
 def landingPageApp(app):
@@ -877,7 +877,7 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
-                app.windSpeed = random.uniform(0, 10)
+                app.windSpeed = random.uniform(10, 15)
                 app.windDirection = random.uniform(0, 2*math.pi)
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
@@ -933,7 +933,7 @@ def onStep(app):
 
     if player.velZ != 0:
         player.velX += windAx * step
-        player.velY += windAy * step
+        player.velY -= windAy * step
 
     if player.velX != 0 or player.velY != 0 or player.velZ != 0:
         # In motion
