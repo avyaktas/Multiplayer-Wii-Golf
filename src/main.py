@@ -257,8 +257,9 @@ def drawHole(app):
     drawPolygons(app, outlines['sandtrap'], fill='tan', border='black')
     drawPolygons(app, outlines['green'], fill='yellowGreen', border='black')
     drawPolygons(app, outlines['teebox'], fill='forestGreen', border='black')
-    
-    # Draw hole and flag in 2D
+    drawHoleAndFlag(app, outlines)
+
+def drawHoleAndFlag(app, outlines):
     if 'green' in outlines:
         for green in outlines['green']:
             if isinstance(green, list):
@@ -416,8 +417,16 @@ def drawLandingPage(app):
               app.width//2, 80 * scaleY,
               size=int(30 * scaleY)+30, bold=True, 
               font='Impact', fill='darkOliveGreen')
+    drawPlayerBoxes(app, scaleX, scaleY)
 
-    # Player-count boxes (1–4).
+def getSizes(scaleX, scaleY):
+    labelX = 300 * scaleX
+    inputX = 500 * scaleX
+    inputW = 180 * scaleX
+    inputH = 40 * scaleY
+    return labelX, inputX, inputW, inputH
+
+def drawPlayerBoxes(app, scaleX, scaleY):
     baseOffset = -150 
     spacing = 60
     boxSize = 50
@@ -433,20 +442,14 @@ def drawLandingPage(app):
                  w, h, fill=fill, border='darkOlivegreen', borderWidth=2)
         drawLabel(str(i), cx, cy, size=int(20 * scaleY) + 5, 
                   bold=True, font='American TypeWriter')
-
-    # Name-entry fields
-    labelX = 300 * scaleX
-    inputX = 500 * scaleX
-    inputW = 180 * scaleX
-    inputH = 40 * scaleY
-
+    labelX, inputX, inputW, inputH = getSizes(scaleX, scaleY)
     for i in range(app.selectedNumPlayers):
         labelY = (230 + i*60) * scaleY
         yRect  = (210 + i*60) * scaleY
 
         drawLabel(f"Enter Name for Player {i+1}:",
-                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, font='HeadlineA', 
-                  fill='darkOlivegreen', bold=True)
+                  labelX-2.5, labelY-2.5, size=int(16 * scaleY)+20, 
+                  font='HeadlineA', fill='darkOlivegreen', bold=True)
         drawLabel(f"Enter Name for Player {i+1}:",
                   labelX, labelY, size=int(16 * scaleY)+20, font='HeadlineA', 
                   fill='cornSilk', bold=True)
@@ -457,7 +460,9 @@ def drawLandingPage(app):
         drawLabel(app.playerNames[i],
                   inputX + inputW/2, labelY, size=int(16 * scaleY)+15,
                   align='center', font='nanum pen script')
+        drawIPAndStart(app, scaleX, scaleY, labelX, inputW, inputH, inputX)
 
+def drawIPAndStart(app, scaleX, scaleY, labelX, inputW, inputH, inputX):
     # IP-address box
     yLabelIP = 470 * scaleY
     yRectIP  = 450 * scaleY
@@ -490,11 +495,30 @@ def drawLandingPage(app):
               bold=True, font='Modak')
     # This marks the end of the launch page.
     # Fourthly, this will draw the card page and provide logic for such.
+
+def getCardBounds(app, margin):
+    cardLeft = margin
+    cardTop = margin
+    cardWidth  = app.width - margin - cardLeft
+    cardHeight = app.height - margin - cardTop
+    return cardLeft, cardTop, cardWidth, cardHeight
+
+def getHeaderColAndRow(app, cardHeight, cardWidth):
+    rows = len(app.scores)
+    cols = len(app.scores[0])
+    # Make header bigger
+    headerHeight = cardHeight * 0.2
+    gridHeight   = cardHeight - headerHeight
+    colWidth  = cardWidth  / cols
+    rowHeight = gridHeight / rows
+    return rows, cols, headerHeight, gridHeight, colWidth, rowHeight
+
 def drawCardPage(app):
+    # Draw Background
     drawImage('15112-LandingPage.png', 0, 0, 
               width=app.width, height=app.height)
     
-    # Score Card margins(idea from OpenAI, but openAI was not used here).
+    # Score Card margins
     margin = 0.2 * min(app.width, app.height)
     
     # Card bounds
@@ -550,16 +574,17 @@ def drawCardPage(app):
               fill='white', font='American Typewriter')
     drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
               fill='black', font='American Typewriter')
-    for i in range(1, len(app.scores)):
+    
+    for i in range(1, len(app.scores)): 
         row = app.scores[i]
-        row[10] = 0
-        row[11] = 0
-        for j in range(1, 10):
+        row[10] = 0 # This should be the TOTAL
+        row[11] = 0 # This should be the O/U
+        for j in range(1, 10): 
             score = row[j]
             par = app.scores[0][j]
-            if isinstance(score, int):
-                row[10] += score
-                row[11] += (score - par)
+            if isinstance(score, int): 
+                row[10] += score 
+                row[11] += (score - par) 
 
 def isInCardButton(app, x, y): 
     return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
@@ -671,15 +696,18 @@ def drawReconnect(app):
     # This marks the end of the reconnect page.
     # Sixthly, this will draw the club selection page and provide 
     # logic for such.
-def drawClubSelection(app):
-    # Draw panel
+def getMenuSizes(app):
     menuX = 20
     menuY = app.height - 300
     menuWidth = 180
     menuHeight = 270
     lineHeight = 28
     topOffset = 50
-    
+    return menuX, menuY, menuWidth, menuHeight, lineHeight, topOffset
+
+def drawClubSelection(app):
+    menuX, menuY, menuWidth, menuHeight, lineHeight, topOffset =(
+        getMenuSizes(app))
     # Draw main menu panel
     drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
             fill='cornSilk', opacity=85, 
@@ -688,12 +716,10 @@ def drawClubSelection(app):
     # Draw title
     drawLabel('Club Selection', 
                 menuX + menuWidth//2-1, menuY + 30-1, 
-                size=20, bold=True, fill='black',
-                font='Snell Roundhand')
+                size=20, bold=True, fill='black', font='Snell Roundhand')
     drawLabel('Club Selection', 
-                menuX + menuWidth//2, menuY + 30, 
-                size=20, bold=True, fill='darkOliveGreen',
-                font='Snell Roundhand')
+                menuX + menuWidth//2, menuY + 30, size=20, 
+                bold=True, fill='darkOliveGreen', font='Snell Roundhand')
     # Draw club options
     for i, club in enumerate(app.clubs):
         # Highlight selected club
@@ -711,13 +737,11 @@ def drawClubSelection(app):
                     fill=textColor, font='American Typewriter',
                     size=18, bold=True)
     # Draw instructions at bottom
-    drawLabel('Press w and s to select', 
-                menuX + menuWidth//2, 
+    drawLabel('Press w and s to select', menuX + menuWidth//2, 
                 menuY + menuHeight - 30, size=14, font='American Typewriter',
                 fill='darkOliveGreen', italic=True)
     
-    drawLabel('Press SPACE to confirm', 
-                menuX + menuWidth//2, 
+    drawLabel('Press SPACE to confirm', menuX + menuWidth//2, 
                 menuY + menuHeight - 10, size=14, font='American Typewriter',
                 fill='darkOliveGreen', italic=True)
     # This marks the end of the club selection page.
@@ -746,7 +770,8 @@ def drawPodium(app):
     for i in range(len(playerTotals)):
         for j in range(len(playerTotals)): 
             if playerTotals[j][1] < playerTotals[i][1]:
-                playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
+                playerTotals[i], playerTotals[j] = (
+                    playerTotals[j], playerTotals[i])
 
     for i in range(len(playerTotals)): 
         name = playerTotals[i][0]
@@ -1072,7 +1097,8 @@ def onKeyPress(app, key):
             return
         elif app.nameBoxSelected:
             if key == 'backspace': 
-                app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
+                app.playerNames[app.nameIndex] =(
+                    app.playerNames[app.nameIndex][:-1])
             elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 2:
                 app.playerNames[app.nameIndex] += key
             return
@@ -1113,23 +1139,20 @@ def onKeyPress(app, key):
 
 #These are the onMousePresses for the landing page & instructions page.
 def landingMousePress(app, x, y):
-    scaleX = app.width  / 1000
-    scaleY = app.height / 600
-    # Checks for click in player-count boxes
+    scaleX, scaleY = app.width  / 1000, app.height / 600
+
     baseOffset = -150
-    spacing = 60
-    boxSize = 50
+    spacing, boxSize = 60, 50
     for i in range(1, 5):
         cx = app.width/2 + (baseOffset + i*spacing) * scaleX
         cy = 140 * scaleY
-        w  = boxSize * scaleX
-        h  = boxSize * scaleY
+        w, h = boxSize * scaleX, boxSize * scaleY
         if (cx - w/2 <= x <= cx + w/2 and
             cy - h/2 <= y <= cy + h/2):
             app.selectedNumPlayers = i
             app.playerNames = ['' for i in range(app.selectedNumPlayers)]
             return
-    # Checks for click in name boxes
+
     inputX = 500 * scaleX
     inputW = 180 * scaleX
     inputH = 40 * scaleY
@@ -1141,7 +1164,7 @@ def landingMousePress(app, x, y):
             app.nameBoxSelected = True
             app.ipBoxSelected = False
             return
-    # Checks for click in IP Box
+
     ipX = 500 * scaleX
     ipY = 450 * scaleY
     if (ipX <= x <= ipX + inputW and
