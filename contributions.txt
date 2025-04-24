@@ -76,5 +76,11 @@ Avy
     - onKeyPress: worked on the stuff to input name and ipaddress
     - drawCardButton
     - drawHoleButton
-    - drawCardPage: Worked on this but it was tweaked by tommy
+    - drawCardPage: Worked on this but it was tweaked by tommy making it look better
+    - drawLandingPage: worked om it to begin and got the foundations but tommy made it look way better
+    - drawPodium: worked on most of This but tommy made it look way better
+    - drawRestartButton
+    - worked on and made all the hole jpgs
+
+
 ------------------------------------>
