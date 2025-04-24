@@ -49,13 +49,16 @@ achurche
     - Which clubs are available logic
 
 Avy
-    - got the main hole logic to work... maped values from openCv func
+    - got the main hole logic to work... maped values from openCv func (chatGPT used)
       into values that work for cmu graphics 
-    - outlined each hole 
-    - score card
+    - outlined each hole (manually in goodnotes on ipad)
+    - score card (2d gried kinds of)
     - drew podium
     - worked on landing page 
     - worked on restart game button logic
     - worked on inputting names on landing page and selecting how many players are playing
+    - worked on switching from card to hole
+    - worked on switching names on hole when players alternate swings
+    - worked on total score and O/U
 
 ------------------------------------>
