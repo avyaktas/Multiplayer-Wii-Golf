@@ -1062,7 +1062,7 @@ def onKeyPress(app, key):
         elif app.nameBoxSelected:
             if key == 'backspace': 
                 app.playerNames[app.nameIndex] = app.playerNames[app.nameIndex][:-1]
-            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 8:
+            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 2:
                 app.playerNames[app.nameIndex] += key
             return
     if app.hole1:
