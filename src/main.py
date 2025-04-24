@@ -471,6 +471,7 @@ def onMousePress(app, mouseX, mouseY):
                     p.putting = False
                     p.strokes = 0
                     p.velX = p.velY = p.velZ = 0
+                    p.holed = False
                 x, y = findHoleCenter(app)
                 for p in app.players:
                     p.aimAngle = (math.atan2(y - p.ballY, x - p.ballX))
