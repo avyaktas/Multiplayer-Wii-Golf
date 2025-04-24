@@ -11,8 +11,8 @@ General
                              acceloremeter, making a stable connection,
                              bounce, etc. (All physics and game logic)
         -avys: Worked mostly on openCV. Also he made the templates of the
-               podium, landingPage, and designed each course by
-               handdrawing the course.
+               podium, landingPage, and designed each hole by
+               outlining features of the course.
 tkolenci
     -Designed image Converter(scraped)
     -Designed Isometric view(also scraped😡)
