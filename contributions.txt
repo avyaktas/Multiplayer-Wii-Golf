@@ -29,12 +29,11 @@ tkolenci
 
 nmeaney
     - accelerometer api(with andrew), including the seemless integration with main app. 
-    - Ball physics, including deviation, 
+    - Ball physics namely: deviation for imperfect shots, wind, club multipliers and velocities
     - get Terrian function to find what surface the current ball is.
     - Top down redesign to support multiplayer, including using OOP for players 
-    - Wind logic 
     - Ball in hole logic and who's turn logic 
-    - A lot of game logic in genral. 
+    - A lot of game logic in genral including most of on step etc. 
 
 
 achurche
