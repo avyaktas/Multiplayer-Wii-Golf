@@ -48,3 +48,8 @@ nmeaney
     ON HOLE SKETCH: 
     First chatGPT was used to get open cv to work better after perliminary 
       Later used chatGPT to reFormt inorder to pass style checker. 
+
+achurche
+   - used chatGPT to debug wind logic
+   - used chatGPT for link logic
+   - used ChatGPT for next player logic
