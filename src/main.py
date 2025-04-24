@@ -1178,7 +1178,6 @@ def findHoleCenter(app):
     # compute centroid
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
-    print("Hole center:", cx, cy)
     return cx, cy
 
 def pointInPolygon(x, y, poly):
@@ -1261,7 +1260,7 @@ def takeShot(app, player, velocity, angle):
 
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
-        player.velX = player.velY = player.velZ = 0
+        player.velX = player.velY = player.velZ = 0.01
 
     elif getBallTerrain(app) == 'out of bounds':
         player.velX = player.velY = player.velZ = 0.01
