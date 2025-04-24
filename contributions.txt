@@ -46,6 +46,7 @@ achurche
     - Landing in water physics
     - Putting logic
     - Which clubs are available logic
+    - Helped debug wind physics
 
 Avy
     - got the main hole logic to work... maped values from openCv func (chatGPT used)
