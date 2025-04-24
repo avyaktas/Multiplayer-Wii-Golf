@@ -3,7 +3,6 @@ the code are predominantly your own original contributions, as described in
 the TP document: 
 https://www.cs.cmu.edu/~112/notes/term-project-and-hack112.html#personal-contributions
 
-Example: 
 
 General
     - Generally, 
@@ -28,24 +27,34 @@ tkolenci
     -Found all fonts, colors, images, etc. for all pages.
     -Edited and introduced all sounds.
 
-Nelson
-    - accelerometer api(with andrew)
-    - holeSketch and graphicsTogether(perlimary startPage and hole1)
-    - Ball moving logic and physics
-    - get Terrian function to find what surface the current ball l
-    - Top down redesign to support multiplayer 
-    - 
+nmeaney
+    - accelerometer api(with andrew), including the seemless integration with main app. 
+    - Ball physics, including deviation, 
+    - get Terrian function to find what surface the current ball is.
+    - Top down redesign to support multiplayer, including using OOP for players 
+    - Wind logic 
+    - Ball in hole logic and who's turn logic 
+    - A lot of game logic in genral. 
 
-Andrew
-    -Preliminary accelerometer api (spent hours with Nelson debugging)
+
+achurche
+    - accelerometer api (with Nelson)
+    - ball motion physics
+    - different club physics
+    - Angle deviation physics
+    - Shadow physics
+    - Bouncing physics
+    - Landing in water physics
+    - Putting logic
+    - Which clubs are available logic
 
 Avy
-    - got the graphicsTogether hole logic to work... maped values from openCv func
+    - got the main hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
+    - outlined each hole 
     - score card
     - drew podium
-    - worked on ball physics
-    - worked on landing page
+    - worked on landing page 
     - worked on restart game button logic
     - worked on inputting names on landing page and selecting how many players are playing
 
