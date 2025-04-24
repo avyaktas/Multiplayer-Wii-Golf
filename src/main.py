@@ -552,6 +552,16 @@ def drawCardPage(app):
               fill='white', font='American Typewriter')
     drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
               fill='black', font='American Typewriter')
+    for i in range(1, len(app.scores)):
+        row = app.scores[i]
+        row[10] = 0
+        row[11] = 0
+        for j in range(1, 10):
+            score = row[j]
+            par = app.scores[0][j]
+            if isinstance(score, int):
+                row[10] += score
+                row[11] += (score - par)
 
 def isInCardButton(app, x, y): 
     return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
