@@ -426,8 +426,10 @@ def onMousePress(app, mouseX, mouseY):
             app.cardPage = False
             app.hole1 = True
         elif isInRestartButton(app, mouseX, mouseY):
+            onAppStart(app)
             app.cardPage = False
             app.startPage = True
+
         
         elif isInNextHoleButton(app, mouseX, mouseY):
             if app.currentHole < 9:
