@@ -775,7 +775,7 @@ def drawPodium(app):
                   size=size, fill=color, bold=True,
                   font='Impact', border='black')
     # This marks the end of the podium.
-
+    # Eighthly, this will draw the wind indicator.
 def drawWindIndicator(app):
     x0, y0 = app.width - 80, 60
     length = 40
@@ -788,7 +788,49 @@ def drawWindIndicator(app):
     drawLabel(f'{app.windSpeed:.1f} mph',
               x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
               border='black', borderWidth=0.25, bold=True)
+    # This marks the end of the wind indicator.
+    # Ninthly, this will draw the ball and its shadow.
+def drawBall(app):
+    current = app.players[app.currentIdx]
+    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
+        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    # Display current Hole 
+    drawLabel(f'Hole {app.currentHole}',
+              app.width//1.05, app.height//1.12,
+              size=32, fill='cornSilk', bold=True,
+              font='American Typewriter', border='black',
+              borderWidth=0.5, align='right')
+    # Display current player info
+    playerName = app.playerNames[app.currentIdx]
+    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
+              app.height//1.05, size=32, fill='cornSilk', bold=True, 
+              font='American Typewriter', border='black', 
+              borderWidth=0.5, align='right')
+    # Draw all other players first
+    for i, player in enumerate(app.players):
+        if player == current:
+            continue  # Skip current player for now
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+        drawCircle(sx, sy, app.ballRadius, fill='gray')
+    # Then draw current player's ball last (on top)
+    sx, sy = getScreenCoords(app, current.ballX, current.ballY)
+    drawCircle(sx, sy, app.ballRadius, fill='white', border='black',
+               borderWidth=0.75)
 
+    # Shadow (only for current player if ball is in motion)
+    # This marks the end of the ball and its shadow!
+    # Finally, we draw aim line.
+def drawAimLine(app):
+    player = app.players[app.currentIdx]
+    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+        length = 60
+        ex = sx + length * math.cos(player.aimAngle)
+        ey = sy + length * math.sin(player.aimAngle)
+        drawLine(sx, sy, ex, ey, fill='fireBrick', lineWidth=2, dashes=True)
+    # This marks the end of all the drawing functions. (yay!)
+# The next chunk will cotain all mouse logic.
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
         app.startPage = False
@@ -835,11 +877,11 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
-                app.windSpeed     = random.uniform(0, 10)
+                app.windSpeed = random.uniform(0, 10)
                 app.windDirection = random.uniform(0, 2*math.pi)
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
-                    p.ballX, p.ballY  = teeX, teeY
+                    p.ballX, p.ballY = teeX, teeY
                     p.shadowY = teeY
                     p.ballZ = 0
                     p.putting = False
@@ -857,10 +899,6 @@ def onMousePress(app, mouseX, mouseY):
         if isInRestartButton(app, mouseX, mouseY):
             app.cardPage = False
             app.startPage = True
-
-def findAimAngle(app):
-    app.targetX, app.targetY = findHoleCenter(app)
-    return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)  
 
 def onKeyHold(app, keys): 
     if not app.hole1 or not app.players:
@@ -880,45 +918,6 @@ def onKeyHold(app, keys):
 
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
-
-def takeShot(app, player, velocity, angle):
-    # Set initial ball position to teebox location
-    # These values should match your teebox position
-    # Set initial velocities  # 45 degree launch anglex
-    app.onGreenPlayed = False
-    if getBallTerrain(app) == 'green':
-        player.putting = True
-    player.velZ = velocity * math.sin(angle)
-    flatVelocity = velocity * math.cos(angle)
-    player.velX = flatVelocity * math.cos(player.aimAngle)
-    player.velY = flatVelocity * math.sin(player.aimAngle)
-    player.onTeebox = False
-    player.strokes += 1
-
-def takeBounce(app, player, velocity, angle):
-    if getBallTerrain(app) == 'sandtrap':
-        player.velX = player.velY = player.velZ = 0
-
-    elif getBallTerrain(app) == 'out of bounds':
-        player.velX = player.velY = player.velZ = 0.01
-        player.strokes += 1
-        player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
-        player.shadowX = player.ballX
-        player.shadowY = player.ballY
-    elif getBallTerrain(app) == 'rough':
-        xMultiplier = 0.1
-        yMultiplier = 0.2
-        player.velZ = velocity * math.sin(angle)
-        flatVelocity = velocity * math.cos(angle)
-        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
-    else:
-        xMultiplier = 0.4
-        yMultiplier = 0.6
-        player.velZ = velocity * math.sin(angle)
-        flatVelocity = velocity * math.cos(angle)
-        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
-        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
 
 def onStep(app):
     if not app.hole1 or not app.players:
@@ -1044,8 +1043,6 @@ def onStep(app):
             player.velX = player.velY = player.velZ = 0
 
         # Ball stopped – find next player
-       
-
     # Ocean frame animation
     if not app.startPage:
         if app.count % 5 == 0:
@@ -1053,55 +1050,6 @@ def onStep(app):
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
-
-def centerOnPlayer(app, player):
-    targetScrollX = player.ballX
-    targetScrollY = player.ballY
-    halfW = app.width/2
-    halfH = app.height/3
-    minScrollX =  halfW
-    maxScrollX =  app.courseWidth  - halfW
-    minScrollY =  halfH
-    maxScrollY =  app.courseHeight - halfH
-
-    app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
-    app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
-
-
-def drawBall(app):
-    current = app.players[app.currentIdx]
-    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
-        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
-        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
-    # Display current Hole 
-    drawLabel(f'Hole {app.currentHole}',
-              app.width//1.05, app.height//1.12,
-              size=32, fill='cornSilk', bold=True,
-              font='American Typewriter', border='black',
-              borderWidth=0.5, align='right')
-    # Display current player info
-    playerName = app.playerNames[app.currentIdx]
-    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
-              app.height//1.05, size=32, fill='cornSilk', bold=True, 
-              font='American Typewriter', border='black', 
-              borderWidth=0.5, align='right')
-
-    # Draw all other players first
-    for i, player in enumerate(app.players):
-        if player == current:
-            continue  # Skip current player for now
-
-        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
-        drawCircle(sx, sy, app.ballRadius, fill='gray')
-
-    # Then draw current player's ball last (on top)
-    sx, sy = getScreenCoords(app, current.ballX, current.ballY)
-    drawCircle(sx, sy, app.ballRadius, fill='white', border='black',
-               borderWidth=0.75)
-
-    # Shadow (only for current player if ball is in motion)
-    
-    
 
 def onKeyPress(app, key):
     if app.landingPage: 
@@ -1152,17 +1100,58 @@ def onKeyPress(app, key):
                     except:
                         app.connectionBad = True
 
+#These are the onMousePresses for the landing page & instructions page.
+def landingMousePress(app, x, y):
+    scaleX = app.width  / 1000
+    scaleY = app.height / 600
+    # Checks for click in player-count boxes
+    baseOffset = -150
+    spacing = 60
+    boxSize = 50
+    for i in range(1, 5):
+        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
+        cy = 140 * scaleY
+        w  = boxSize * scaleX
+        h  = boxSize * scaleY
+        if (cx - w/2 <= x <= cx + w/2 and
+            cy - h/2 <= y <= cy + h/2):
+            app.selectedNumPlayers = i
+            app.playerNames = ['' for i in range(app.selectedNumPlayers)]
+            return
+    # Checks for click in name boxes
+    inputX = 500 * scaleX
+    inputW = 180 * scaleX
+    inputH = 40 * scaleY
+    for i in range(app.selectedNumPlayers):
+        yRect = (210 + i*60) * scaleY
+        if (inputX <= x <= inputX + inputW and
+            yRect <= y <= yRect + inputH):
+            app.nameIndex = i
+            app.nameBoxSelected = True
+            app.ipBoxSelected = False
+            return
+    # Checks for click in IP Box
+    ipX = 500 * scaleX
+    ipY = 450 * scaleY
+    if (ipX <= x <= ipX + inputW and
+        ipY <= y <= ipY + inputH):
+        app.ipBoxSelected = True
+        app.nameBoxSelected = False
+        return
+    # else deselect IP
+    app.ipBoxSelected = False
 
-    
-def drawAimLine(app):
-    player = app.players[app.currentIdx]
-    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
-        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
-        length = 60
-        ex = sx + length * math.cos(player.aimAngle)
-        ey = sy + length * math.sin(player.aimAngle)
-        drawLine(sx, sy, ex, ey, fill='fireBrick', lineWidth=2, dashes=True)
+def instructionsPageMousePress(app, mouseX, mouseY):
+    btnW = app.width  * 0.20
+    btnH = app.height * 0.08
+    btnX = (app.width  - btnW) / 2
+    btnY = app.height * 0.80
 
+    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
+        app.instructionsPage = False
+        app.landingPage = True
+# This marks the end of any mouse logic.
+# This chunk contains all physics & logisitics.
 def findHoleCenter(app):
     """
     Reads outlines with getHoleOutlines, grabs the first green polygon,
@@ -1208,7 +1197,6 @@ def getBallTerrain(app):
     player = app.players[app.currentIdx]
     bx, by = player.ballX, player.ballY
     outlines = getHoleData(app) 
-
     # check in this priority order
     for terrain in ('teebox', 'green', 'sandtrap', 'fairway', 'outline'):
         raw = outlines.get(terrain, [])
@@ -1216,7 +1204,6 @@ def getBallTerrain(app):
             if pointInPolygon(bx, by, poly):
                 # map 'outline' → 'rough'
                 return 'rough' if terrain == 'outline' else terrain
-
     return 'out of bounds'
 
 def getShadowTerrain(app):
@@ -1231,8 +1218,68 @@ def getShadowTerrain(app):
             if pointInPolygon(bx, by, poly):
                 # map 'outline' → 'rough'
                 return 'rough' if terrain == 'outline' else terrain
-
     return 'out of bounds'
+
+def centerOnPlayer(app, player):
+    targetScrollX = player.ballX
+    targetScrollY = player.ballY
+    halfW = app.width/2
+    halfH = app.height/3
+    minScrollX =  halfW
+    maxScrollX =  app.courseWidth  - halfW
+    minScrollY =  halfH
+    maxScrollY =  app.courseHeight - halfH
+
+    app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
+    app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
+    
+def takeShot(app, player, velocity, angle):
+    # Set initial ball position to teebox location
+    # These values should match your teebox position
+    # Set initial velocities  # 45 degree launch anglex
+    app.onGreenPlayed = False
+    if getBallTerrain(app) == 'green':
+        player.putting = True
+    player.velZ = velocity * math.sin(angle)
+    flatVelocity = velocity * math.cos(angle)
+    player.velX = flatVelocity * math.cos(player.aimAngle)
+    player.velY = flatVelocity * math.sin(player.aimAngle)
+    player.onTeebox = False
+    player.strokes += 1
+
+def takeBounce(app, player, velocity, angle):
+    if getBallTerrain(app) == 'sandtrap':
+        player.velX = player.velY = player.velZ = 0
+
+    elif getBallTerrain(app) == 'out of bounds':
+        player.velX = player.velY = player.velZ = 0.01
+        player.strokes += 1
+        player.ballX, player.ballY = (
+            player.shadowOverLandX, player.shadowOverLandY)
+        player.shadowX = player.ballX
+        player.shadowY = player.ballY
+    elif getBallTerrain(app) == 'rough':
+        xMultiplier = 0.1
+        yMultiplier = 0.2
+        player.velZ = velocity * math.sin(angle)
+        flatVelocity = velocity * math.cos(angle)
+        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
+    else:
+        xMultiplier = 0.4
+        yMultiplier = 0.6
+        player.velZ = velocity * math.sin(angle)
+        flatVelocity = velocity * math.cos(angle)
+        player.velX = flatVelocity * math.cos(player.aimAngle) * xMultiplier
+        player.velY = flatVelocity * math.sin(player.aimAngle) * yMultiplier
+
+def dist(x1, y1, x2, y2):
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
+
+# Lastly, all audio is contained in the chunk below.
+def findAimAngle(app):
+    app.targetX, app.targetY = findHoleCenter(app)
+    return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)  
 
 def playSound(app, soundList):
     if soundList == app.koz:
@@ -1251,65 +1298,6 @@ def playSound(app, soundList):
 def playMusic(app):
     audio = Sound(app.music)
     audio.play(loop=True)
-                     
-def dist(x1, y1, x2, y2):
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
-
-def instructionsPageMousePress(app, mouseX, mouseY):
-    btnW = app.width  * 0.20
-    btnH = app.height * 0.08
-    btnX = (app.width  - btnW) / 2
-    btnY = app.height * 0.80
-
-    if btnX <= mouseX <= btnX + btnW and btnY <= mouseY <= btnY + btnH:
-        app.instructionsPage = False
-        app.landingPage      = True
-
-def landingMousePress(app, x, y):
-    scaleX = app.width  / 1000
-    scaleY = app.height / 600
-
-    # Checks for click in player-count boxes
-    baseOffset = -150
-    spacing = 60
-    boxSize = 50
-    for i in range(1, 5):
-        cx = app.width/2 + (baseOffset + i*spacing) * scaleX
-        cy = 140 * scaleY
-        w  = boxSize * scaleX
-        h  = boxSize * scaleY
-
-        if (cx - w/2 <= x <= cx + w/2 and
-            cy - h/2 <= y <= cy + h/2):
-            app.selectedNumPlayers = i
-            app.playerNames = ['' for i in range(app.selectedNumPlayers)]
-            return
-
-    # Checks for click in name boxes
-    inputX = 500 * scaleX
-    inputW = 180 * scaleX
-    inputH = 40 * scaleY
-    for i in range(app.selectedNumPlayers):
-        yRect = (210 + i*60) * scaleY
-        if (inputX <= x <= inputX + inputW and
-            yRect <= y <= yRect + inputH):
-            app.nameIndex = i
-            app.nameBoxSelected = True
-            app.ipBoxSelected = False
-            return
-
-    # Checks for click in IP Box
-    ipX = 500 * scaleX
-    ipY = 450 * scaleY
-    if (ipX <= x <= ipX + inputW and
-        ipY <= y <= ipY + inputH):
-        app.ipBoxSelected = True
-        app.nameBoxSelected = False
-        return
-    # else deselect IP
-    app.ipBoxSelected = False
-        
-
 
 runApp()
 
