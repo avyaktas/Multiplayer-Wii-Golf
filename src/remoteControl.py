@@ -1,6 +1,5 @@
 #from graphicsTogether import app 
 import requests
-import json
 import time
 # the get logic for using channel and getting data is inspired from phyPhox api 
 # phyphox configuration
