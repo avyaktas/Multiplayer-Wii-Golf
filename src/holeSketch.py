@@ -1,10 +1,7 @@
-from cmu_graphics import *
-
 import cv2
 import numpy as np
 
-
-
+# the use of open Cv here was highly aided by chatGBT 
 def getHoleOutlines(imagePath):
     # Read the image
     img = cv2.imread(imagePath)
@@ -64,7 +61,9 @@ def getHoleOutlines(imagePath):
     
     # Find contours for each feature
     def getContourPoints(mask):
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, 
+                                        cv2.RETR_EXTERNAL, 
+                                        cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
             return []
         largest = max(contours, key=cv2.contourArea)
@@ -72,7 +71,9 @@ def getHoleOutlines(imagePath):
 
     
     def getAllContours(mask):
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, 
+                                       cv2.RETR_EXTERNAL, 
+                                       cv2.CHAIN_APPROX_SIMPLE)
         allContours = []
         for contour in contours:
             if len(contour) >= 3:  # skip too-small ones

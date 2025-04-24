@@ -19,6 +19,7 @@ def onAppStart(app):
     app.instructionsPage = False
     app.hole1 = False
     app.cardPage = False
+
     app.nextHole = False
     app.landingPage = False
     app.width = 1000
@@ -719,7 +720,7 @@ def onKeyPress(app, key):
             if key == 'backspace': 
                 app.playerNames[app.nameIndex] = (
                     app.playerNames[app.nameIndex][:-1])
-            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 8:
+            elif len(key) == 1 and len(app.playerNames[app.nameIndex]) <= 2:
                 app.playerNames[app.nameIndex] += key
             return
     if app.hole1:
@@ -1019,7 +1020,7 @@ def drawCardPage(app):
     
     for i in range(1, len(app.scores)): 
         row = app.scores[i]
-        row[10] = 0 # This should be the total
+        row[10] = 0 # This should be the TOTAL
         row[11] = 0 # This should be the O/U
         for j in range(1, 10): 
             score = row[j]
