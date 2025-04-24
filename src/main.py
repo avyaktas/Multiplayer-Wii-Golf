@@ -517,7 +517,7 @@ def drawCardPage(app):
     rowHeight = gridHeight / rows
     
     # draw Labels
-    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['TOTAL', '+/-']
     holeLabels = holeLabels[:cols]
     
     for c in range(cols):
@@ -550,6 +550,16 @@ def drawCardPage(app):
               fill='white', font='American Typewriter')
     drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
               fill='black', font='American Typewriter')
+    for i in range(1, len(app.scores)):
+        row = app.scores[i]
+        row[10] = 0
+        row[11] = 0
+        for j in range(1, 10):
+            score = row[j]
+            par = app.scores[0][j]
+            if isinstance(score, int):
+                row[10] += score
+                row[11] += (score - par)
 
 def isInCardButton(app, x, y): 
     return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
@@ -836,7 +846,7 @@ def onMousePress(app, mouseX, mouseY):
                 name = app.playerNames[i]
                 app.players.append(Player(name, (teeX, teeY)))
 
-            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
+            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, '-']
             playerRows = [
                         [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
