@@ -60,5 +60,21 @@ Avy
     - worked on switching from card to hole and hole to card
     - worked on switching names on hole when players alternate swings
     - worked on total score and O/U
-
+    FUNCTIONS WORKED ON: 
+    - redrawAll: switching pages and stuff
+    - getHoleData: drew all the holes and imported them, made this fucntion but used chatGPT to cache everything
+    - flatten: used chatGpt is was a debugging thing
+    - drawCoursePlolygon - used chat look at citations
+    - drawPolygons
+    - isInPlayButton
+    - isInHoleButton
+    - isInRestartButton
+    - isInStartButton
+    - isInNextHoleButton
+    - onMousePress: Did not work on all of it but worked on a lot of it
+    - onKeyHold: worked on moving the screen with left right up down
+    - onKeyPress: worked on the stuff to input name and ipaddress
+    - drawCardButton
+    - drawHoleButton
+    - drawCardPage: Worked on this but it was tweaked by tommy
 ------------------------------------>

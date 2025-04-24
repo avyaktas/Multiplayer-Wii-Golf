@@ -19,6 +19,7 @@ def onAppStart(app):
     app.instructionsPage = False
     app.hole1 = False
     app.cardPage = False
+
     app.nextHole = False
     app.landingPage = False
     app.width = 1000

@@ -20,10 +20,15 @@ Used chatGPT to help with the flatten function used in the drawCoursePolygons fu
 chat to help with th drawCourse Polygon function. Overall,  this fucntion heloped witht zooming in to the course 
 and using the keys to pan around the course. 
 Used chatGPT to cache the images for getHoleData
+FUNCTIONS: 
+ - getHoldData: used chatGPT to cach the holes. 
+ - flatten: used chatGPT it helped debug something
+ - drawCoursePolygon: used chatGPT is was also debugging thing to get the holes showing with good grapshics
+
 
 nmeaney
     - Used chatGPT for creating ocean images. 
     - Used chatGPT for debugging especially after implementing multiplayer retroactively. The Ai didn't write anyCode but rather looked through code 
        and checked for discrepencies.
     - Used chatGPT for implementing some of the windLogic 
-    - 
+    -
