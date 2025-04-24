@@ -4,17 +4,37 @@ the TP document:
 https://www.cs.cmu.edu/~112/notes/term-project-and-hack112.html#personal-contributions
 
 
+General
+    - Generally, 
+        -tkolenci: All drawing and GUI
+        -nmeaney & achurche: Worked together closely on the physics, 
+                             acceloremeter, making a stable connection,
+                             bounce, etc. (All physics and game logic)
+        -avys: Worked mostly on openCV. Also he made the templates of the
+               podium, landingPage, and designed each course by
+               handdrawing the course.
 tkolenci
-    -Designed image Converter
-    -touched up graphics
+    -Designed image Converter(scraped)
+    -Designed Isometric view(also scraped😡)
+    -Designed startPage, instructions page, landing page, card page, and
+        podium. (Avy gave a general template however, all templates needed
+                 major changes.)
+    -Made all pages resizable with minimal change. (I.e., no graphics are
+        hardCoded)
+    -Designed all of error page(Nelson helped greatly with the initalization
+                                of the page)
+    -Generally made or polished all GUI.
+    -Found all fonts, colors, images, etc. for all pages.
+    -Edited and introduced all sounds.
 
-Nelson
+nmeaney
     - accelerometer api(with andrew), including the seemless integration with main app. 
     - Ball physics, including deviation, 
     - get Terrian function to find what surface the current ball is.
     - Top down redesign to support multiplayer, including using OOP for players 
     - Wind logic 
-    - Player logic 
+    - Ball in hole logic and who's turn logic 
+    - A lot of game logic in genral. 
 
 
 achurche
@@ -29,12 +49,12 @@ achurche
     - Which clubs are available logic
 
 Avy
-    - got the graphicsTogether hole logic to work... maped values from openCv func
+    - got the main hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
+    - outlined each hole 
     - score card
     - drew podium
-    - worked on ball physics
-    - worked on landing page and finsihed it
+    - worked on landing page 
     - worked on restart game button logic
     - worked on inputting names on landing page and selecting how many players are playing
 
