@@ -882,7 +882,10 @@ def onMousePress(app, mouseX, mouseY):
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
                     p.ballX, p.ballY = teeX, teeY
+                    p.shadowX = teeX
                     p.shadowY = teeY
+                    p.shadowOverHoleX = teeX
+                    p.shadowOverHoleY = teeY
                     p.ballZ = 0
                     p.putting = False
                     p.strokes = 0
@@ -996,6 +999,11 @@ def onStep(app):
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
+                holeX, holeY = findHoleCenter(app)
+                if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+                    player.putting = False
+                    player.holed = True
+                    player.velX = player.velY = player.velZ = 0
                 #flatSpeed = (player.velX**2 + player.velY**2)**0.5
                 app.velocity //= 3
                 if app.velocity  > 10:
@@ -1026,6 +1034,9 @@ def onStep(app):
                             holeX - farthest.ballX
                         )
                         centerOnPlayer(app, farthest)
+                        if getBallTerrain(app) == 'green':
+                            app.clubIndex = 4
+                            app.selectedClub = app.clubs[app.clubIndex]
                     else:
                         # everyone holed → record scores and flip to card
                         app.clubIndex = 0
@@ -1167,6 +1178,7 @@ def findHoleCenter(app):
     # compute centroid
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
+    print("Hole center:", cx, cy)
     return cx, cy
 
 def pointInPolygon(x, y, poly):
