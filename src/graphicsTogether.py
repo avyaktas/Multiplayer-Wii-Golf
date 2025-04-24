@@ -65,9 +65,9 @@ def onAppStart(app):
 
     app.stepsPerSecond = 10
     app.scores = [
-        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 36],
+        ['Par', 4, 4, 4, 5, 4, 3, 3, 4, 5, 36, '-'],
         ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 2', '-', '-', '-', '-', '2', '-', '-', '-', '-', '-', '-'],
         ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
@@ -401,7 +401,7 @@ def onMousePress(app, mouseX, mouseY):
                 name = app.playerNames[i]
                 app.players.append(Player(name, (teeX, teeY)))
 
-            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 36]
+            parRow = ['Par', 4, 4, 4, 5, 4, 3, 3, 4, 5, 36, '-']
             playerRows = [
                         [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
@@ -499,8 +499,8 @@ def takeBounce(app, player, velocity, angle):
     elif getBallTerrain(app) == 'out of bounds':
         player.velX = player.velY = player.velZ = 0
         player.strokes += 1
-        player.ballX, player.ballY = player.shadowOverLandX, 
-        player.shadowOverLandY
+        player.ballX, player.ballY = (player.shadowOverLandX, 
+        player.shadowOverLandY)
         player.shadowX = player.ballX
         player.shadowY = player.ballY
     elif getBallTerrain(app) == 'rough':
@@ -983,7 +983,7 @@ def drawCardPage(app):
     rowHeight = gridHeight / rows
     
     # draw Labels
-    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['TOTAL','+/-']
     holeLabels = holeLabels[:cols]
     
     for c in range(cols):
@@ -1016,6 +1016,17 @@ def drawCardPage(app):
               fill='white', font='American Typewriter')
     drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
               fill='black', font='American Typewriter')
+    
+    for i in range(1, len(app.scores)): 
+        row = app.scores[i]
+        row[10] = 0 # This should be the total
+        row[11] = 0 # This should be the O/U
+        for j in range(1, 10): 
+            score = row[j]
+            par = app.scores[0][j]
+            if isinstance(score, int): 
+                row[10] += score 
+                row[11] += (score - par)
 
                      
 def dist(x1, y1, x2, y2):

@@ -57,7 +57,7 @@ Avy
     - worked on landing page 
     - worked on restart game button logic
     - worked on inputting names on landing page and selecting how many players are playing
-    - worked on switching from card to hole
+    - worked on switching from card to hole and hole to card
     - worked on switching names on hole when players alternate swings
     - worked on total score and O/U
 
