@@ -33,7 +33,7 @@ def randomApp(app):
 
 def scoreKeeperApp(app):
     app.scores = [
-        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, '-'],
+        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36],
         ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
@@ -118,8 +118,9 @@ def oceanStart(app):
     app.offsetSpeed = 5  # Speed of the diagonal movement
     app.count = 0
     
-# All onAppStart is contained prior to this comment. Next will be all drawing
+# All on app start is contained prior to this comment. Next will be all drawing
 # logic.
+
 def redrawAll(app):
     if app.startPage:
         drawStart(app)
@@ -361,32 +362,8 @@ def drawInstructionsPage(app):
     drawLabel("Instructions",
               app.width / 2, titleY,size=titleSize, 
               bold=True, fill='cornSilk', font='impact')
+
     # Instructions text
-    instructions = getInstructions()
-    
-    startY = app.height * 0.25
-    lineHeight = app.height * 0.08
-    textSize = int(app.height * 0.03)
-    for i, line in enumerate(instructions):
-        drawLabel(line, app.width / 2-1.5, startY + i * lineHeight - 25,
-                  size=textSize, fill='black')
-        drawLabel(line, app.width / 2, startY + i * lineHeight - 25,
-                  size=textSize, fill='cornSilk')
-        btnW, btnH, btnX, btnY, txtY, txtSz = getButtonSize(app)
-        drawRect(btnX, btnY, btnW, btnH,
-                fill='darkGreen', border='white', borderWidth=2)
-        drawLabel("Continue", app.width / 2, txtY, size=txtSz, fill='white')
-
-def getButtonSize(app):
-    btnW = app.width  * 0.20
-    btnH = app.height * 0.08
-    btnX = (app.width  - btnW) / 2
-    btnY = app.height * 0.80
-    txtY = btnY + btnH / 2
-    txtSz = int(app.height * 0.04)
-    return btnW, btnH, btnX, btnY, txtY, txtSz
-
-def getInstructions():
     instructions = [
         '1. Download "phyphox" on your cellPhone.',
         '2. Turn on your WIFI Hotspot on your cellPhone.',
@@ -398,7 +375,28 @@ def getInstructions():
         '5. You must enter at least 1 player name.',
         '6. Use arrow keys to navigate the game.',
         "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
-    return instructions
+    
+    startY = app.height * 0.25
+    lineHeight = app.height * 0.08
+    textSize = int(app.height * 0.03)
+    for i, line in enumerate(instructions):
+        drawLabel(line, app.width / 2-1.5, startY + i * lineHeight - 25,
+                  size=textSize, fill='black')
+        drawLabel(line, app.width / 2, startY + i * lineHeight - 25,
+                  size=textSize, fill='cornSilk')
+
+    # Continue button (centered)
+    btnW = app.width  * 0.20
+    btnH = app.height * 0.08
+    btnX = (app.width  - btnW) / 2
+    btnY = app.height * 0.80
+    txtY = btnY + btnH / 2
+    txtSz = int(app.height * 0.04)
+    drawRect(btnX, btnY, btnW, btnH,
+             fill='darkGreen', border='white', borderWidth=2)
+    drawLabel("Continue",
+              app.width / 2, txtY,
+              size=txtSz, fill='white')
     # This is the end of the instructions page.
 
     # Thirdly, this will draw the landing page and provide logic for such.
@@ -543,7 +541,7 @@ def drawCardPage(app):
     rowHeight = gridHeight / rows
     
     # draw Labels
-    holeLabels = [''] + [str(i+1) for i in range(9)] + ['TOTAL','+/-']
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['TOTAL', '+/-']
     holeLabels = holeLabels[:cols]
     
     for c in range(cols):
@@ -875,7 +873,7 @@ def onMousePress(app, mouseX, mouseY):
 
             parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, '-']
             playerRows = [
-                        [name] + ['-' for j in range(len(parRow) - 1)]
+                        [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
                         ]
             app.scores = [parRow] + playerRows[:app.selectedNumPlayers]
@@ -904,12 +902,15 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
-                app.windSpeed = random.uniform(0, 10)
+                app.windSpeed = random.uniform(0, 5)
                 app.windDirection = random.uniform(0, 2*math.pi)
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
                     p.ballX, p.ballY = teeX, teeY
+                    p.shadowX = teeX
                     p.shadowY = teeY
+                    p.shadowOverHoleX = teeX
+                    p.shadowOverHoleY = teeY
                     p.ballZ = 0
                     p.putting = False
                     p.strokes = 0
@@ -960,7 +961,7 @@ def onStep(app):
 
     if player.velZ != 0:
         player.velX += windAx * step
-        player.velY += windAy * step
+        player.velY -= windAy * step
 
     if player.velX != 0 or player.velY != 0 or player.velZ != 0:
         # In motion
@@ -990,23 +991,20 @@ def onStep(app):
                     app.clubIndex = 4
                     app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
-            if dist(player.ballX, player.ballY, holeX, holeY) <= (
-                (app.ballRadius)):
+            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.putting = False
                 player.holed = True
         else:
             # Flying logic
             player.ballX += player.velX * step
-            player.ballY = player.ballY - (
-                (player.velZ * step) + (player.velY * step))
+            player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
             player.ballZ += player.velZ * step
             player.shadowY += player.velY * step
             if getShadowTerrain(app) != 'out of bounds':
                 player.shadowOverLandX = player.ballX
                 player.shadowOverLandY = player.shadowY
             app.scrollX += player.velX * step
-            app.scrollY = app.scrollY - (player.velZ * step) + (
-                (player.velY * step))
+            app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
 
             player.velZ -= app.gravity * step
 
@@ -1018,14 +1016,19 @@ def onStep(app):
                     app.onGreenPlayed = True
                 elif (terrain == 'sandtrap') or (terrain == 'out of bounds'):
                     if not app.playedKozSound:
-                        playSound(app, app.koz)
-                        app.playedKozSound = True
+                         playSound(app, app.koz)
+                         app.playedKozSound = True
                 else:
                     player.playedKozSound = False
                     
                 player.ballZ = 0
                 player.shadowY = player.ballY
                 player.velZ = 0
+                holeX, holeY = findHoleCenter(app)
+                if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+                    player.putting = False
+                    player.holed = True
+                    player.velX = player.velY = player.velZ = 0
                 #flatSpeed = (player.velX**2 + player.velY**2)**0.5
                 app.velocity //= 3
                 if app.velocity  > 10:
@@ -1045,8 +1048,7 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.shadowOverLandX, p.shadowOverLandY, 
-                                     holeX, holeY)
+                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
@@ -1057,13 +1059,15 @@ def onStep(app):
                             holeX - farthest.ballX
                         )
                         centerOnPlayer(app, farthest)
+                        if getBallTerrain(app) == 'green':
+                            app.clubIndex = 4
+                            app.selectedClub = app.clubs[app.clubIndex]
                     else:
                         # everyone holed → record scores and flip to card
                         app.clubIndex = 0
                         app.selectedClub = app.clubs[app.clubIndex]
                         for i in range(app.selectedNumPlayers):
-                            app.scores[i+1][app.currentHole] = (
-                                app.players[i].strokes)
+                            app.scores[i+1][app.currentHole] = app.players[i].strokes
                         app.hole1 = False
                         app.cardPage = True
     else:
@@ -1078,8 +1082,7 @@ def onStep(app):
     # Ocean frame animation
     if not app.startPage:
         if app.count % 5 == 0:
-            app.currentFrameIndex = (
-                app.currentFrameIndex + 1) % len(app.frames)
+            app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
@@ -1127,8 +1130,7 @@ def onKeyPress(app, key):
                     app.connectionBad = True
                 if app.ipAddress: 
                     try:
-                        velocity, angle, dev = (
-                            calculateVelocity(app.selectedClub, app.ipAddress))
+                        velocity, angle, dev = calculateVelocity(app.selectedClub, app.ipAddress)
                         app.velocity, app.angle = velocity, angle
                         player.aimAngle += dev
                         takeShot(app, player, velocity, angle)
@@ -1281,7 +1283,7 @@ def takeShot(app, player, velocity, angle):
 
 def takeBounce(app, player, velocity, angle):
     if getBallTerrain(app) == 'sandtrap':
-        player.velX = player.velY = player.velZ = 0
+        player.velX = player.velY = player.velZ = 0.01
 
     elif getBallTerrain(app) == 'out of bounds':
         player.velX = player.velY = player.velZ = 0.01
@@ -1331,5 +1333,5 @@ def playMusic(app):
     audio = Sound(app.music)
     audio.play(loop=True)
 
-if __name__ == "__main__":
-    runApp()
+runApp()
+

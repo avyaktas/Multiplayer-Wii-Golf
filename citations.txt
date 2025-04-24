@@ -27,7 +27,7 @@ tkolenci:
         
         
 
-Avy - 
+avys - 
 Used chatGPT to help with the flatten function used in the drawCoursePolygons function and also used 
 chat to help with th drawCourse Polygon function. Overall,  this fucntion heloped witht zooming in to the course 
 and using the keys to pan around the course. 
@@ -43,4 +43,6 @@ nmeaney
     - Used chatGPT for debugging especially after implementing multiplayer retroactively. The Ai didn't write anyCode but rather looked through code 
        and checked for discrepencies.
     - Used chatGPT for implementing some of the windLogic 
-    -
+    ON HOLE SKETCH: 
+    First chatGPT was used to get open cv to work better after perliminary 
+      Later used chatGPT to reFormt inorder to pass style checker. 

@@ -46,8 +46,9 @@ achurche
     - Landing in water physics
     - Putting logic
     - Which clubs are available logic
+    - Helped debug wind physics
 
-Avy
+avys
     - got the main hole logic to work... maped values from openCv func (chatGPT used)
       into values that work for cmu graphics 
     - outlined each hole (manually in goodnotes on ipad)
@@ -75,5 +76,11 @@ Avy
     - onKeyPress: worked on the stuff to input name and ipaddress
     - drawCardButton
     - drawHoleButton
-    - drawCardPage: Worked on this but it was tweaked by tommy
+    - drawCardPage: Worked on this but it was tweaked by tommy making it look better
+    - drawLandingPage: worked om it to begin and got the foundations but tommy made it look way better
+    - drawPodium: worked on most of This but tommy made it look way better
+    - drawRestartButton
+    - worked on and made all the hole jpgs
+
+
 ------------------------------------>
