@@ -8,27 +8,55 @@ def onAppStart(app):
     restart(app)
 
 def restart(app):
-        # Audio sounds
-    app.music = 'music.mp3'
-    playMusic(app)
-    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
-                  '15112-taylor2.mp3', '15112-taylor3.mp3']
-    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
-               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
-    app.playedKozSound = False
+    oceanStart(app)
+    landingPageApp(app)
+    windApp(app)
+    whichPageApp(app)
+    audioStart(app)
+    cardPageApp(app)
+    physicsApp(app)
+    clubApp(app)
+    scoreKeeperApp(app)
+    randomApp(app)
+
+def randomApp(app):
     app.cachedHoleOutlines = dict()
-    app.startPage = True 
-    app.instructionsPage = False
-    app.hole1 = False
-    app.cardPage = False
-    app.nextHole = False
-    app.landingPage = False
     app.width = 1000
     app.height = 600
     app.scrollX = 500
     app.scrollY = 650
     app.courseWidth = 3000
     app.courseHeight = 1800
+    app.ballRadius = 3
+    app.players = []
+    app.stepsPerSecond = 10
+
+def scoreKeeperApp(app):
+    app.scores = [
+        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36],
+        ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+    ]
+    app.score = 0
+    app.strokeCount = 0 
+
+def clubApp(app):
+    app.currentIdx = 0                
+    app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
+    app.clubIndex = 0
+    app.selectedClub = app.clubs[0]
+
+def physicsApp(app):
+    app.velocity = 0
+    app.gravity = 9.81
+    app.angle = 0
+    app.putting = False
+    app.rollingDeceleration = 3.0
+    app.onGreen = False
+
+def cardPageApp(app):
     app.cardButtonX = 20 
     app.cardButtonY = 20
     app.cardButtonWidth = 140
@@ -41,8 +69,30 @@ def restart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
+
+def audioStart(app):
+    app.music = 'music.mp3'
+    playMusic(app)
+    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
+                  '15112-taylor2.mp3', '15112-taylor3.mp3']
+    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
+               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+    app.playedKozSound = False
+
+def whichPageApp(app):
+    app.startPage = True 
+    app.instructionsPage = False
+    app.hole1 = False
+    app.cardPage = False
+    app.nextHole = False
+    app.landingPage = False
     app.connectionBad = False 
-    # Landing page
+
+def windApp(app):
+    app.windSpeed = random.uniform(0, 5)          
+    app.windDirection = random.uniform(0, 2*math.pi)
+
+def landingPageApp(app):
     app.startButtonX = app.width//2 - 70
     app.startButtonY = app.height - 80
     app.startButtonWidth = 180
@@ -57,34 +107,6 @@ def restart(app):
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (150, 675),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
-    app.ballRadius = 3
-    app.gravity = 9.81
-    app.players = []
-    app.currentIdx = 0                
-    app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
-    app.clubIndex = 0
-    app.selectedClub = app.clubs[0]
-
-    app.stepsPerSecond = 10
-    app.scores = [
-        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36],
-        ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-    ]
-
-    app.score = 0
-    app.velocity = 0
-    app.angle = 0
-    app.putting = False
-    app.rollingDeceleration = 3.0
-    app.onGreen = False
-    app.strokeCount = 0 
-    # wind Logic 
-    app.windSpeed     = random.uniform(0, 5)          
-    app.windDirection = random.uniform(0, 2*math.pi)
-    oceanStart(app)
 
 def oceanStart(app):
     app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
