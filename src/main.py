@@ -347,7 +347,7 @@ def isInPlayButton(app, x, y):
             playButtonX + playButtonWidth // 2 and
             playButtonY - playButtonHeight // 2 <= y <= 
             playButtonY + playButtonHeight // 2)
-    #This ends the title Page.
+    # This ends the title Page.
 
     # Secondly, this will draw the instruction page and provide logic for such.
 def drawInstructionsPage(app):
@@ -488,6 +488,68 @@ def drawLandingPage(app):
     drawLabel("START", app.width//2, app.height - 60 * scaleY,
               size=int(20 * scaleY)+15, fill='darkOliveGreen', 
               bold=True, font='Modak')
+    # This marks the end of the launch page.
+    # Fourthly, this will draw the card page and provide logic for such.
+def drawCardPage(app):
+    drawImage('15112-LandingPage.png', 0, 0, 
+              width=app.width, height=app.height)
+    
+    # Score Card margins(idea from OpenAI, but openAI was not used here).
+    margin = 0.2 * min(app.width, app.height)
+    
+    # Card bounds
+    cardLeft = margin
+    cardTop = margin
+    cardRight = app.width - margin
+    cardBottom = app.height - margin
+
+    cardWidth  = cardRight  - cardLeft
+    cardHeight = cardBottom - cardTop
+             
+    rows = len(app.scores)
+    cols = len(app.scores[0])
+    
+    # Make header bigger
+    headerHeight = cardHeight * 0.2
+    gridHeight   = cardHeight - headerHeight
+    
+    colWidth  = cardWidth  / cols
+    rowHeight = gridHeight / rows
+    
+    # draw Labels
+    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
+    holeLabels = holeLabels[:cols]
+    
+    for c in range(cols):
+        x = cardLeft + c * colWidth
+        y = cardTop
+        drawRect(x, y,
+                 colWidth, headerHeight,
+                 fill='silver',
+                 border='black', borderWidth=2)
+        drawLabel(holeLabels[c],
+                  x + colWidth/2,
+                  y + headerHeight/2,
+                  size=int(headerHeight * 0.25)+3,
+                  bold=True, fill='ivory', font='HeadLineA', border='black',
+                  borderWidth=0.75)
+    
+    # Draw the score cells
+    for row in range(rows):
+        for col in range(cols):
+            x = cardLeft + col * colWidth
+            y = cardTop + headerHeight + row * rowHeight
+            drawRect(x, y,
+                     colWidth, rowHeight,
+                     fill='lemonChiffon', border='black', borderWidth=2)
+            drawLabel(str(app.scores[row][col]),
+                      x + colWidth/2, y + rowHeight/2,
+                      size=int(rowHeight * 0.25), fill='black',
+                      font='HeadLineA', bold=True) 
+    drawLabel('Score Card', app.width//2-3, 50-2, size=64, bold=True, 
+              fill='white', font='American Typewriter')
+    drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
+              fill='black', font='American Typewriter')
 
 def isInCardButton(app, x, y): 
     return (app.cardButtonX <= x <= app.cardButtonX + app.cardButtonWidth and
@@ -506,6 +568,13 @@ def isInRestartButton(app,x, y):
     return ( X<= x <= X + width and
             Y <= y <= Y + height)
 
+def isInNextHoleButton(app, x, y):
+    nextX = app.cardButtonX + app.width / 1.2
+    nextY = app.cardButtonY + app.height / 1.15
+    w = app.cardButtonWidth + 5
+    h = app.cardButtonHeight + 5
+    return (nextX <= x <= nextX + w) and (nextY <= y <= nextY + h)
+
 def isInStartButton(app, x, y):
     scaleX = app.width  / 1000
     scaleY = app.height / 600
@@ -516,6 +585,61 @@ def isInStartButton(app, x, y):
     return (btnX <= x <= btnX+btnW and
             btnY <= y <= btnY+btnH)
 
+def drawRestartButton(app): 
+    if app.cardPage or app.connectionBad:
+        x = (app.width - app.restartButtonWidth) // 2
+        y = app.height - app.restartButtonHeight - 20
+        
+        drawRect(x, y,  
+                app.restartButtonWidth, app.restartButtonHeight,
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
+        
+        drawLabel('Restart Game', app.restartButtonWidth//2 + x,
+                 app.restartButtonHeight//2 + y,
+                 size=26, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
+def drawHoleButton(app): 
+    if app.cardPage:
+        drawRect(app.cardButtonX, app.cardButtonY, 
+                app.cardButtonWidth, app.cardButtonHeight,
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
+        
+        drawLabel('Back', app.cardButtonX + app.cardButtonWidth//2,
+                 app.cardButtonY + app.cardButtonHeight//2,
+                 size=26, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
+        # Next hole button!
+        nextHoleX = app.cardButtonX + app.width / 1.2
+        nextHoleY = app.cardButtonY + app.height / 1.15
+        drawRect(nextHoleX, nextHoleY, 
+                 app.cardButtonWidth+5, app.cardButtonHeight+5,
+                fill='lemonChiffon', border='black', borderWidth=4.5)
+        if app.currentHole < 9:
+            drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
+                 nextHoleY + app.cardButtonHeight//2,
+                 size=24, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True,)
+        elif app.currentHole == 9: 
+            drawLabel('Podium!', nextHoleX + 3 + app.cardButtonWidth//2,
+                 nextHoleY + app.cardButtonHeight//2,
+                 size=24, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True,)
+                 
+def drawCardButton(app): 
+    if app.hole1:
+        drawRect(app.cardButtonX, app.cardButtonY, 
+                app.cardButtonWidth, app.cardButtonHeight,
+                fill='lemonChiffon', border='black', borderWidth=4.5,
+                opacity = 95)
+        
+        drawLabel('Score Card', app.cardButtonX + app.cardButtonWidth//2,
+                 app.cardButtonY + app.cardButtonHeight//2,
+                 size=22, fill='darkOliveGreen', font='American Typewriter', 
+                 italic=True)
+    # This marks the end of the card page.
+    # Fifthly, this will draw the podium page and provide logic for such.
 def drawReconnect(app):
     drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
     drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
@@ -534,7 +658,114 @@ def drawReconnect(app):
     drawLabel('We are sorry. :(', app.width//2, app.height//1.3, 
               font='HeadLineA', fill='maroon', bold=True, 
               size=40, align='center')
-            
+    # This marks the end of the reconnect page.
+    # Sixthly, this will draw the club selection page and provide 
+    # logic for such.
+def drawClubSelection(app):
+    # Draw panel
+    menuX = 20
+    menuY = app.height - 300
+    menuWidth = 180
+    menuHeight = 270
+    lineHeight = 28
+    topOffset = 50
+    
+    # Draw main menu panel
+    drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
+            fill='cornSilk', opacity=85, 
+            border='darkOliveGreen', borderWidth=3.5)
+    
+    # Draw title
+    drawLabel('Club Selection', 
+                menuX + menuWidth//2-1, menuY + 30-1, 
+                size=20, bold=True, fill='black',
+                font='Snell Roundhand')
+    drawLabel('Club Selection', 
+                menuX + menuWidth//2, menuY + 30, 
+                size=20, bold=True, fill='darkOliveGreen',
+                font='Snell Roundhand')
+    # Draw club options
+    for i, club in enumerate(app.clubs):
+        # Highlight selected club
+        if i == app.clubIndex:
+            # Draw highlight background
+            drawRect(menuX + 10, 
+                    menuY + topOffset + i* lineHeight, 160, 30, 
+                    fill='darkOliveGreen', border='black', borderWidth=2)
+            textColor = 'cornSilk'
+        else:
+            textColor = 'darkOliveGreen'
+        # Draw club name
+        drawLabel(club.title(),
+                    menuX + menuWidth//2, menuY + 60 + i*30,
+                    fill=textColor, font='American Typewriter',
+                    size=18, bold=True)
+    # Draw instructions at bottom
+    drawLabel('Press w and s to select', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 30, size=14, font='American Typewriter',
+                fill='darkOliveGreen', italic=True)
+    
+    drawLabel('Press SPACE to confirm', 
+                menuX + menuWidth//2, 
+                menuY + menuHeight - 10, size=14, font='American Typewriter',
+                fill='darkOliveGreen', italic=True)
+    # This marks the end of the club selection page.
+    # Seventhly, this will draw the podium page and provide logic for such.
+def drawPodium(app):
+    drawImage('winner.png', 0, 0, 
+              width=app.width, height=app.height)
+
+    drawLabel('FINAL RANKINGS', app.width//2-4, 60-4,
+              size=80, fill='black', bold=True, font='Impact', 
+              border='black', borderWidth=2)
+    drawLabel('FINAL RANKINGS', app.width//2, 60,
+              size=80, fill='gold', bold=True, font='Impact', 
+              border='black', borderWidth=2)
+
+    playerTotals = []
+    for i in range(len(app.players)): 
+        player = app.players[i]
+        total = 0
+        for hole in range(1, 10): 
+            score = app.scores[i+1][hole]
+            if isinstance(score, int):
+                total += score
+        playerTotals.append([player.name.strip(), total])
+
+    for i in range(len(playerTotals)):
+        for j in range(len(playerTotals)): 
+            if playerTotals[j][1] < playerTotals[i][1]:
+                playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
+
+    for i in range(len(playerTotals)): 
+        name = playerTotals[i][0]
+        if name == '' or name == '.':
+            name = 'Unnamed Player'
+        strokes = playerTotals[i][1]
+        if i == 0: 
+            place = 'First Place'
+            color = 'gold'
+        elif i == 1: 
+            place = 'Second Place'
+            color = 'silver'
+        elif i == 2: 
+            place = 'Third Place'
+            color = 'darkGoldenrod'
+        else: 
+            place = 'Fourth Place'
+            color = 'white'
+
+        size = 55 - i * 5
+        y = 150 + i * 50
+        drawLabel(f'{place}: {name} - {strokes} strokes', app.width//2-2, y-2,
+                  size=size, fill='black', bold=True, font='Impact')
+        drawLabel(f'{place}: {name} - {strokes} strokes',
+                  app.width//2, y,
+                  size=size, fill=color, bold=True,
+                  font='Impact', border='black')
+    # This marks the end of the podium.
+
 def drawWindIndicator(app):
     x0, y0 = app.width - 80, 60
     length = 40
@@ -547,13 +778,6 @@ def drawWindIndicator(app):
     drawLabel(f'{app.windSpeed:.1f} mph',
               x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
               border='black', borderWidth=0.25, bold=True)
-
-def isInNextHoleButton(app, x, y):
-    nextX = app.cardButtonX + app.width / 1.2
-    nextY = app.cardButtonY + app.height / 1.15
-    w = app.cardButtonWidth + 5
-    h = app.cardButtonHeight + 5
-    return (nextX <= x <= nextX + w) and (nextY <= y <= nextY + h)
 
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
@@ -1016,166 +1240,6 @@ def playSound(app, soundList):
 def playMusic(app):
     audio = Sound(app.music)
     audio.play(loop=True)
-
-def drawClubSelection(app):
-
-    # Draw panel
-    menuX = 20
-    menuY = app.height - 300
-    menuWidth = 180
-    menuHeight = 270
-    lineHeight = 28
-    topOffset = 50
-    
-    # Draw main menu panel
-    drawRect(menuX + 5, menuY + 5, menuWidth - 10, menuHeight, 
-            fill='cornSilk', opacity=85, 
-            border='darkOliveGreen', borderWidth=3.5)
-    
-    # Draw title
-    drawLabel('Club Selection', 
-                menuX + menuWidth//2-1, menuY + 30-1, 
-                size=20, bold=True, fill='black',
-                font='Snell Roundhand')
-    drawLabel('Club Selection', 
-                menuX + menuWidth//2, menuY + 30, 
-                size=20, bold=True, fill='darkOliveGreen',
-                font='Snell Roundhand')
-    
-    
-    
-    # Draw club options
-    for i, club in enumerate(app.clubs):
-        # Highlight selected club
-        if i == app.clubIndex:
-            # Draw highlight background
-            drawRect(menuX + 10, 
-                    menuY + topOffset + i* lineHeight, 160, 30, 
-                    fill='darkOliveGreen', border='black', borderWidth=2)
-            textColor = 'cornSilk'
-        else:
-            textColor = 'darkOliveGreen'
-        
-        # Draw club name
-        drawLabel(club.title(),
-                    menuX + menuWidth//2, menuY + 60 + i*30,
-                    fill=textColor, font='American Typewriter',
-                    size=18, bold=True)
-    
-    # Draw instructions at bottom
-    drawLabel('Press w and s to select', 
-                menuX + menuWidth//2, 
-                menuY + menuHeight - 30, size=14, font='American Typewriter',
-                fill='darkOliveGreen', italic=True)
-    
-    drawLabel('Press SPACE to confirm', 
-                menuX + menuWidth//2, 
-                menuY + menuHeight - 10, size=14, font='American Typewriter',
-                fill='darkOliveGreen', italic=True)
-            
-def drawCardButton(app): 
-    if app.hole1:
-        drawRect(app.cardButtonX, app.cardButtonY, 
-                app.cardButtonWidth, app.cardButtonHeight,
-                fill='lemonChiffon', border='black', borderWidth=4.5,
-                opacity = 95)
-        
-        drawLabel('Score Card', app.cardButtonX + app.cardButtonWidth//2,
-                 app.cardButtonY + app.cardButtonHeight//2,
-                 size=22, fill='darkOliveGreen', font='American Typewriter', 
-                 italic=True)
-        
-def drawHoleButton(app): 
-    if app.cardPage:
-        drawRect(app.cardButtonX, app.cardButtonY, 
-                app.cardButtonWidth, app.cardButtonHeight,
-                fill='lemonChiffon', border='black', borderWidth=4.5,
-                opacity = 95)
-        
-        drawLabel('Back', app.cardButtonX + app.cardButtonWidth//2,
-                 app.cardButtonY + app.cardButtonHeight//2,
-                 size=26, fill='darkOliveGreen', font='American Typewriter', 
-                 italic=True)
-        # Next hole button!
-        nextHoleX = app.cardButtonX + app.width / 1.2
-        nextHoleY = app.cardButtonY + app.height / 1.15
-        drawRect(nextHoleX, nextHoleY, 
-                 app.cardButtonWidth+5, app.cardButtonHeight+5,
-                fill='lemonChiffon', border='black', borderWidth=4.5)
-        if app.currentHole < 9:
-            drawLabel('Next Hole!', nextHoleX + 3 + app.cardButtonWidth//2,
-                 nextHoleY + app.cardButtonHeight//2,
-                 size=24, fill='darkOliveGreen', font='American Typewriter', 
-                 italic=True,)
-        elif app.currentHole == 9: 
-            drawLabel('Podium!', nextHoleX + 3 + app.cardButtonWidth//2,
-                 nextHoleY + app.cardButtonHeight//2,
-                 size=24, fill='darkOliveGreen', font='American Typewriter', 
-                 italic=True,)
-
-
-def drawCardPage(app):
-    # Draw Background
-    drawImage('15112-LandingPage.png', 0, 0, 
-              width=app.width, height=app.height)
-    
-    # Score Card margins
-    margin = 0.2 * min(app.width, app.height)
-    
-    # Card bounds
-    cardLeft = margin
-    cardTop = margin
-    cardRight = app.width - margin
-    cardBottom = app.height - margin
-
-    cardWidth  = cardRight  - cardLeft
-    cardHeight = cardBottom - cardTop
-             
-    rows = len(app.scores)
-    cols = len(app.scores[0])
-    
-    # Make header bigger
-    headerHeight = cardHeight * 0.2
-    gridHeight   = cardHeight - headerHeight
-    
-    colWidth  = cardWidth  / cols
-    rowHeight = gridHeight / rows
-    
-    # draw Labels
-    holeLabels = [''] + [str(i+1) for i in range(9)] + ['OUT','TOTAL']
-    holeLabels = holeLabels[:cols]
-    
-    for c in range(cols):
-        x = cardLeft + c * colWidth
-        y = cardTop
-        drawRect(x, y,
-                 colWidth, headerHeight,
-                 fill='silver',
-                 border='black', borderWidth=2)
-        drawLabel(holeLabels[c],
-                  x + colWidth/2,
-                  y + headerHeight/2,
-                  size=int(headerHeight * 0.25)+3,
-                  bold=True, fill='ivory', font='HeadLineA', border='black',
-                  borderWidth=0.75)
-    
-    # Draw the score cells
-    for row in range(rows):
-        for col in range(cols):
-            x = cardLeft + col * colWidth
-            y = cardTop + headerHeight + row * rowHeight
-            drawRect(x, y,
-                     colWidth, rowHeight,
-                     fill='lemonChiffon', border='black', borderWidth=2)
-            drawLabel(str(app.scores[row][col]),
-                      x + colWidth/2, y + rowHeight/2,
-                      size=int(rowHeight * 0.25), fill='black',
-                      font='HeadLineA', bold=True) 
-    drawLabel('Score Card', app.width//2-3, 50-2, size=64, bold=True, 
-              fill='white', font='American Typewriter')
-    drawLabel('Score Card', app.width//2, 50, size=64, bold=True, 
-              fill='black', font='American Typewriter')
-
                      
 def dist(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
@@ -1233,75 +1297,7 @@ def landingMousePress(app, x, y):
         return
     # else deselect IP
     app.ipBoxSelected = False
-
-
-def drawPodium(app):
-    drawImage('winner.png', 0, 0, 
-              width=app.width, height=app.height)
-
-    drawLabel('FINAL RANKINGS', app.width//2-4, 60-4,
-              size=80, fill='black', bold=True, font='Impact', 
-              border='black', borderWidth=2)
-    drawLabel('FINAL RANKINGS', app.width//2, 60,
-              size=80, fill='gold', bold=True, font='Impact', 
-              border='black', borderWidth=2)
-
-    playerTotals = []
-    for i in range(len(app.players)): 
-        player = app.players[i]
-        total = 0
-        for hole in range(1, 10): 
-            score = app.scores[i+1][hole]
-            if isinstance(score, int):
-                total += score
-        playerTotals.append([player.name.strip(), total])
-
-    for i in range(len(playerTotals)):
-        for j in range(len(playerTotals)): 
-            if playerTotals[j][1] < playerTotals[i][1]:
-                playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
-
-    for i in range(len(playerTotals)): 
-        name = playerTotals[i][0]
-        if name == '' or name == '.':
-            name = 'Unnamed Player'
-        strokes = playerTotals[i][1]
-        if i == 0: 
-            place = 'First Place'
-            color = 'gold'
-        elif i == 1: 
-            place = 'Second Place'
-            color = 'silver'
-        elif i == 2: 
-            place = 'Third Place'
-            color = 'darkGoldenrod'
-        else: 
-            place = 'Fourth Place'
-            color = 'white'
-
-        size = 55 - i * 5
-        y = 150 + i * 50
-        drawLabel(f'{place}: {name} - {strokes} strokes', app.width//2-2, y-2,
-                  size=size, fill='black', bold=True, font='Impact')
-        drawLabel(f'{place}: {name} - {strokes} strokes',
-                  app.width//2, y,
-                  size=size, fill=color, bold=True,
-                  font='Impact', border='black')
         
-def drawRestartButton(app): 
-    if app.cardPage or app.connectionBad:
-        x = (app.width - app.restartButtonWidth) // 2
-        y = app.height - app.restartButtonHeight - 20
-        
-        drawRect(x, y,  
-                app.restartButtonWidth, app.restartButtonHeight,
-                fill='lemonChiffon', border='black', borderWidth=4.5,
-                opacity = 95)
-        
-        drawLabel('Restart Game', app.restartButtonWidth//2 + x,
-                 app.restartButtonHeight//2 + y,
-                 size=26, fill='darkOliveGreen', font='American Typewriter', 
-                 italic=True)
 
 
 runApp()
