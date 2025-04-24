@@ -765,7 +765,7 @@ def drawPodium(app):
                   size=size, fill=color, bold=True,
                   font='Impact', border='black')
     # This marks the end of the podium.
-
+    # Eighthly, this will draw the wind indicator.
 def drawWindIndicator(app):
     x0, y0 = app.width - 80, 60
     length = 40
@@ -778,6 +778,48 @@ def drawWindIndicator(app):
     drawLabel(f'{app.windSpeed:.1f} mph',
               x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
               border='black', borderWidth=0.25, bold=True)
+    # This marks the end of the wind indicator.
+    # Ninthly, this will draw the ball and its shadow.
+def drawBall(app):
+    current = app.players[app.currentIdx]
+    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
+        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
+        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
+    # Display current Hole 
+    drawLabel(f'Hole {app.currentHole}',
+              app.width//1.05, app.height//1.12,
+              size=32, fill='cornSilk', bold=True,
+              font='American Typewriter', border='black',
+              borderWidth=0.5, align='right')
+    # Display current player info
+    playerName = app.playerNames[app.currentIdx]
+    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
+              app.height//1.05, size=32, fill='cornSilk', bold=True, 
+              font='American Typewriter', border='black', 
+              borderWidth=0.5, align='right')
+    # Draw all other players first
+    for i, player in enumerate(app.players):
+        if player == current:
+            continue  # Skip current player for now
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+        drawCircle(sx, sy, app.ballRadius, fill='gray')
+    # Then draw current player's ball last (on top)
+    sx, sy = getScreenCoords(app, current.ballX, current.ballY)
+    drawCircle(sx, sy, app.ballRadius, fill='white', border='black',
+               borderWidth=0.75)
+
+    # Shadow (only for current player if ball is in motion)
+    # This marks the end of the ball and its shadow!
+    # Finally, we draw aim line.
+def drawAimLine(app):
+    player = app.players[app.currentIdx]
+    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
+        length = 60
+        ex = sx + length * math.cos(player.aimAngle)
+        ey = sy + length * math.sin(player.aimAngle)
+        drawLine(sx, sy, ex, ey, fill='fireBrick', lineWidth=2, dashes=True)
+    # This marks the end of all the drawing functions. (yay!)
 
 def onMousePress(app, mouseX, mouseY):
     if app.startPage and isInPlayButton(app, mouseX, mouseY):
@@ -825,11 +867,11 @@ def onMousePress(app, mouseX, mouseY):
                 app.currentHole += 1
                 app.cardPage = False
                 app.hole1 = True
-                app.windSpeed     = random.uniform(0, 10)
+                app.windSpeed = random.uniform(0, 10)
                 app.windDirection = random.uniform(0, 2*math.pi)
                 teeX, teeY = app.ballStarts[app.currentHole - 1]
                 for p in app.players:
-                    p.ballX, p.ballY  = teeX, teeY
+                    p.ballX, p.ballY = teeX, teeY
                     p.shadowY = teeY
                     p.ballZ = 0
                     p.putting = False
@@ -1057,42 +1099,6 @@ def centerOnPlayer(app, player):
     app.scrollX = max(minScrollX, min(targetScrollX, maxScrollX))
     app.scrollY = max(minScrollY, min(targetScrollY, maxScrollY))
 
-
-def drawBall(app):
-    current = app.players[app.currentIdx]
-    if current.velX != 0 or current.velY != 0 or current.velZ != 0:
-        shadowX, shadowY = getScreenCoords(app, current.ballX, current.shadowY)
-        drawCircle(shadowX, shadowY, app.ballRadius, fill='black', opacity=60)
-    # Display current Hole 
-    drawLabel(f'Hole {app.currentHole}',
-              app.width//1.05, app.height//1.12,
-              size=32, fill='cornSilk', bold=True,
-              font='American Typewriter', border='black',
-              borderWidth=0.5, align='right')
-    # Display current player info
-    playerName = app.playerNames[app.currentIdx]
-    drawLabel(f'{playerName} - Shots Taken: {current.strokes}', app.width//1.05, 
-              app.height//1.05, size=32, fill='cornSilk', bold=True, 
-              font='American Typewriter', border='black', 
-              borderWidth=0.5, align='right')
-
-    # Draw all other players first
-    for i, player in enumerate(app.players):
-        if player == current:
-            continue  # Skip current player for now
-
-        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
-        drawCircle(sx, sy, app.ballRadius, fill='gray')
-
-    # Then draw current player's ball last (on top)
-    sx, sy = getScreenCoords(app, current.ballX, current.ballY)
-    drawCircle(sx, sy, app.ballRadius, fill='white', border='black',
-               borderWidth=0.75)
-
-    # Shadow (only for current player if ball is in motion)
-    
-    
-
 def onKeyPress(app, key):
     if app.landingPage: 
         if app.ipBoxSelected:
@@ -1141,17 +1147,6 @@ def onKeyPress(app, key):
                         takeShot(app, player, velocity, angle)
                     except:
                         app.connectionBad = True
-
-
-    
-def drawAimLine(app):
-    player = app.players[app.currentIdx]
-    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
-        sx, sy = getScreenCoords(app, player.ballX, player.ballY)
-        length = 60
-        ex = sx + length * math.cos(player.aimAngle)
-        ey = sy + length * math.sin(player.aimAngle)
-        drawLine(sx, sy, ex, ey, fill='fireBrick', lineWidth=2, dashes=True)
 
 def findHoleCenter(app):
     """

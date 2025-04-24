@@ -13,7 +13,17 @@ tkolenci:
     -ChatGPT/OpenAI was used in debugging/gaining ideas for the following
      functions. Each function will have a scale for how much OpenAI was 
      consulted.
-        -DrawCliff: Somewhat but not much, Avy helped
+        -DrawCliff: Somewhat but not much, Avy helped.
+        -DrawCliffBetter: Very helpful, gave idea and some of the logic
+                          (had errors).
+        -drawStart: Not really, see comments for details.
+        -drawInstructionsPage: Somewhat, Andrew helped with this.
+        -drawLandingPage: More then the two previous, bounding all the boxes
+                          was quite difficult for me.
+        -drawCardPage: very little, just minor debugging.
+        -drawReconnect: None.
+        
+        
 
 Avy - 
 Used chatGPT to help with the flatten function used in the drawCoursePolygons function and also used 
