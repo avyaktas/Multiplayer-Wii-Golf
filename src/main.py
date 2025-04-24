@@ -495,7 +495,7 @@ def takeBounce(app, player, velocity, angle):
         player.velX = player.velY = player.velZ = 0
 
     elif getBallTerrain(app) == 'out of bounds':
-        player.velX = player.velY = player.velZ = 0
+        player.velX = player.velY = player.velZ = 0.01
         player.strokes += 1
         player.ballX, player.ballY = player.shadowOverLandX, player.shadowOverLandY
         player.shadowX = player.ballX
