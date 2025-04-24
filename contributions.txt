@@ -8,13 +8,14 @@ tkolenci
     -Designed image Converter
     -touched up graphics
 
-Nelson
+nmeaney
     - accelerometer api(with andrew), including the seemless integration with main app. 
     - Ball physics, including deviation, 
     - get Terrian function to find what surface the current ball is.
     - Top down redesign to support multiplayer, including using OOP for players 
     - Wind logic 
-    - Player logic 
+    - Ball in hole logic and who's turn logic 
+    - A lot of game logic in genral. 
 
 
 achurche
@@ -29,11 +30,11 @@ achurche
     - Which clubs are available logic
 
 Avy
-    - got the graphicsTogether hole logic to work... maped values from openCv func
+    - got the main hole logic to work... maped values from openCv func
       into values that work for cmu graphics 
+    - outlined each hole 
     - score card
     - drew podium
-    - worked on ball physics
     - worked on landing page and finsihed it
     - worked on restart game button logic
     - worked on inputting names on landing page and selecting how many players are playing
