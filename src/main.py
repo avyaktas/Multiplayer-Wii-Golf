@@ -873,7 +873,7 @@ def onMousePress(app, mouseX, mouseY):
 
             parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, '-']
             playerRows = [
-                        [name] + ['-' for _ in range(len(parRow) - 1)]
+                        [name] + ['-' for j in range(len(parRow) - 1)]
                             for name in app.playerNames
                         ]
             app.scores = [parRow] + playerRows[:app.selectedNumPlayers]
@@ -991,20 +991,23 @@ def onStep(app):
                     app.clubIndex = 4
                     app.selectedClub = app.clubs[app.clubIndex]
             holeX, holeY = findHoleCenter(app)
-            if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+            if dist(player.ballX, player.ballY, holeX, holeY) <= (
+                app.ballRadius):
                 player.putting = False
                 player.holed = True
         else:
             # Flying logic
             player.ballX += player.velX * step
-            player.ballY = player.ballY - (player.velZ * step) + (player.velY * step)
+            player.ballY = player.ballY - (
+                (player.velZ * step) + (player.velY * step))
             player.ballZ += player.velZ * step
             player.shadowY += player.velY * step
             if getShadowTerrain(app) != 'out of bounds':
                 player.shadowOverLandX = player.ballX
                 player.shadowOverLandY = player.shadowY
             app.scrollX += player.velX * step
-            app.scrollY = app.scrollY - (player.velZ * step) + (player.velY * step)
+            app.scrollY = app.scrollY - (player.velZ * step) + (
+                (player.velY * step))
 
             player.velZ -= app.gravity * step
 
@@ -1025,7 +1028,8 @@ def onStep(app):
                 player.shadowY = player.ballY
                 player.velZ = 0
                 holeX, holeY = findHoleCenter(app)
-                if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
+                if dist(player.ballX, player.ballY, holeX, holeY) <= (
+                    (app.ballRadius)):
                     player.putting = False
                     player.holed = True
                     player.velX = player.velY = player.velZ = 0
@@ -1048,7 +1052,8 @@ def onStep(app):
                         farthest = None
                         maxD = -1
                         for p in alivePlayers:
-                            d = dist(p.shadowOverLandX, p.shadowOverLandY, holeX, holeY)
+                            d = dist(p.shadowOverLandX, 
+                                     p.shadowOverLandY, holeX, holeY)
                             if d > maxD:
                                 maxD = d
                                 farthest = p
@@ -1067,7 +1072,8 @@ def onStep(app):
                         app.clubIndex = 0
                         app.selectedClub = app.clubs[app.clubIndex]
                         for i in range(app.selectedNumPlayers):
-                            app.scores[i+1][app.currentHole] = app.players[i].strokes
+                            app.scores[i+1][app.currentHole] = (
+                                app.players[i].strokes)
                         app.hole1 = False
                         app.cardPage = True
     else:
@@ -1082,7 +1088,8 @@ def onStep(app):
     # Ocean frame animation
     if not app.startPage:
         if app.count % 5 == 0:
-            app.currentFrameIndex = (app.currentFrameIndex + 1) % len(app.frames)
+            app.currentFrameIndex = (app.currentFrameIndex + 1) % (
+                len(app.frames))
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
@@ -1130,7 +1137,8 @@ def onKeyPress(app, key):
                     app.connectionBad = True
                 if app.ipAddress: 
                     try:
-                        velocity, angle, dev = calculateVelocity(app.selectedClub, app.ipAddress)
+                        velocity, angle, dev = (
+                            calculateVelocity(app.selectedClub, app.ipAddress))
                         app.velocity, app.angle = velocity, angle
                         player.aimAngle += dev
                         takeShot(app, player, velocity, angle)
