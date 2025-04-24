@@ -8,27 +8,55 @@ def onAppStart(app):
     restart(app)
 
 def restart(app):
-        # Audio sounds
-    app.music = 'music.mp3'
-    playMusic(app)
-    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
-                  '15112-taylor2.mp3', '15112-taylor3.mp3']
-    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
-               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
-    app.playedKozSound = False
+    oceanStart(app)
+    landingPageApp(app)
+    windApp(app)
+    whichPageApp(app)
+    audioStart(app)
+    cardPageApp(app)
+    physicsApp(app)
+    clubApp(app)
+    scoreKeeperApp(app)
+    randomApp(app)
+
+def randomApp(app):
     app.cachedHoleOutlines = dict()
-    app.startPage = True 
-    app.instructionsPage = False
-    app.hole1 = False
-    app.cardPage = False
-    app.nextHole = False
-    app.landingPage = False
     app.width = 1000
     app.height = 600
     app.scrollX = 500
     app.scrollY = 650
     app.courseWidth = 3000
     app.courseHeight = 1800
+    app.ballRadius = 3
+    app.players = []
+    app.stepsPerSecond = 10
+
+def scoreKeeperApp(app):
+    app.scores = [
+        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36],
+        ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+        ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+    ]
+    app.score = 0
+    app.strokeCount = 0 
+
+def clubApp(app):
+    app.currentIdx = 0                
+    app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
+    app.clubIndex = 0
+    app.selectedClub = app.clubs[0]
+
+def physicsApp(app):
+    app.velocity = 0
+    app.gravity = 9.81
+    app.angle = 0
+    app.putting = False
+    app.rollingDeceleration = 3.0
+    app.onGreen = False
+
+def cardPageApp(app):
     app.cardButtonX = 20 
     app.cardButtonY = 20
     app.cardButtonWidth = 140
@@ -41,8 +69,30 @@ def restart(app):
     app.holeButtonY = app.cardButtonY
     app.holeButtonWidth = app.cardButtonWidth
     app.holeButtonHeight = app.cardButtonHeight
+
+def audioStart(app):
+    app.music = 'music.mp3'
+    playMusic(app)
+    app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
+                  '15112-taylor2.mp3', '15112-taylor3.mp3']
+    app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
+               '15112-koz2.mp3', '15112-koz3.mp3', '15112-koz4.mp3']
+    app.playedKozSound = False
+
+def whichPageApp(app):
+    app.startPage = True 
+    app.instructionsPage = False
+    app.hole1 = False
+    app.cardPage = False
+    app.nextHole = False
+    app.landingPage = False
     app.connectionBad = False 
-    # Landing page
+
+def windApp(app):
+    app.windSpeed = random.uniform(0, 5)          
+    app.windDirection = random.uniform(0, 2*math.pi)
+
+def landingPageApp(app):
     app.startButtonX = app.width//2 - 70
     app.startButtonY = app.height - 80
     app.startButtonWidth = 180
@@ -57,34 +107,6 @@ def restart(app):
     app.podium = False
     app.ballStarts = [(190,570), (90, 580), (160,620), (40,880), (150, 675),
                       (330, 620), (380, 638), (130, 615),(120, 670)]
-    app.ballRadius = 3
-    app.gravity = 9.81
-    app.players = []
-    app.currentIdx = 0                
-    app.clubs = ['driver', 'wood', 'iron', 'wedge', 'putter']
-    app.clubIndex = 0
-    app.selectedClub = app.clubs[0]
-
-    app.stepsPerSecond = 10
-    app.scores = [
-        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36],
-        ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-    ]
-
-    app.score = 0
-    app.velocity = 0
-    app.angle = 0
-    app.putting = False
-    app.rollingDeceleration = 3.0
-    app.onGreen = False
-    app.strokeCount = 0 
-    # wind Logic 
-    app.windSpeed     = random.uniform(0, 5)          
-    app.windDirection = random.uniform(0, 2*math.pi)
-    oceanStart(app)
 
 def oceanStart(app):
     app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
@@ -96,35 +118,8 @@ def oceanStart(app):
     app.offsetSpeed = 5  # Speed of the diagonal movement
     app.count = 0
     
-    
-
-def drawCliff(app):
-    outlines = getHoleData(app)['outline']
-    for poly in outlines:
-        # 1) build a jagged drop
-        cliff = makeCliffBetter(poly, baseDepth=15, jag=1.5)
-        # 2) draw the cliff face with a vertical rock‑tone gradient
-        coords = []
-        for (worldX, worldY) in cliff:
-            screenX,screenY = getScreenCoords(app, worldX, worldY)
-            coords += [screenX, screenY]
-        color = gradient('cornsilk', 'saddleBrown', start='top')
-        drawPolygon(*coords,
-                    fill=color, border='black')
-        # 3) rock‐strata lines
-        for second in range(12):
-            i = random.randrange(len(poly))
-            x,y = poly[i]
-            depth = 15 + random.uniform(-5,5)
-            sx1, sy1 = getScreenCoords(app, x, y)
-            sx2, sy2 = getScreenCoords(app, x, y+depth)
-            drawLine(sx1, sy1, sx2, sy2,
-                     lineWidth=1, fill='darkSlateGray', opacity=50)
-
-def makeCliffBetter(poly, baseDepth=20, jag=1):
-    top = poly
-    bottom = [(x, y + baseDepth + random.uniform(-jag, jag)) for (x,y) in poly]
-    return top + bottom[::-1]  # top + bottom in reverse order
+# All on app start is contained prior to this comment. Next will be all drawing
+# logic.
 
 def redrawAll(app):
     if app.startPage:
@@ -154,26 +149,37 @@ def redrawAll(app):
         drawRestartButton(app)
     elif app.podium:
         drawPodium(app)
+# All cliff logic is below.
+def drawCliff(app):
+    outlines = getHoleData(app)['outline']
+    for poly in outlines:
+        cliff = makeCliffBetter(poly, baseDepth=15, jag=1.5)
+        coords = []
+        for (worldX, worldY) in cliff:
+            screenX,screenY = getScreenCoords(app, worldX, worldY)
+            coords += [screenX, screenY]
+        color = gradient('cornsilk', 'saddleBrown', start='top')# Pretty color!
+        drawPolygon(*coords,
+                    fill=color, border='black')
+        for second in range(12):
+            i = random.randrange(len(poly)) # Randomly make jagged edges
+            x,y = poly[i]
+            depth = 15 + random.uniform(-5,5)
+            sx1, sy1 = getScreenCoords(app, x, y)
+            sx2, sy2 = getScreenCoords(app, x, y+depth)
+            drawLine(sx1, sy1, sx2, sy2,
+                     lineWidth=1, fill='darkSlateGray', opacity=50)
 
-def drawReconnect(app):
-    drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
-    drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
-              fill='cornSilk', bold=True, font='HeadLineA', align='center')
-    drawLabel('Connection Issue!', app.width//2, app.height//6, size = 80,
-              fill='maroon', bold=True, font='HeadLineA', align='center')
-    drawLabel('Please restart your app and verify your connection.', 
-              app.width//2-2, app.height//1.5-2, font='HeadLineA', 
-              fill='cornSilk', bold=True, size=40)
-    drawLabel('Please restart your app and verify your connection.', 
-              app.width//2, app.height//1.5, font='HeadLineA', 
-              fill='maroon', bold=True, size=40, align='center')
-    drawLabel('We are sorry. :(', 
-              app.width//2-2, app.height//1.3-2, font='HeadLineA', 
-              fill='cornSilk', bold=True, size=40)
-    drawLabel('We are sorry. :(', app.width//2, app.height//1.3, 
-              font='HeadLineA', fill='maroon', bold=True, 
-              size=40, align='center')
-    
+def makeCliffBetter(poly, baseDepth=20, jag=1):
+    top = poly
+    bottom = [(x, y + baseDepth + random.uniform(-jag, jag)) for (x,y) in poly]
+    return top + bottom[::-1]  # top + bottom in reverse order
+    # This functions essentially moves the cliff to give the illusion of water
+    # crashing against it.
+# Cliff logic ends here.
+
+# Draws the ocean! flips between two images and move them to the bottom right
+# corner to give the look of a moving ocean.
 def drawOcean(app):
     # Display the current frame in chunks
     currentFrame = app.frames[app.currentFrameIndex]
@@ -183,20 +189,11 @@ def drawOcean(app):
             # Y values loop
             drawImage(currentFrame, x+app.offsetX, y+app.offsetY, 
                       width=app.tileWidth, height=app.tileHeight)
-            
-def drawWindIndicator(app):
-    x0, y0 = app.width - 80, 60
-    length = 40
-    dx = length * math.cos(app.windDirection)
-    dy = length * math.sin(app.windDirection)
-    # arrow line
-    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='cornSilk', 
-             arrowEnd = True)
-    # speed label
-    drawLabel(f'{app.windSpeed:.1f} mph',
-              x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
-              border='black', borderWidth=0.25, bold=True)
+    # Note, openAI helped with the idea of how to move the ocean to the
+    # bottom right, and with debugging.
+# All ocean logic ends here.
 
+# All the logic for getting the holes using openCV is below.
 def getScreenCoords(app, x, y):
     screenX = x - app.scrollX + app.width / 2
     screenY = y - app.scrollY + app.height / 3
@@ -227,10 +224,6 @@ def getHoleData(app):
         app.cachedHoleOutlines[app.currentHole] = outlines
     return app.cachedHoleOutlines[app.currentHole]
 
-
-def findAimAngle(app):
-    app.targetX, app.targetY = findHoleCenter(app)
-    return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)
 
 #used chatGPT for the flatten function
 def flatten(points):
@@ -282,9 +275,9 @@ def drawHole(app):
             drawCircle(screenX, screenY, 4, fill='black', border='white')
             
             # Draw flag
-            drawLine(screenX, screenY, screenX, screenY - 25, fill='white', lineWidth=2)
-            drawPolygon(screenX, screenY - 15, 
-                       screenX - 15, screenY - 20,
+            drawLine(screenX, screenY, screenX, screenY - 25, fill='white', 
+                    lineWidth=2)
+            drawPolygon(screenX, screenY - 15, screenX - 15, screenY - 20,
                        screenX, screenY - 25,
                        fill='red', border='black')
 
@@ -298,6 +291,40 @@ def getHole(points):
     
     # Return the center as a tuple
     return centerX, centerY
+# All openCV logic ends here.
+
+# The following chunk contains the drawing of all the pages.
+def drawReconnect(app):
+    drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
+    drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
+              fill='cornSilk', bold=True, font='HeadLineA', align='center')
+    drawLabel('Connection Issue!', app.width//2, app.height//6, size = 80,
+              fill='maroon', bold=True, font='HeadLineA', align='center')
+    drawLabel('Please restart your app and verify your connection.', 
+              app.width//2-2, app.height//1.5-2, font='HeadLineA', 
+              fill='cornSilk', bold=True, size=40)
+    drawLabel('Please restart your app and verify your connection.', 
+              app.width//2, app.height//1.5, font='HeadLineA', 
+              fill='maroon', bold=True, size=40, align='center')
+    drawLabel('We are sorry. :(', 
+              app.width//2-2, app.height//1.3-2, font='HeadLineA', 
+              fill='cornSilk', bold=True, size=40)
+    drawLabel('We are sorry. :(', app.width//2, app.height//1.3, 
+              font='HeadLineA', fill='maroon', bold=True, 
+              size=40, align='center')
+            
+def drawWindIndicator(app):
+    x0, y0 = app.width - 80, 60
+    length = 40
+    dx = length * math.cos(app.windDirection)
+    dy = length * math.sin(app.windDirection)
+    # arrow line
+    drawLine(x0, y0, x0+dx, y0-dy, lineWidth=3, fill='cornSilk', 
+             arrowEnd = True)
+    # speed label
+    drawLabel(f'{app.windSpeed:.1f} mph',
+              x0, y0+30, size=22, fill='cornSilk', font='American Typewriter',
+              border='black', borderWidth=0.25, bold=True)
     
 def drawStart(app):
     # Draw background image scaled to fill the screen
@@ -444,6 +471,7 @@ def onMousePress(app, mouseX, mouseY):
                     p.putting = False
                     p.strokes = 0
                     p.velX = p.velY = p.velZ = 0
+                    p.holed = False
                 x, y = findHoleCenter(app)
                 for p in app.players:
                     p.aimAngle = (math.atan2(y - p.ballY, x - p.ballX))
@@ -455,7 +483,10 @@ def onMousePress(app, mouseX, mouseY):
         if isInRestartButton(app, mouseX, mouseY):
             app.cardPage = False
             app.startPage = True
-    
+
+def findAimAngle(app):
+    app.targetX, app.targetY = findHoleCenter(app)
+    return math.atan2(app.targetY - app.ballY, app.targetX - app.ballX)  
 
 def onKeyHold(app, keys): 
     if not app.hole1 or not app.players:
