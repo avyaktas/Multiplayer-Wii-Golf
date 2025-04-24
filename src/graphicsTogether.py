@@ -65,7 +65,7 @@ def onAppStart(app):
 
     app.stepsPerSecond = 10
     app.scores = [
-        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72],
+        ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 36],
         ['Player 1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 2', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['Player 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
@@ -401,7 +401,7 @@ def onMousePress(app, mouseX, mouseY):
                 name = app.playerNames[i]
                 app.players.append(Player(name, (teeX, teeY)))
 
-            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 72]
+            parRow = ['Par', 4, 3, 5, 4, 4, 3, 5, 4, 4, 36, 36]
             playerRows = [
                         [name] + ['-' for _ in range(len(parRow) - 1)]
                             for name in app.playerNames
@@ -426,8 +426,10 @@ def onMousePress(app, mouseX, mouseY):
             app.cardPage = False
             app.hole1 = True
         elif isInRestartButton(app, mouseX, mouseY):
+            onAppStart(app)
             app.cardPage = False
             app.startPage = True
+
         
         elif isInNextHoleButton(app, mouseX, mouseY):
             if app.currentHole < 9:
@@ -1037,9 +1039,9 @@ def drawInstructionsPage(app):
         '2. Turn on your WIFI Hotspot on your cellPhone.',
         "3. Connect to your cellPhone's Hotspot on your computer.",
         '4. Enter the IP address of your cellPhone in the box on the' 
-            'page following.',
+            ' page following.',
         '6. Press space to initalize phyphox, you then have 7 seconds'
-            'to take your shot.',
+            ' to take your shot.',
         '5. You must enter at least 1 player name.',
         '6. Use arrow keys to navigate the game.',
         "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]

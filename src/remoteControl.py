@@ -4,27 +4,12 @@ import json
 import time
 # the get logic for using channel and getting data is inspired from phyPhox api 
 # phyphox configuration
-def getPhyphoxAddress():
-    defaultPort = "80"
-    ip = input("Enter the PhyPhox IP address (e.g., 192.168.2.100): ")
-    port = input(f"Enter the port number (press Enter for default {defaultPort}): ") or defaultPort
-    return f"http://{ip}:{port}"
-
-PP_ADDRESS =  "http://172.20.10.1:80"
-PP_CHANNELS = ["acc"]
-
-def getURL():
-    if not hasattr(getURL, "url"):
-        # builds "http://172.20.10.1:80/get?acc"
-        getURL.url = PP_ADDRESS + "/get?" + "&".join(PP_CHANNELS)
-    return getURL.url
-
 
 def getAcceleration(ip):
     """
     Fetch the latest acceleration magnitude from PhyPhox.
     """
-    url = f"http://{ip}:80" + "/get?" + "&".join(PP_CHANNELS)
+    url = f"http://{ip}:80" + "/get?" + "&" + "acc"
     resp = requests.get(url, timeout=1)
     resp.raise_for_status()
     data = resp.json()
