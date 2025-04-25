@@ -1200,7 +1200,6 @@ def findHoleCenter(app):
     # compute centroid
     cx = sum(x for x,y in pts) / len(pts)
     cy = sum(y for x,y in pts) / len(pts)
-    print("Hole center:", cx, cy)
     return cx, cy
 
 def pointInPolygon(x, y, poly):
