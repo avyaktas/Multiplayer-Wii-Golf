@@ -27,10 +27,27 @@ def calculateVelocity(club, ip): #add ground later
     # Calculate velocity using acceleration and club multiplier
     velocity = acceleration * clubMultiplier 
 
-    deviation, maxVelocity = computeDeviation(acceleration), getMaxVelo(club)
+    deviation = 0 
+    if acceleration > 100:
+        deviation = random.randint(-1, 1)
+    if acceleration > 170:
+        deviation = random.randint(-3, 3)
+    if acceleration > 210:
+        deviation = random.randint(-15, 15)
+
+    if club == 'driver':
+        maxVelocity = 140
+    elif club == 'wood':
+        maxVelocity = 110
+    elif club == 'iron':
+        maxVelocity = 80
+    elif club == 'wedge':
+        maxVelocity = 60
+    elif club == 'putter':
+        maxVelocity = 35
     
     if velocity > maxVelocity:
-        if club != 'wedge' and club != 'putter':
+       if club != 'wedge' and club != 'putter':
             randNumber = random.randint(0, 1)
             if randNumber == 0:
                 randAngle = random.randint(-2, 0)
@@ -42,17 +59,4 @@ def calculateVelocity(club, ip): #add ground later
     
     print(velocity, launchAngleRad)
     return min(maxVelocity, velocity), launchAngleRad, math.radians(deviation)
-
-def computeDeviation(acceleration):  
-    if acceleration > 100: return random.randint(-1, 1)
-    if acceleration > 170: return random.randint(-3, 3)
-    if acceleration > 210: return random.randint(-15, 15)
-    return 0 
-
-def getMaxVelo(club):
-    if club == 'driver': return 140
-    elif club == 'wood': return  110
-    elif club == 'iron': return 80
-    elif club == 'wedge': return 60
-    elif club == 'putter': return 35
      
