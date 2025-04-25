@@ -928,7 +928,8 @@ def onStep(app):
     app.count += 1
     player = app.players[app.currentIdx]
     step = 1 / app.stepsPerSecond
-
+    if player.velX == 0 and player.velY == 0 and player.velZ == 0:
+        updateTurnOrder(app)
     windAx = app.windSpeed * math.cos(app.windDirection)
     windAy = app.windSpeed * math.sin(app.windDirection)
 
@@ -1061,6 +1062,27 @@ def onStep(app):
             app.offsetX = (app.offsetX + app.offsetSpeed) % app.tileWidth
             app.offsetY = (app.offsetY + app.offsetSpeed) % app.tileHeight
             app.count = 0
+
+def updateTurnOrder(app):
+    # Get the hole position
+    holeX, holeY = findHoleCenter(app)
+    currentPlayerIdx = app.currentIdx
+    farthestDist = -1
+    farthestPlayerIdx = None
+
+    for i, player in enumerate(app.players):
+        if player.holed:
+            continue
+        distToHole = dist(player.ballX, player.ballY, holeX, holeY)
+        if distToHole > farthestDist:
+            farthestDist = distToHole
+            farthestPlayerIdx = i
+
+    if farthestPlayerIdx is not None:
+        app.currentIdx = farthestPlayerIdx
+    if currentPlayerIdx != app.currentIdx:
+        centerOnPlayer(app, app.players[app.currentIdx])
+        
 
 def onKeyPress(app, key):
     if app.landingPage: 
