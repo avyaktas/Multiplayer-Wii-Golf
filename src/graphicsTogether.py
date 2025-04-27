@@ -748,6 +748,8 @@ def drawPodium(app):
             if playerTotals[j][1] < playerTotals[i][1]:
                 playerTotals[i], playerTotals[j] = playerTotals[j], playerTotals[i]
 
+    playerTotals.sort(key=lambda player: player[1])
+
     for i in range(len(playerTotals)): 
         name = playerTotals[i][0]
         if name == '' or name == '.':
@@ -900,8 +902,7 @@ def onMousePress(app, mouseX, mouseY):
                 app.podium = True
     elif app.connectionBad:
         if isInRestartButton(app, mouseX, mouseY):
-            app.cardPage = False
-            app.startPage = True
+            restart(app)
 
 def onKeyHold(app, keys): 
     if not app.hole1 or not app.players:
