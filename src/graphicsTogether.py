@@ -6,6 +6,7 @@ from playerClass import Player
 
 def onAppStart(app):
     restart(app)
+    playMusic(app)
 
 def restart(app):
     oceanStart(app)
@@ -72,7 +73,6 @@ def cardPageApp(app):
 
 def audioStart(app):
     app.music = 'music.mp3'
-    playMusic(app)
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
     app.koz = ['15112-koz0.mp3', '15112-koz1.mp3', 
