@@ -947,8 +947,10 @@ def getMessage(app):
         app.scoreMessage = 'Bogey!'
     elif playerScore == 2:
         app.scoreMessage = 'Double-Bogey!'
-    elif playerScore > 2:
-        app.scoreMessage = 'Better Luck Next Time!'
+    elif playerScore == 3:
+        app.scoreMessage = 'Triple-Bogey!'
+    elif playerScore > 3:
+        app.scoreMessage = 'Yikes! ' + str(playerScore) + ' over par!'
     app.messageTimer = 30
     
 
