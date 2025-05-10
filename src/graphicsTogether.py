@@ -41,7 +41,10 @@ def scoreKeeperApp(app):
         ['Player 4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
     ]
     app.score = 0
-    app.strokeCount = 0 
+    app.strokeCount = 0
+    app.scoreMessage = None
+    app.messageTimer = 0
+    app.endOfHoleDelay = 0 
 
 def clubApp(app):
     app.currentIdx = 0                
@@ -149,6 +152,9 @@ def redrawAll(app):
         drawRestartButton(app)
     elif app.podium:
         drawPodium(app)
+    if app.scoreMessage:
+        drawLabel(app.scoreMessage, app.width//2, app.height//2, size=60,
+                fill='cornsilk', bold=True, font='American TypeWriter', align='center')
 # All cliff logic is below.
 def drawCliff(app):
     outlines = getHoleData(app)['outline']
@@ -923,7 +929,34 @@ def onKeyHold(app, keys):
     app.scrollX = max(0, min(app.scrollX, app.courseWidth - app.width))
     app.scrollY = max(0, min(app.scrollY, app.courseHeight - app.height))
 
+def getMessage(app):
+    player = app.players[app.currentIdx]
+    par = app.scores[0][app.currentHole]  # e.g., 4
+    playerScore = player.strokes - par
+    if player.strokes == 1:
+        app.scoreMessage = 'Hole in one!'
+    elif playerScore == -3:
+        app.scoreMessage = 'Double-Eagle!'
+    elif playerScore == -2:
+        app.scoreMessage = 'Eagle!'
+    elif playerScore == -1:
+        app.scoreMessage = 'Birdie!'
+    elif playerScore == 0:
+        app.scoreMessage = 'Par!'
+    elif playerScore == 1:
+        app.scoreMessage = 'Bogey!'
+    elif playerScore == 2:
+        app.scoreMessage = 'Double-Bogey!'
+    elif playerScore > 2:
+        app.scoreMessage = 'Better Luck Next Time!'
+    app.messageTimer = 30
+    
+
 def onStep(app):
+    if app.messageTimer > 0:
+        app.messageTimer -= 1
+    else:
+        app.scoreMessage = None
     if not app.hole1 or not app.players:
         return
     app.count += 1
@@ -971,6 +1004,7 @@ def onStep(app):
             if dist(player.ballX, player.ballY, holeX, holeY) <= (app.ballRadius):
                 player.putting = False
                 player.holed = True
+                getMessage(app)
         else:
             # Flying logic
             player.ballX += player.velX * step
@@ -1006,6 +1040,7 @@ def onStep(app):
                     player.putting = False
                     player.holed = True
                     player.velX = player.velY = player.velZ = 0
+                    getMessage(app)
                 #flatSpeed = (player.velX**2 + player.velY**2)**0.5
                 app.velocity //= 3
                 if app.velocity  > 10:
@@ -1045,8 +1080,8 @@ def onStep(app):
                         app.selectedClub = app.clubs[app.clubIndex]
                         for i in range(app.selectedNumPlayers):
                             app.scores[i+1][app.currentHole] = app.players[i].strokes
-                        app.hole1 = False
-                        app.cardPage = True
+                        app.endOfHoleDelay = 30
+                        
     else:
         # Check for holed
         holeX, holeY = findHoleCenter(app)
@@ -1054,6 +1089,13 @@ def onStep(app):
             playSound(app, app.taylor)
             player.holed = True
             player.velX = player.velY = player.velZ = 0
+            getMessage(app)
+    if app.endOfHoleDelay > 0:
+        app.endOfHoleDelay -= 1
+        if app.endOfHoleDelay == 0:
+            app.scoreMessage = None
+            app.hole1 = False
+            app.cardPage = True
 
         # Ball stopped – find next player
     # Ocean frame animation
