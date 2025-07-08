@@ -2,7 +2,22 @@ from cmu_graphics import *
 from holeSketch import getHoleOutlines
 from physics import calculateVelocity
 import math, random
+import os
 from playerClass import Player
+
+# directory where main.py lives (…/prelim-group-10-tp/src)
+HERE = os.path.dirname(__file__)  
+# go up one level to project root (…/prelim-group-10-tp)
+ROOT = os.path.dirname(HERE)      
+# point at your assets folder
+ASSETS = os.path.join(ROOT, 'assets')
+
+# helpers for image & sound paths
+def img(name):
+    return os.path.join(ASSETS, 'images', name)
+
+def snd(name):
+    return os.path.join(ASSETS, 'audio',  name)
 
 def onAppStart(app):
     restart(app)
@@ -71,7 +86,7 @@ def cardPageApp(app):
     app.holeButtonHeight = app.cardButtonHeight
 
 def audioStart(app):
-    app.music = 'music.mp3'
+    app.music = snd("music.mp3")
     playMusic(app)
     app.taylor = ['15112-taylor0.mp3', '15112-taylor1.mp3', 
                   '15112-taylor2.mp3', '15112-taylor3.mp3']
@@ -109,7 +124,7 @@ def landingPageApp(app):
                       (330, 620), (380, 638), (130, 615),(120, 670)]
 
 def oceanStart(app):
-    app.frames = ["15112-ocean0.jpg", "15112-ocean1.jpg"]
+    app.frames = [img("15112-ocean0.jpg"), img("15112-ocean1.jpg")]
     app.currentFrameIndex = 0
     app.tileWidth = 500  # Width of each tile
     app.tileHeight = 500  # Height of each tile
@@ -202,24 +217,8 @@ def getScreenCoords(app, x, y):
 def getHoleData(app):
     #USED CHATGPT TO CACHE THE HOLES
     if app.currentHole not in app.cachedHoleOutlines:
-        if app.currentHole == 1:
-            imagePath = 'Hole1.jpg'
-        elif app.currentHole == 2:
-            imagePath = 'Hole2.jpg'
-        elif app.currentHole == 3:
-            imagePath = 'Hole3.jpg'
-        elif app.currentHole == 4:
-            imagePath = 'Hole4.jpg'
-        elif app.currentHole == 5:
-            imagePath = 'Hole5.jpg'
-        elif app.currentHole == 6:
-            imagePath = 'Hole6.jpg'
-        elif app.currentHole == 7:
-            imagePath = 'Hole7.jpg'
-        elif app.currentHole == 8:
-            imagePath = 'Hole8.jpg'
-        elif app.currentHole == 9:
-            imagePath = 'Hole9.jpg'
+        filename = f"Hole{app.currentHole}.jpg"
+        imagePath = img(filename) 
         outlines = getHoleOutlines(imagePath)
         app.cachedHoleOutlines[app.currentHole] = outlines
     return app.cachedHoleOutlines[app.currentHole]
@@ -298,7 +297,7 @@ def getHole(points):
 # respective button logic.
 def drawStart(app):
     # First, draw the title page.
-    drawImage("titleScreen.png", 0, 0, width=app.width, height=app.height)
+    drawImage(img("titleScreen.png"), 0, 0, width=app.width, height=app.height)
     
     titleX = app.width // 2
     titleY = app.height // 6
@@ -366,7 +365,7 @@ def getInstructions():
         "7. Press 'w' and 's' to select clubs and Press 'a' and 'd' to aim"]
     return instructions
 def drawInstructionsPage(app):
-    drawImage('15112-instructionsPage.png',0 , 0, width=app.width, 
+    drawImage(img('15112-instructionsPage.png'),0 , 0, width=app.width, 
               height=app.height)
     titleY = app.height * 0.1 - 10
     titleSize = int(app.height * 0.15)
@@ -407,7 +406,7 @@ def drawLandingPage(app):
     scaleX = app.width  / 1000
     scaleY = app.height / 600
 
-    drawImage('15112-LandingPage.png', 0, 0, 
+    drawImage(img('15112-LandingPage.png'), 0, 0, 
               width=app.width, height=app.height)
 
     drawLabel('Choose Number of Players',
@@ -517,7 +516,7 @@ def getHeaderColAndRow(app, cardHeight, cardWidth):
 
 def drawCardPage(app):
     # Draw Background
-    drawImage('15112-LandingPage.png', 0, 0, 
+    drawImage(img('15112-LandingPage.png'), 0, 0, 
               width=app.width, height=app.height)
     
     # Score Card margins
@@ -678,7 +677,7 @@ def drawCardButton(app):
     # This marks the end of the card page.
     # Fifthly, this will draw the podium page and provide logic for such.
 def drawReconnect(app):
-    drawImage('badConnection.png', 0, 0, width=app.width, height=app.height)
+    drawImage(img('badConnection.png'), 0, 0, width=app.width, height=app.height)
     drawLabel('Connection Issue!', app.width//2-3, app.height//6-2, size = 80,
               fill='cornSilk', bold=True, font='HeadLineA', align='center')
     drawLabel('Connection Issue!', app.width//2, app.height//6, size = 80,
@@ -749,7 +748,7 @@ def drawClubSelection(app):
     # This marks the end of the club selection page.
     # Seventhly, this will draw the podium page and provide logic for such.
 def drawPodium(app):
-    drawImage('winner.png', 0, 0, 
+    drawImage(img('winner.png'), 0, 0, 
               width=app.width, height=app.height)
 
     drawLabel('FINAL RANKINGS', app.width//2-4, 60-4,
@@ -1338,8 +1337,11 @@ def playSound(app, soundList):
         return
     
 def playMusic(app):
+    app.music = snd('music.mp3')
     audio = Sound(app.music)
     audio.play(loop=True)
+
+    
 
 runApp()
 
