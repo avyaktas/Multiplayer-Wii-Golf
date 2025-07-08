@@ -49,7 +49,7 @@ achurche
     - Helped debug wind physics
 
 avys
-    - got the main hole logic to work... maped values from openCv func (chatGPT used)
+    - got the main hole logic to work... mapped values from openCv func (chatGPT used)
       into values that work for cmu graphics 
     - outlined each hole (manually in goodnotes on ipad)
     - score card (2d gried kinds of)
