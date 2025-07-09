@@ -1,0 +1,55 @@
+Below the dashed line, include easily understandable and verifiable 
+citations to all the major sources you used for your project, as described
+in the TP document: 
+https://www.cs.cmu.edu/~112/notes/term-project-and-hack112.html#tp-policies
+
+In addition, your code must also include citations directly in the code that 
+make it clear where you use code that is partly or entirely not of your 
+original design, and what the source is for that code.
+------------------------------------>
+
+tkolenci:
+    -All images were drawn using OpenAI(ChatGPT, Gemini, or Co-Pilot)
+    -ChatGPT/OpenAI was used in debugging/gaining ideas for the following
+     functions. Each function will have a scale for how much OpenAI was 
+     consulted.
+        -DrawCliff: Somewhat but not much, Avy helped.
+        -DrawCliffBetter: Very helpful, gave idea and some of the logic
+                          (had errors).
+        -drawStart: Not really, see comments for details.
+        -drawInstructionsPage: Somewhat, Andrew helped with this.
+        -drawLandingPage: More then the two previous, bounding all the boxes
+                          was quite difficult for me.
+        -drawCardPage: very little, just minor debugging.
+        -drawReconnect: None.
+        -DrawPodium: None.
+        -Also, it should be noted Python and stackOverFlow were helpful
+         for installing all things.
+        
+        
+        
+
+avys - 
+Used chatGPT to help with the flatten function used in the drawCoursePolygons function and also used 
+chat to help with th drawCourse Polygon function. Overall,  this fucntion heloped witht zooming in to the course 
+and using the keys to pan around the course. 
+Used chatGPT to cache the images for getHoleData
+FUNCTIONS: 
+ - getHoldData: used chatGPT to cach the holes. 
+ - flatten: used chatGPT it helped debug something
+ - drawCoursePolygon: used chatGPT is was also debugging thing to get the holes showing with good grapshics
+
+
+nmeaney
+    - Used chatGPT for creating ocean images. 
+    - Used chatGPT for debugging especially after implementing multiplayer retroactively. The Ai didn't write anyCode but rather looked through code 
+       and checked for discrepencies.
+    - Used chatGPT for implementing some of the windLogic 
+    ON HOLE SKETCH: 
+    First chatGPT was used to get open cv to work better after perliminary 
+      Later used chatGPT to reFormt inorder to pass style checker. 
+
+achurche
+   - used chatGPT to debug wind logic
+   - used chatGPT for link logic
+   - used ChatGPT for next player logic
