@@ -1324,17 +1324,16 @@ def findAimAngle(app):
 
 def playSound(app, soundList):
     if soundList == app.koz:
-        audioIndex = random.randint(0, 4)
-        audio = app.koz[audioIndex]
-        audio = Sound(audio)
-        audio.play()
-        return
-    elif soundList == app.taylor and not app.cardPage == False:
-        audioIndex = random.randint(0, 3)
-        audio = app.taylor[audioIndex]
-        audio = Sound(audio)
-        audio.play()
-        return
+        audioFile = random.choice(app.koz)
+    elif soundList == app.taylor:
+        audioFile = random.choice(app.taylor)
+    else:
+        audioFile = soundList
+
+    # build the full path to the mp3 in assets/audio
+    path = snd(audioFile)
+    audio = Sound(path)
+    audio.play()
     
 def playMusic(app):
     app.music = snd('music.mp3')

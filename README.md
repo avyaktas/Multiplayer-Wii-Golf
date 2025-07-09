@@ -41,3 +41,18 @@ Here is a video made by my teammate highlighting the gameplay and important char
    ```bash
    git clone https://github.com/avyaktasharma/15-112-s25.git
    cd 15-112-s25
+
+2. **(Optional) Create & activate a virtual environment**
+    python3 -m venv venv
+    source venv/bin/activate   
+
+3. **Install dependencies**
+    cmu-graphics
+    numpy
+    opencv-python
+
+4 **Run thhe Game**
+    python src/main.py
+    1. Download and connect PhyPhox on your phone.
+    2. Connect your computer to your phone's hotspot. 
+    3. 
