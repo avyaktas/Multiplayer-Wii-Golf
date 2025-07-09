@@ -1,0 +1,6 @@
+# mark /docs (and all HTML in it) as "vendored" so Linguist ignores it
+docs/** linguist-vendored=true
+
+# if you have extra HTML elsewhere, you can blacklist it too:
+*.html linguist-vendored=true
+*.css  linguist-vendored=true
