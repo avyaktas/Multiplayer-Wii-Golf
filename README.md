@@ -62,21 +62,14 @@ python src/main.p
 
 Then follow these steps:
 
-Download and install PhyPhox on your phone.
-
-Connect your computer to your phone’s hotspot.
-
-Set up Remote Access in PhyPhox
-
-Open the Acceleration with g experiment.
-
-Tap the ⋮ menu and choose Enable Remote Access.
-
-Copy only the port number that appears, and paste it into the IP address field in the game.
-
-Click the “Play” button at the top of the game window.
-
-Press Space in the game; when the loading icon appears, swing your phone as your club.
+- Download and install PhyPhox on your phone.
+- Connect your computer to your phone’s hotspot.
+- Set up Remote Access in PhyPhox
+- Open the Acceleration with g experiment.
+- Tap the ⋮ menu and choose Enable Remote Access.
+- Copy only the port number that appears, and paste it into the IP address field in the game.
+- Click the “Play” button at the top of the game window.
+- Press Space in the game; when the loading icon appears, swing your phone as your club.
 Be careful of the wind!
 
 # THANKS FOR PLAYING THE GAME!
