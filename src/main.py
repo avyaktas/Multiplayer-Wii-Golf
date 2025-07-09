@@ -354,8 +354,9 @@ def isInPlayButton(app, x, y):
 def getInstructions():
     instructions = [
         '1. Download "phyphox" on your cellPhone.',
-        '2. Turn on your WIFI Hotspot on your cellPhone.',
-        "3. Connect to your cellPhone's Hotspot on your computer.",
+        '2. Turn on your WIFI Hotspot on your cellPhone and connect it to your computer',
+        '3. Choose "Acceleration with g," click on the three dots and ''' 
+            'find your IP address at "Enable remote access"',
         '4. Enter the IP address of your cellPhone in the box on the' ' ' 
             'page following.',
         '6. Press space to initalize phyphox, you then have 7 seconds' ' '
