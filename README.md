@@ -57,7 +57,8 @@ Here is a video made by my teammate highlighting the gameplay and important char
 First, start the game binary:
 
 ```bash
-python src/main.py
+python src/main.p
+```
 
 Then follow these steps:
 
