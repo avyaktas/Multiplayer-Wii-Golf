@@ -43,16 +43,21 @@ Here is a video made by my teammate highlighting the gameplay and important char
    cd 15-112-s25
 
 2. **(Optional) Create & activate a virtual environment**
+    ```bash
     python3 -m venv venv
     source venv/bin/activate   
 
 3. **Install dependencies**
-    cmu-graphics
-    numpy
-    opencv-python
+    - cmu-graphics
+    - numpy
+    - opencv-python
 
 4 **Run thhe Game**
     python src/main.py
     1. Download and connect PhyPhox on your phone.
     2. Connect your computer to your phone's hotspot. 
-    3. 
+    3. On PhyPhox, chose "Acceleration with g", click onthe three dots and click "Enable Remote Access". Type in only the number given in the IP address box in the game. 
+    4. Click the play button on the top. 
+    5. Click space in game and when the loading icon appear, swing with your desired club (Be careful of the wind!)
+
+# THANKS FOR PLAYING THE GAME!
