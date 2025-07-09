@@ -52,7 +52,7 @@ Here is a video made by my teammate highlighting the gameplay and important char
     - numpy
     - opencv-python
 
-## 4. Run the Game
+4. **Run the Game**
 
 First, start the game binary:
 
