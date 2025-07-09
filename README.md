@@ -1,8 +1,8 @@
 # Multiplayer Wii Golf 
 
-**Course**: CMU 15-112, Spring '25 term-project (https://www.cs.cmu.edu/~112-s25/)
-**Languages**: Python
-**Technologies**: cmu_graphics, OpenCV, PhyPhox intergration
+- **Course**: CMU 15-112, Spring '25 term-project (https://www.cs.cmu.edu/~112-s25/)
+- **Languages**: Python
+- **Technologies**: cmu_graphics, OpenCV, PhyPhox intergration
 
 # Overview
 - **Multiplayer**: 1–4 players, with custom name input  
