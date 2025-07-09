@@ -12,4 +12,20 @@
 - **Wind and ground physics**: Realistic wind speed/direction affects ball trajectory, varied bounces with differnt surfaces
 - **Scorecard & leaderboard**: See hole-by-hole scores and overall standings culminating in an overall leaderboad  
 
+# Contributions
 
+- Architected and implemented the complete hole-rendering pipeline, mapping OpenCV-generated course contours into CMU Graphics–compatible coordinates for all nine holes.
+
+- Manually designed and optimized each hole outline in GoodNotes (iPad), then imported and cached them via a high-performance getHoleData function.
+
+- Engineered the 2D grid–based scorecard system, including total-score and over/under calculations, and drew the interactive podium display.
+
+- Built the landing page UI with dynamic player-count selection, name entry, and seamless transitions between landing, scorecard, and hole views.
+
+- Developed robust game-flow controls: start, restart, next-hole, and in-play button hit-detection (e.g. isInPlayButton, isInNextHoleButton).
+
+- Coded input handlers (onMousePress, onKeyPress, onKeyHold) to manage name input, IP address entry, camera-movement controls, and player-alternation logic.
+
+- Created utility graphics functions—drawPolygons, drawCoursePolygon, drawCardButton, drawHoleButton, drawRestartButton—and streamlined redrawing logic in redrawAll.
+
+- Produced and integrated high-resolution hole JPEG assets, optimizing load times and visual fidelity across devices.
