@@ -52,12 +52,30 @@ Here is a video made by my teammate highlighting the gameplay and important char
     - numpy
     - opencv-python
 
-4 **Run thhe Game**
-- python src/main.py
-- 1. Download and connect PhyPhox on your phone.
-- 2. Connect your computer to your phone's hotspot. 
-- 3. On PhyPhox, chose "Acceleration with g", click onthe three dots and click "Enable Remote Access". Type in only the number given in the IP    address box in the game. 
-- 4. Click the play button on the top. 
-- 5. Click space in game and when the loading icon appear, swing with your desired club (Be careful of the wind!)
+## 4. Run the Game
+
+First, start the game binary:
+
+```bash
+python src/main.py
+
+Then follow these steps:
+
+Download and install PhyPhox on your phone.
+
+Connect your computer to your phone’s hotspot.
+
+Set up Remote Access in PhyPhox
+
+Open the Acceleration with g experiment.
+
+Tap the ⋮ menu and choose Enable Remote Access.
+
+Copy only the port number that appears, and paste it into the IP address field in the game.
+
+Click the “Play” button at the top of the game window.
+
+Press Space in the game; when the loading icon appears, swing your phone as your club.
+Be careful of the wind!
 
 # THANKS FOR PLAYING THE GAME!
