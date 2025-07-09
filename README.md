@@ -27,6 +27,8 @@
 
 Here is a video made by my teammate highlighting the gameplay and important characteristics of the game: https://drive.google.com/file/d/1-Jps9EZcox3wfAshlPcyZmjvF6jKSHus/view?usp=sharing
 
+# Setup and Installation
+
 ## Prerequisites
 
 - **Python 3.8+**  
@@ -34,8 +36,6 @@ Here is a video made by my teammate highlighting the gameplay and important char
 - **Git**
 
 ---
-
-## Setup & Installation
 
 1. **Clone the repo**  
    ```bash
