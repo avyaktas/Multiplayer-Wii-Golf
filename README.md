@@ -16,7 +16,7 @@
 
 - Architected and implemented the complete hole-rendering pipeline, mapping OpenCV-generated course contours into CMU Graphics–compatible coordinates for all nine holes.
 
-- Manually designed and optimized each hole outline in GoodNotes (iPad), then imported and cached them via a high-performance getHoleData function.
+- Manually designed and optimized each hole outline, then imported and cached them via a high-performance getHoleData function.
 
 - Engineered the 2D grid–based scorecard system, including total-score and over/under calculations, and drew the interactive podium display.
 
@@ -29,3 +29,7 @@
 - Created utility graphics functions—drawPolygons, drawCoursePolygon, drawCardButton, drawHoleButton, drawRestartButton—and streamlined redrawing logic in redrawAll.
 
 - Produced and integrated high-resolution hole JPEG assets, optimizing load times and visual fidelity across devices.
+
+# Gameplay and Explanation: 
+
+Here is a video made by my teammate highlighting gameplay and iportant characteristics of the game: https://drive.google.com/file/d/1-Jps9EZcox3wfAshlPcyZmjvF6jKSHus/view?usp=sharing
